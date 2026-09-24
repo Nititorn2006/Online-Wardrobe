@@ -1,18 +1,62 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { Palette } from '@/constants/design';
+import { WardrobeProvider, useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const navigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Palette.background,
+    card: Palette.surface,
+    primary: Palette.brand,
+    text: Palette.ink,
+    border: Palette.border,
+  },
+};
+
+function Navigation() {
+  const { isHydrated } = useWardrobe();
+
+  useEffect(() => {
+    if (isHydrated) {
+      void SplashScreen.hideAsync();
+    }
+  }, [isHydrated]);
+
+  if (!isHydrated) return null;
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+    <ThemeProvider value={navigationTheme}>
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: Palette.background },
+        }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="add-clothes"
+          options={{ animation: 'slide_from_bottom', presentation: 'fullScreenModal' }}
+        />
+        <Stack.Screen
+          name="clothes"
+          options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+        />
+      </Stack>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <WardrobeProvider>
+      <Navigation />
+    </WardrobeProvider>
   );
 }

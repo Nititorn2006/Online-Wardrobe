@@ -1,39 +1,44 @@
 {
   "expo": {
-    "name": "matchclothes",
-    "slug": "matchclothes",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "matchclothes",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
+    "name": "ONLINEWARDROBE",
+    "slug": "onlinewardrobe",
+    "icon": "./assets/images/online-wardrobe.png",
+
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/online-wardrobe.png",
+        "backgroundColor": "#4338B8"
       },
       "predictiveBackGestureEnabled": false
     },
+
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/online-wardrobe.png"
     },
+
     "plugins": [
       "expo-router",
+
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F7F5F1",
+          "image": "./assets/images/online-wardrobe.png",
+          "imageWidth": 112
+        }
+      ],
+
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow ONLINEWARDROBE to access your photos so you can add clothing items to your online wardrobe.",
+          "cameraPermission": "Allow ONLINEWARDROBE to use your camera so you can photograph clothing items for your online wardrobe.",
+          "microphonePermission": false
         }
       ]
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
