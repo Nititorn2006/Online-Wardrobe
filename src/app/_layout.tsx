@@ -1,17 +1,27 @@
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import {
+  DefaultTheme,
+  Stack,
+  ThemeProvider,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 
 import { Palette } from '@/constants/design';
-import { WardrobeProvider, useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { TextSizeProvider } from '@/features/wardrobe/settings/text-size-provider';
+import {
+  WardrobeProvider,
+  useWardrobe,
+} from '@/features/wardrobe/wardrobe-provider';
 
 void SplashScreen.preventAutoHideAsync();
 
 const navigationTheme = {
   ...DefaultTheme,
+
   colors: {
     ...DefaultTheme.colors,
+
     background: Palette.background,
     card: Palette.surface,
     primary: Palette.brand,
@@ -29,24 +39,43 @@ function Navigation() {
     }
   }, [isHydrated]);
 
-  if (!isHydrated) return null;
+  if (!isHydrated) {
+    return null;
+  }
 
   return (
     <ThemeProvider value={navigationTheme}>
       <StatusBar style="dark" />
+
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: Palette.background },
-        }}>
+
+          contentStyle: {
+            backgroundColor:
+              Palette.background,
+          },
+        }}
+      >
         <Stack.Screen name="(tabs)" />
+
         <Stack.Screen
           name="add-clothes"
-          options={{ animation: 'slide_from_bottom', presentation: 'fullScreenModal' }}
+          options={{
+            animation:
+              'slide_from_bottom',
+            presentation:
+              'fullScreenModal',
+          }}
         />
+
         <Stack.Screen
           name="clothes"
-          options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+          options={{
+            animation:
+              'slide_from_bottom',
+            presentation: 'modal',
+          }}
         />
       </Stack>
     </ThemeProvider>
@@ -55,8 +84,10 @@ function Navigation() {
 
 export default function RootLayout() {
   return (
-    <WardrobeProvider>
-      <Navigation />
-    </WardrobeProvider>
+    <TextSizeProvider>
+      <WardrobeProvider>
+        <Navigation />
+      </WardrobeProvider>
+    </TextSizeProvider>
   );
 }

@@ -7,11 +7,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
 import { CATEGORIES } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
@@ -29,17 +29,17 @@ export default function ClothingDetailScreen() {
       <View style={styles.screen}>
         <SafeAreaView style={styles.missingSafeArea}>
           <View style={styles.missingMark}>
-            <Text style={styles.missingMarkText}>✓</Text>
+            <AppText style={styles.missingMarkText}>✓</AppText>
           </View>
-          <Text style={styles.missingTitle}>This piece is no longer here</Text>
-          <Text style={styles.missingBody}>
+          <AppText style={styles.missingTitle}>This piece is no longer here</AppText>
+          <AppText style={styles.missingBody}>
             It may have already been removed from your wardrobe.
-          </Text>
+          </AppText>
           <Pressable
             accessibilityRole="button"
             onPress={() => router.back()}
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-            <Text style={styles.primaryButtonText}>Back to my clothes</Text>
+            <AppText style={styles.primaryButtonText}>Back to my clothes</AppText>
           </Pressable>
         </SafeAreaView>
       </View>
@@ -100,9 +100,9 @@ export default function ClothingDetailScreen() {
             hitSlop={8}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}>
-            <Text style={styles.closeIcon}>×</Text>
+            <AppText style={styles.closeIcon}>×</AppText>
           </Pressable>
-          <Text style={styles.topBarTitle}>Clothing details</Text>
+          <AppText style={styles.topBarTitle}>Clothing details</AppText>
           <Pressable
             accessibilityLabel={item.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             accessibilityRole="button"
@@ -118,9 +118,9 @@ export default function ClothingDetailScreen() {
             {isUpdatingFavorite ? (
               <ActivityIndicator color={Palette.coral} size="small" />
             ) : (
-              <Text style={[styles.heart, item.isFavorite && styles.heartSelected]}>
+              <AppText style={[styles.heart, item.isFavorite && styles.heartSelected]}>
                 {item.isFavorite ? '♥' : '♡'}
-              </Text>
+              </AppText>
             )}
           </Pressable>
         </View>
@@ -141,8 +141,8 @@ export default function ClothingDetailScreen() {
           <View style={styles.detailsCard}>
             <View style={styles.titleRow}>
               <View style={styles.detailTitleCopy}>
-                <Text style={styles.category}>{categoryLabel}</Text>
-                <Text style={styles.name}>{item.name}</Text>
+                <AppText style={styles.category}>{categoryLabel}</AppText>
+                <AppText style={styles.name}>{item.name}</AppText>
               </View>
               <View accessibilityLabel={`Color ${item.color}`} style={styles.colorBadge}>
                 <View style={[styles.colorSwatch, { backgroundColor: item.color }]} />
@@ -151,18 +151,18 @@ export default function ClothingDetailScreen() {
 
             <View style={styles.metaList}>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Category</Text>
-                <Text style={styles.metaValue}>{categoryLabel}</Text>
+                <AppText style={styles.metaLabel}>Category</AppText>
+                <AppText style={styles.metaValue}>{categoryLabel}</AppText>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Added</Text>
-                <Text style={styles.metaValue}>{createdDate}</Text>
+                <AppText style={styles.metaLabel}>Added</AppText>
+                <AppText style={styles.metaValue}>{createdDate}</AppText>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Favorite</Text>
-                <Text style={styles.metaValue}>{item.isFavorite ? 'Yes' : 'Not yet'}</Text>
+                <AppText style={styles.metaLabel}>Favorite</AppText>
+                <AppText style={styles.metaValue}>{item.isFavorite ? 'Yes' : 'Not yet'}</AppText>
               </View>
             </View>
 
@@ -176,20 +176,20 @@ export default function ClothingDetailScreen() {
                 item.isFavorite && styles.favoriteButtonSelected,
                 pressed && styles.pressed,
               ]}>
-              <Text
+              <AppText
                 style={[
                   styles.favoriteButtonIcon,
                   item.isFavorite && styles.favoriteButtonTextSelected,
                 ]}>
                 {item.isFavorite ? '♥' : '♡'}
-              </Text>
-              <Text
+              </AppText>
+              <AppText
                 style={[
                   styles.favoriteButtonText,
                   item.isFavorite && styles.favoriteButtonTextSelected,
                 ]}>
                 {item.isFavorite ? 'Saved to favorites' : 'Add to favorites'}
-              </Text>
+              </AppText>
             </Pressable>
           </View>
 
@@ -203,8 +203,8 @@ export default function ClothingDetailScreen() {
               <ActivityIndicator color={Palette.danger} />
             ) : (
               <>
-                <Text style={styles.deleteIcon}>⌫</Text>
-                <Text style={styles.deleteText}>Remove from closet</Text>
+                <AppText style={styles.deleteIcon}>⌫</AppText>
+                <AppText style={styles.deleteText}>Remove from closet</AppText>
               </>
             )}
           </Pressable>

@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText } from '@/components/app-text';
 import type { ClothingItem } from '@/features/wardrobe/types';
 
 const CATEGORY_LABELS: Record<ClothingItem['category'], string> = {
@@ -42,16 +43,16 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
         </View>
 
         <View style={styles.details}>
-          <Text numberOfLines={1} style={styles.name}>
+          <AppText numberOfLines={1} style={styles.name}>
             {item.name}
-          </Text>
+          </AppText>
           <View style={styles.metaRow}>
             <View accessibilityLabel={`Color: ${item.color}`} style={styles.colorDotWrap}>
               <View style={[styles.colorDot, { backgroundColor: item.color }]} />
             </View>
-            <Text numberOfLines={1} style={styles.category}>
+            <AppText numberOfLines={1} style={styles.category}>
               {CATEGORY_LABELS[item.category]}
-            </Text>
+            </AppText>
           </View>
         </View>
       </Pressable>
@@ -63,11 +64,11 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
         hitSlop={4}
         onPress={onToggleFavorite}
         style={({ pressed }) => [styles.favoriteButton, pressed && styles.favoritePressed]}>
-        <Text
+        <AppText
           importantForAccessibility="no"
           style={[styles.heart, item.isFavorite && styles.heartSelected]}>
           {item.isFavorite ? '\u2665' : '\u2661'}
-        </Text>
+        </AppText>
       </Pressable>
     </View>
   );

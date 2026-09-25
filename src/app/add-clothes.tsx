@@ -10,8 +10,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import {
@@ -19,6 +17,10 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import {
+  AppText,
+  AppTextInput,
+} from '@/components/app-text';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 import {
   CATEGORIES,
@@ -442,13 +444,13 @@ export default function AddClothesScreen() {
               styles.noPointerEvents,
             ]}
           >
-            <Text style={styles.headerEyebrow}>
+            <AppText style={styles.headerEyebrow}>
               MY CLOTHES
-            </Text>
+            </AppText>
 
-            <Text style={styles.headerTitle}>
+            <AppText style={styles.headerTitle}>
               Add a piece
-            </Text>
+            </AppText>
           </View>
 
           <View
@@ -509,13 +511,13 @@ export default function AddClothesScreen() {
                   >
                     <CloseIcon />
 
-                    <Text
+                    <AppText
                       style={
                         styles.removePhotoText
                       }
                     >
                       Remove
-                    </Text>
+                    </AppText>
                   </Pressable>
                 </>
               ) : (
@@ -532,18 +534,18 @@ export default function AddClothesScreen() {
                     <CameraIcon />
                   </View>
 
-                  <Text
+                  <AppText
                     style={styles.photoTitle}
                   >
                     Show us the piece
-                  </Text>
+                  </AppText>
 
-                  <Text
+                  <AppText
                     style={styles.photoHint}
                   >
                     A clear photo on a plain
                     background works best.
-                  </Text>
+                  </AppText>
                 </View>
               )}
 
@@ -558,13 +560,13 @@ export default function AddClothesScreen() {
                     size="large"
                   />
 
-                  <Text
+                  <AppText
                     style={
                       styles.loadingText
                     }
                   >
                     Opening photos…
-                  </Text>
+                  </AppText>
                 </View>
               )}
             </View>
@@ -590,13 +592,13 @@ export default function AddClothesScreen() {
               >
                 <CameraIcon light />
 
-                <Text
+                <AppText
                   style={
                     styles.photoActionPrimaryText
                   }
                 >
                   Take photo
-                </Text>
+                </AppText>
               </Pressable>
 
               <Pressable
@@ -617,45 +619,45 @@ export default function AddClothesScreen() {
               >
                 <GalleryIcon />
 
-                <Text
+                <AppText
                   style={
                     styles.photoActionSecondaryText
                   }
                 >
                   Photo library
-                </Text>
+                </AppText>
               </Pressable>
             </View>
 
             <View
               style={styles.formSection}
             >
-              <Text
+              <AppText
                 style={
                   styles.sectionKicker
                 }
               >
                 THE DETAILS
-              </Text>
+              </AppText>
 
-              <Text
+              <AppText
                 style={
                   styles.sectionTitle
                 }
               >
                 Make it easy to find later
-              </Text>
+              </AppText>
 
               <View
                 style={styles.fieldGroup}
               >
-                <Text
+                <AppText
                   style={styles.fieldLabel}
                 >
                   Name
-                </Text>
+                </AppText>
 
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="Clothing name"
                   autoCapitalize="sentences"
                   enterKeyHint="done"
@@ -675,11 +677,11 @@ export default function AddClothesScreen() {
               <View
                 style={styles.fieldGroup}
               >
-                <Text
+                <AppText
                   style={styles.fieldLabel}
                 >
                   Category
-                </Text>
+                </AppText>
 
                 <View
                   style={styles.chipRow}
@@ -716,7 +718,7 @@ export default function AddClothesScreen() {
                               styles.buttonPressed,
                           ]}
                         >
-                          <Text
+                          <AppText
                             style={[
                               styles.categoryChipText,
                               isSelected &&
@@ -724,7 +726,7 @@ export default function AddClothesScreen() {
                             ]}
                           >
                             {option.label}
-                          </Text>
+                          </AppText>
                         </Pressable>
                       );
                     },
@@ -735,11 +737,11 @@ export default function AddClothesScreen() {
               <View
                 style={styles.fieldGroup}
               >
-                <Text
+                <AppText
                   style={styles.fieldLabel}
                 >
                   Main color
-                </Text>
+                </AppText>
 
                 <View
                   style={styles.colorGrid}
@@ -789,7 +791,7 @@ export default function AddClothesScreen() {
                             ]}
                           >
                             {isSelected && (
-                              <Text
+                              <AppText
                                 style={[
                                   styles.colorCheck,
                                   option.darkCheck &&
@@ -797,18 +799,18 @@ export default function AddClothesScreen() {
                                 ]}
                               >
                                 ✓
-                              </Text>
+                              </AppText>
                             )}
                           </View>
 
-                          <Text
+                          <AppText
                             numberOfLines={1}
                             style={
                               styles.colorChipText
                             }
                           >
                             {option.name}
-                          </Text>
+                          </AppText>
                         </Pressable>
                       );
                     },
@@ -842,23 +844,23 @@ export default function AddClothesScreen() {
                       ]}
                     >
                       {!isCustomColorValid && (
-                        <Text
+                        <AppText
                           style={
                             styles.otherColorPlus
                           }
                         >
                           +
-                        </Text>
+                        </AppText>
                       )}
                     </View>
 
-                    <Text
+                    <AppText
                       style={
                         styles.colorChipText
                       }
                     >
                       Other
-                    </Text>
+                    </AppText>
                   </Pressable>
                 </View>
 
@@ -868,20 +870,20 @@ export default function AddClothesScreen() {
                       styles.customColorSection
                     }
                   >
-                    <Text
+                    <AppText
                       style={
                         styles.customColorLabel
                       }
                     >
                       Custom HEX
-                    </Text>
+                    </AppText>
 
                     <View
                       style={
                         styles.customColorRow
                       }
                     >
-                      <TextInput
+                      <AppTextInput
                         accessibilityLabel="Custom color HEX value"
                         autoCapitalize="characters"
                         autoCorrect={false}
@@ -929,14 +931,14 @@ export default function AddClothesScreen() {
                     {customColor.length >
                       0 &&
                       !isCustomColorValid && (
-                        <Text
+                        <AppText
                           style={
                             styles.customColorError
                           }
                         >
                           Use 6 HEX digits,
                           for example #FF8800
-                        </Text>
+                        </AppText>
                       )}
                   </View>
                 )}
@@ -975,32 +977,32 @@ export default function AddClothesScreen() {
                 />
               ) : (
                 <>
-                  <Text
+                  <AppText
                     style={
                       styles.saveButtonText
                     }
                   >
                     Save to My Clothes
-                  </Text>
+                  </AppText>
 
-                  <Text
+                  <AppText
                     style={
                       styles.saveArrow
                     }
                   >
                     →
-                  </Text>
+                  </AppText>
                 </>
               )}
             </Pressable>
 
             {saveRequirement && (
-              <Text
+              <AppText
                 accessibilityLiveRegion="polite"
                 style={styles.footerHint}
               >
                 {saveRequirement}
-              </Text>
+              </AppText>
             )}
           </View>
         </View>

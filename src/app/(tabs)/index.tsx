@@ -5,11 +5,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
 import type {
   ClothingCategory,
@@ -201,15 +201,15 @@ export default function HomeScreen() {
                     styles.brandText
                   }
                 >
-                  <Text
+                  <AppText
                     style={
                       styles.brandName
                     }
                   >
                     ONLINEWARDROBE
-                  </Text>
+                  </AppText>
 
-                  <Text
+                  <AppText
                     style={
                       styles.greeting
                     }
@@ -217,7 +217,7 @@ export default function HomeScreen() {
                     Your online wardrobe,
                     always ready for your
                     next look.
-                  </Text>
+                  </AppText>
                 </View>
               </View>
             </View>
@@ -226,17 +226,17 @@ export default function HomeScreen() {
               <View
                 style={styles.statCard}
               >
-                <Text
+                <AppText
                   style={styles.statValue}
                 >
                   {items.length}
-                </Text>
+                </AppText>
 
-                <Text
+                <AppText
                   style={styles.statLabel}
                 >
                   items in your closet
-                </Text>
+                </AppText>
               </View>
 
               <View
@@ -248,20 +248,20 @@ export default function HomeScreen() {
               <View
                 style={styles.statCard}
               >
-                <Text
+                <AppText
                   style={[
                     styles.statValue,
                     styles.favoriteValue,
                   ]}
                 >
                   {favoriteCount}
-                </Text>
+                </AppText>
 
-                <Text
+                <AppText
                   style={styles.statLabel}
                 >
                   saved favorites
-                </Text>
+                </AppText>
               </View>
             </View>
 
@@ -275,21 +275,21 @@ export default function HomeScreen() {
                   }
                 >
                   <View>
-                    <Text
+                    <AppText
                       style={
                         styles.sectionEyebrow
                       }
                     >
                       QUICK MATCH
-                    </Text>
+                    </AppText>
 
-                    <Text
+                    <AppText
                       style={
                         styles.sectionTitle
                       }
                     >
                       A look from your closet
-                    </Text>
+                    </AppText>
                   </View>
 
                   <Pressable
@@ -309,21 +309,21 @@ export default function HomeScreen() {
                         styles.pressed,
                     ]}
                   >
-                    <Text
+                    <AppText
                       style={
                         styles.shuffleIcon
                       }
                     >
                       ↻
-                    </Text>
+                    </AppText>
 
-                    <Text
+                    <AppText
                       style={
                         styles.shuffleText
                       }
                     >
                       Shuffle
-                    </Text>
+                    </AppText>
                   </Pressable>
                 </View>
 
@@ -369,15 +369,15 @@ export default function HomeScreen() {
                       styles.lookCaption
                     }
                   >
-                    <Text
+                    <AppText
                       style={
                         styles.lookCaptionTitle
                       }
                     >
                       Made from what you own
-                    </Text>
+                    </AppText>
 
-                    <Text
+                    <AppText
                       style={
                         styles.lookCaptionBody
                       }
@@ -385,7 +385,7 @@ export default function HomeScreen() {
                       Tap any piece to view
                       it, or shuffle for
                       another combination.
-                    </Text>
+                    </AppText>
                   </View>
                 </View>
               </View>
@@ -401,21 +401,21 @@ export default function HomeScreen() {
                   }
                 >
                   <View>
-                    <Text
+                    <AppText
                       style={
                         styles.sectionEyebrow
                       }
                     >
                       YOUR CLOSET
-                    </Text>
+                    </AppText>
 
-                    <Text
+                    <AppText
                       style={
                         styles.sectionTitle
                       }
                     >
                       Recently added
-                    </Text>
+                    </AppText>
                   </View>
 
                   <Pressable
@@ -426,11 +426,11 @@ export default function HomeScreen() {
                     }
                     hitSlop={8}
                   >
-                    <Text
+                    <AppText
                       style={styles.seeAll}
                     >
                       See all
-                    </Text>
+                    </AppText>
                   </Pressable>
                 </View>
 
@@ -471,14 +471,14 @@ export default function HomeScreen() {
                           }
                         />
 
-                        <Text
+                        <AppText
                           numberOfLines={1}
                           style={
                             styles.recentName
                           }
                         >
                           {item.name}
-                        </Text>
+                        </AppText>
                       </Pressable>
                     ),
                   )}

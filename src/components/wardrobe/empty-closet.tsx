@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+
+import { AppText } from '@/components/app-text';
 
 export type EmptyClosetProps = {
   title?: string;
@@ -54,22 +56,22 @@ export function EmptyCloset({
         <View style={styles.hangerBar} />
 
         <View style={styles.sparkleLarge}>
-          <Text style={styles.sparkleText}>
+          <AppText style={styles.sparkleText}>
             +
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.sparkleSmall} />
       </View>
 
       <View style={styles.copy}>
-        <Text style={styles.title}>
+        <AppText style={styles.title}>
           {title}
-        </Text>
+        </AppText>
 
-        <Text style={styles.body}>
+        <AppText style={styles.body}>
           {body}
-        </Text>
+        </AppText>
       </View>
 
       {onButtonPress ? (
@@ -82,16 +84,16 @@ export function EmptyCloset({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.buttonText}>
+          <AppText style={styles.buttonText}>
             {buttonLabel}
-          </Text>
+          </AppText>
 
-          <Text
+          <AppText
             importantForAccessibility="no"
             style={styles.buttonArrow}
           >
             +
-          </Text>
+          </AppText>
         </Pressable>
       ) : null}
     </View>

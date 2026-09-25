@@ -6,8 +6,9 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppText } from '@/components/app-text';
 import { Palette, Radius } from '@/constants/design';
 
 export default function AppTabs() {
@@ -21,6 +22,13 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="closet" href="/closet" asChild>
             <TabButton icon="▣">My Clothes</TabButton>
+          </TabTrigger>
+          <TabTrigger
+            name="settings"
+            href="/settings"
+            asChild
+          >
+            <TabButton icon="⚙">Settings</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -42,8 +50,8 @@ export function TabButton({
         isFocused && styles.tabButtonFocused,
         pressed && styles.pressed,
       ]}>
-      <Text style={[styles.tabIcon, isFocused && styles.tabTextFocused]}>{icon}</Text>
-      <Text style={[styles.tabLabel, isFocused && styles.tabTextFocused]}>{children}</Text>
+      <AppText style={[styles.tabIcon, isFocused && styles.tabTextFocused]}>{icon}</AppText>
+      <AppText style={[styles.tabLabel, isFocused && styles.tabTextFocused]}>{children}</AppText>
     </Pressable>
   );
 }
@@ -76,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     width: '100%',
-    maxWidth: 390,
+    maxWidth: 430,
     backgroundColor: Palette.surface,
     borderWidth: 1,
     borderColor: Palette.border,

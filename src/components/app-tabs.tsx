@@ -9,11 +9,11 @@ import {
 import {
   Pressable,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppText } from '@/components/app-text';
 import { Palette } from '@/constants/design';
 
 export default function AppTabs() {
@@ -22,12 +22,12 @@ export default function AppTabs() {
 
   const isHome = pathname === '/';
   const isCloset = pathname.startsWith('/closet');
+  const isSettings = pathname.startsWith('/settings');
 
   return (
     <Tabs style={styles.tabs}>
       <TabSlot style={styles.tabSlot} />
 
-      {/* Bottom Navigation */}
       <View
         style={[
           styles.tabBarContainer,
@@ -47,7 +47,7 @@ export default function AppTabs() {
           >
             <Ionicons
               name={isHome ? 'home' : 'home-outline'}
-              size={28}
+              size={27}
               color={
                 isHome
                   ? Palette.brand
@@ -55,17 +55,18 @@ export default function AppTabs() {
               }
             />
 
-            <Text
+            <AppText
+              numberOfLines={1}
               style={[
                 styles.tabLabel,
                 isHome && styles.tabLabelSelected,
               ]}
             >
               Home
-            </Text>
+            </AppText>
           </TabTrigger>
 
-          {/* ADD CLOTHES */}
+          {/* ADD */}
           <Pressable
             accessibilityLabel="Add clothes"
             accessibilityRole="button"
@@ -83,9 +84,12 @@ export default function AppTabs() {
               />
             </View>
 
-            <Text style={styles.addLabel}>
+            <AppText
+              numberOfLines={1}
+              style={styles.addLabel}
+            >
               Add
-            </Text>
+            </AppText>
           </Pressable>
 
           {/* MY CLOTHES */}
@@ -102,7 +106,7 @@ export default function AppTabs() {
                   ? 'shirt'
                   : 'shirt-outline'
               }
-              size={28}
+              size={27}
               color={
                 isCloset
                   ? Palette.brand
@@ -110,7 +114,8 @@ export default function AppTabs() {
               }
             />
 
-            <Text
+            <AppText
+              numberOfLines={1}
               style={[
                 styles.tabLabel,
                 isCloset &&
@@ -118,15 +123,45 @@ export default function AppTabs() {
               ]}
             >
               My Clothes
-            </Text>
+            </AppText>
+          </TabTrigger>
+
+          {/* SETTINGS */}
+          <TabTrigger
+            name="settings"
+            style={[
+              styles.tabButton,
+              isSettings && styles.tabButtonSelected,
+            ]}
+          >
+            <Ionicons
+              name={
+                isSettings
+                  ? 'settings'
+                  : 'settings-outline'
+              }
+              size={27}
+              color={
+                isSettings
+                  ? Palette.brand
+                  : Palette.ink
+              }
+            />
+
+            <AppText
+              numberOfLines={1}
+              style={[
+                styles.tabLabel,
+                isSettings &&
+                  styles.tabLabelSelected,
+              ]}
+            >
+              Settings
+            </AppText>
           </TabTrigger>
         </View>
       </View>
 
-      {/*
-        Hidden route definitions.
-        These tell Expo Router which screens are real tabs.
-      */}
       <TabList style={styles.hiddenTabList}>
         <TabTrigger
           name="home"
@@ -136,6 +171,11 @@ export default function AppTabs() {
         <TabTrigger
           name="closet"
           href="/closet"
+        />
+
+        <TabTrigger
+          name="settings"
+          href="/settings"
         />
       </TabList>
     </Tabs>
@@ -160,18 +200,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 14,
   },
 
   tabBar: {
     width: '100%',
-    maxWidth: 390,
+    maxWidth: 430,
     height: 78,
 
     flexDirection: 'row',
     alignItems: 'center',
 
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 7,
 
     borderRadius: 39,

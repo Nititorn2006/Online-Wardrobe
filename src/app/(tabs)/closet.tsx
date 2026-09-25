@@ -5,12 +5,14 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  AppText,
+  AppTextInput,
+} from '@/components/app-text';
 import { ClothingCard } from '@/components/wardrobe/clothing-card';
 import { EmptyCloset } from '@/components/wardrobe/empty-closet';
 import { Layout, Palette, Radius } from '@/constants/design';
@@ -96,33 +98,33 @@ export default function ClosetScreen() {
             <View style={styles.headerContent}>
               <View style={styles.titleRow}>
                 <View style={styles.titleCopy}>
-                  <Text style={styles.eyebrow}>
+                  <AppText style={styles.eyebrow}>
                     YOUR WARDROBE
-                  </Text>
+                  </AppText>
 
-                  <Text style={styles.title}>
+                  <AppText style={styles.title}>
                     My Clothes
-                  </Text>
+                  </AppText>
 
-                  <Text style={styles.subtitle}>
+                  <AppText style={styles.subtitle}>
                     {items.length}{' '}
                     {items.length === 1
                       ? 'piece'
                       : 'pieces'}{' '}
                     ready to style
-                  </Text>
+                  </AppText>
                 </View>
               </View>
 
               <View style={styles.searchBox}>
-                <Text
+                <AppText
                   importantForAccessibility="no"
                   style={styles.searchIcon}
                 >
                   ⌕
-                </Text>
+                </AppText>
 
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="Search your clothes"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -141,9 +143,9 @@ export default function ClosetScreen() {
                     onPress={() => setQuery('')}
                     style={styles.clearButton}
                   >
-                    <Text style={styles.clearText}>
+                    <AppText style={styles.clearText}>
                       ×
-                    </Text>
+                    </AppText>
                   </Pressable>
                 )}
               </View>
@@ -178,34 +180,36 @@ export default function ClosetScreen() {
                   styles.categoryRow
                 }
               >
-                <CategoryChip
-                  isSelected={category === 'all'}
-                  label="All"
-                  onPress={() => setCategory('all')}
-                />
-
-                {CATEGORIES.map((option) => (
+                {[
                   <CategoryChip
-                    key={option.value}
-                    isSelected={
-                      category === option.value
-                    }
-                    label={option.label}
-                    onPress={() =>
-                      setCategory(option.value)
-                    }
-                  />
-                ))}
+                    key="all"
+                    isSelected={category === 'all'}
+                    label="All"
+                    onPress={() => setCategory('all')}
+                  />,
+                  ...CATEGORIES.map((option) => (
+                    <CategoryChip
+                      key={option.value}
+                      isSelected={
+                        category === option.value
+                      }
+                      label={option.label}
+                      onPress={() =>
+                        setCategory(option.value)
+                      }
+                    />
+                  )),
+                ]}
               </ScrollView>
 
               {filteredItems.length > 0 && (
                 <View style={styles.resultsRow}>
-                  <Text style={styles.resultsLabel}>
+                  <AppText style={styles.resultsLabel}>
                     {filteredItems.length}{' '}
                     {filteredItems.length === 1
                       ? 'item'
                       : 'items'}
-                  </Text>
+                  </AppText>
 
                   {(collection !== 'all' ||
                     category !== 'all' ||
@@ -218,11 +222,11 @@ export default function ClosetScreen() {
                         setQuery('');
                       }}
                     >
-                      <Text
+                      <AppText
                         style={styles.resetText}
                       >
                         Reset filters
-                      </Text>
+                      </AppText>
                     </Pressable>
                   )}
                 </View>
@@ -262,13 +266,13 @@ export default function ClosetScreen() {
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Text
+                  <AppText
                     style={
                       styles.resetButtonText
                     }
                   >
                     Clear filters
-                  </Text>
+                  </AppText>
                 </Pressable>
               )}
             </View>
@@ -314,7 +318,7 @@ function CollectionTab({
         pressed && styles.pressed,
       ]}
     >
-      <Text
+      <AppText
         style={[
           styles.segmentText,
           isSelected &&
@@ -322,7 +326,7 @@ function CollectionTab({
         ]}
       >
         {label}
-      </Text>
+      </AppText>
     </Pressable>
   );
 }
@@ -350,7 +354,7 @@ function CategoryChip({
         pressed && styles.pressed,
       ]}
     >
-      <Text
+      <AppText
         style={[
           styles.categoryText,
           isSelected &&
@@ -358,7 +362,7 @@ function CategoryChip({
         ]}
       >
         {label}
-      </Text>
+      </AppText>
     </Pressable>
   );
 }
