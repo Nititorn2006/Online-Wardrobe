@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, type Href } from 'expo-router';
 import {
   Pressable,
   ScrollView,
@@ -11,126 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
-import type {
-  ClothingCategory,
-  ClothingItem,
-} from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
-
-const outfitCategories: ClothingCategory[] = [
-  'tops',
-  'dresses',
-  'outerwear',
-  'bottoms',
-  'shoes',
-  'accessories',
-];
-
-function pickFrom(
-  items: ClothingItem[],
-  category: ClothingCategory,
-  seed: number,
-) {
-  const matches = items.filter(
-    (item) => item.category === category,
-  );
-
-  return matches.length
-    ? matches[seed % matches.length]
-    : undefined;
-}
-
-function buildQuickLook(
-  items: ClothingItem[],
-  seed: number,
-) {
-  if (items.length < 2) return [];
-
-  const look: ClothingItem[] = [];
-
-  const dress = pickFrom(
-    items,
-    'dresses',
-    seed,
-  );
-
-  const top = pickFrom(
-    items,
-    'tops',
-    seed,
-  );
-
-  const outerwear = pickFrom(
-    items,
-    'outerwear',
-    seed + 1,
-  );
-
-  if (dress) {
-    look.push(dress);
-  } else if (top) {
-    look.push(top);
-  } else if (outerwear) {
-    look.push(outerwear);
-  }
-
-  if (!dress) {
-    const bottom = pickFrom(
-      items,
-      'bottoms',
-      seed + 1,
-    );
-
-    if (bottom) {
-      look.push(bottom);
-    }
-  }
-
-  const shoes = pickFrom(
-    items,
-    'shoes',
-    seed + 2,
-  );
-
-  if (shoes) {
-    look.push(shoes);
-  }
-
-  for (const category of outfitCategories) {
-    if (look.length >= 3) break;
-
-    const candidate = pickFrom(
-      items,
-      category,
-      seed + look.length,
-    );
-
-    if (
-      candidate &&
-      !look.some(
-        (item) =>
-          item.id === candidate.id,
-      )
-    ) {
-      look.push(candidate);
-    }
-  }
-
-  for (const candidate of items) {
-    if (look.length >= 3) break;
-
-    if (
-      !look.some(
-        (item) =>
-          item.id === candidate.id,
-      )
-    ) {
-      look.push(candidate);
-    }
-  }
-
-  return look;
-}
 
 function openItem(id: string) {
   router.push({
@@ -141,9 +21,6 @@ function openItem(id: string) {
 
 export default function HomeScreen() {
   const { items } = useWardrobe();
-
-  const [lookSeed, setLookSeed] =
-    useState(0);
 
   const favoriteCount = items.filter(
     (item) => item.isFavorite,
@@ -160,15 +37,6 @@ export default function HomeScreen() {
         ).getTime(),
     )
     .slice(0, 6);
-
-  const quickLook = useMemo(
-    () =>
-      buildQuickLook(
-        items,
-        lookSeed,
-      ),
-    [items, lookSeed],
-  );
 
   return (
     <View style={styles.screen}>
@@ -265,131 +133,42 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {quickLook.length >= 2 && (
-              <View
-                style={styles.section}
-              >
-                <View
-                  style={
-                    styles.sectionHeadingRow
-                  }
-                >
-                  <View>
-                    <AppText
-                      style={
-                        styles.sectionEyebrow
-                      }
-                    >
-                      QUICK MATCH
-                    </AppText>
-
-                    <AppText
-                      style={
-                        styles.sectionTitle
-                      }
-                    >
-                      A look from your closet
-                    </AppText>
-                  </View>
-
-                  <Pressable
-                    accessibilityLabel="Shuffle outfit"
-                    accessibilityRole="button"
-                    onPress={() =>
-                      setLookSeed(
-                        (value) =>
-                          value + 1,
-                      )
-                    }
-                    style={({
-                      pressed,
-                    }) => [
-                      styles.shuffleButton,
-                      pressed &&
-                        styles.pressed,
-                    ]}
-                  >
-                    <AppText
-                      style={
-                        styles.shuffleIcon
-                      }
-                    >
-                      ↻
-                    </AppText>
-
-                    <AppText
-                      style={
-                        styles.shuffleText
-                      }
-                    >
-                      Shuffle
-                    </AppText>
-                  </Pressable>
-                </View>
-
-                <View
-                  style={styles.lookCard}
-                >
-                  {quickLook.map(
-                    (item, index) => (
-                      <Pressable
-                        key={item.id}
-                        accessibilityLabel={`Open ${item.name}`}
-                        accessibilityRole="button"
-                        onPress={() =>
-                          openItem(
-                            item.id,
-                          )
-                        }
-                        style={({
-                          pressed,
-                        }) => [
-                          styles.lookItem,
-                          index > 0 &&
-                            styles.lookItemOverlap,
-                          pressed &&
-                            styles.pressed,
-                        ]}
-                      >
-                        <Image
-                          source={{
-                            uri: item.imageUri,
-                          }}
-                          style={
-                            styles.lookImage
-                          }
-                          contentFit="cover"
-                        />
-                      </Pressable>
-                    ),
-                  )}
-
-                  <View
-                    style={
-                      styles.lookCaption
-                    }
-                  >
-                    <AppText
-                      style={
-                        styles.lookCaptionTitle
-                      }
-                    >
-                      Made from what you own
-                    </AppText>
-
-                    <AppText
-                      style={
-                        styles.lookCaptionBody
-                      }
-                    >
-                      Tap any piece to view
-                      it, or shuffle for
-                      another combination.
-                    </AppText>
-                  </View>
-                </View>
+            <Pressable
+              accessibilityHint="Choose an occasion, dress code, and date"
+              accessibilityLabel="Plan an outfit"
+              accessibilityRole="button"
+              onPress={() =>
+                router.push(
+                  '/recommend-outfit' as Href,
+                )
+              }
+              style={({ pressed }) => [
+                styles.plannerCard,
+                pressed && styles.pressed,
+              ]}
+            >
+              <View style={styles.plannerIcon}>
+                <AppText style={styles.plannerIconText}>
+                  ✦
+                </AppText>
               </View>
-            )}
+
+              <View style={styles.plannerCopy}>
+                <AppText style={styles.plannerEyebrow}>
+                  OUTFIT PLANNER
+                </AppText>
+                <AppText style={styles.plannerTitle}>
+                  Plan your next look
+                </AppText>
+                <AppText style={styles.plannerBody}>
+                  Choose an occasion, dress code, and date to get a look from your closet.
+                </AppText>
+              </View>
+
+              <View style={styles.plannerArrow}>
+                <AppText style={styles.plannerArrowText}>→</AppText>
+              </View>
+            </Pressable>
 
             {recentItems.length > 0 && (
               <View
@@ -638,80 +417,71 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  shuffleButton: {
-    minHeight: 42,
-    paddingHorizontal: 14,
-    borderRadius: Radius.pill,
-    backgroundColor:
-      Palette.brandSoft,
+  plannerCard: {
+    minHeight: 154,
+    padding: 18,
+    borderRadius: Radius.large,
+    backgroundColor: Palette.brandDark,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 14,
   },
 
-  shuffleIcon: {
-    color: Palette.brand,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-
-  shuffleText: {
-    color: Palette.brand,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-
-  lookCard: {
-    minHeight: 200,
-    padding: 16,
-    borderRadius:
-      Radius.large,
-    backgroundColor:
-      Palette.brandDark,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  plannerIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(255,255,255,0.14)',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  lookItem: {
-    width: 104,
-    aspectRatio: 0.82,
-    borderRadius: 18,
-    overflow: 'hidden',
-    borderWidth: 3,
-    borderColor:
-      Palette.brandDark,
-    backgroundColor:
-      Palette.surface,
-  },
-
-  lookItemOverlap: {
-    marginLeft: -36,
-  },
-
-  lookImage: {
-    width: '100%',
-    height: '100%',
-  },
-
-  lookCaption: {
-    flex: 1,
-    minWidth: 165,
-    paddingLeft: 16,
-    gap: 6,
-  },
-
-  lookCaptionTitle: {
+  plannerIconText: {
     color: Palette.white,
-    fontSize: 17,
+    fontSize: 24,
+  },
+
+  plannerCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+  },
+
+  plannerEyebrow: {
+    color: '#BDB8FF',
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+  },
+
+  plannerTitle: {
+    color: Palette.white,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700',
+  },
+
+  plannerBody: {
+    color: '#D7D4FF',
+    fontSize: 12,
+    lineHeight: 18,
+  },
+
+  plannerArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Palette.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  plannerArrowText: {
+    color: Palette.brand,
+    fontSize: 20,
     lineHeight: 22,
     fontWeight: '700',
-  },
-
-  lookCaptionBody: {
-    color: '#CDE0DD',
-    fontSize: 13,
-    lineHeight: 19,
   },
 
   seeAll: {
