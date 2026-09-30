@@ -13,6 +13,12 @@ const CATEGORY_LABELS: Record<ClothingItem['category'], string> = {
   accessories: 'Accessory',
 };
 
+const FORMALITY_LABELS: Record<ClothingItem['formality'], string> = {
+  casual: 'Casual',
+  'smart-casual': 'Smart casual',
+  formal: 'Formal',
+};
+
 export type ClothingCardProps = {
   item: ClothingItem;
   onPress: () => void;
@@ -51,7 +57,7 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
               <View style={[styles.colorDot, { backgroundColor: item.color }]} />
             </View>
             <AppText numberOfLines={1} style={styles.category}>
-              {CATEGORY_LABELS[item.category]}
+              {CATEGORY_LABELS[item.category]} · {FORMALITY_LABELS[item.formality]}
             </AppText>
           </View>
         </View>

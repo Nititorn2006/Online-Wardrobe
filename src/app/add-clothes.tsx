@@ -24,7 +24,9 @@ import {
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 import {
   CATEGORIES,
+  FORMALITY_LEVELS,
   type ClothingCategory,
+  type ClothingFormality,
 } from '@/features/wardrobe/types';
 
 const palette = {
@@ -167,6 +169,11 @@ export default function AddClothesScreen() {
       CATEGORIES[0].value,
     );
 
+  const [formality, setFormality] =
+    useState<ClothingFormality>(
+      FORMALITY_LEVELS[0].value,
+    );
+
   const [color, setColor] = useState<string>(
     COLOR_OPTIONS[0].name,
   );
@@ -201,6 +208,7 @@ export default function AddClothesScreen() {
         customColor.trim(),
     ) ||
     category !== CATEGORIES[0].value ||
+    formality !== FORMALITY_LEVELS[0].value ||
     color !== COLOR_OPTIONS[0].name;
 
   const closeScreen = () => {
@@ -382,6 +390,7 @@ export default function AddClothesScreen() {
       await addItem({
         name: trimmedName,
         category,
+        formality,
         color: finalColor,
         sourceUri,
       });
@@ -732,6 +741,78 @@ export default function AddClothesScreen() {
                     },
                   )}
                 </View>
+              </View>
+
+              <View
+                style={styles.fieldGroup}
+              >
+                <AppText
+                  style={styles.fieldLabel}
+                >
+                  Dress code
+                </AppText>
+
+                <View
+                  style={styles.chipRow}
+                >
+                  {FORMALITY_LEVELS.map(
+                    (option) => {
+                      const isSelected =
+                        option.value ===
+                        formality;
+
+                      return (
+                        <Pressable
+                          accessibilityLabel={`${option.label} dress code`}
+                          accessibilityRole="button"
+                          accessibilityState={{
+                            selected:
+                              isSelected,
+                          }}
+                          key={
+                            option.value
+                          }
+                          onPress={() =>
+                            setFormality(
+                              option.value,
+                            )
+                          }
+                          style={({
+                            pressed,
+                          }) => [
+                            styles.categoryChip,
+                            isSelected &&
+                              styles.categoryChipSelected,
+                            pressed &&
+                              styles.buttonPressed,
+                          ]}
+                        >
+                          <AppText
+                            style={[
+                              styles.categoryChipText,
+                              isSelected &&
+                                styles.categoryChipTextSelected,
+                            ]}
+                          >
+                            {option.label}
+                          </AppText>
+                        </Pressable>
+                      );
+                    },
+                  )}
+                </View>
+
+                <AppText
+                  style={styles.fieldHint}
+                >
+                  {
+                    FORMALITY_LEVELS.find(
+                      (option) =>
+                        option.value ===
+                        formality,
+                    )?.description
+                  }
+                </AppText>
               </View>
 
               <View
@@ -1397,6 +1478,13 @@ const styles = StyleSheet.create({
     color: palette.ink,
     fontSize: 14,
     fontWeight: '700',
+  },
+
+  fieldHint: {
+    marginTop: 9,
+    color: palette.muted,
+    fontSize: 12,
+    lineHeight: 18,
   },
 
   nameInput: {

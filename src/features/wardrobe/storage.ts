@@ -1,33 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { isClothingCategory, type ClothingItem } from './types';
+import { normalizeClothingItem } from './item-schema';
+import type { ClothingItem } from './types';
 
 export const WARDROBE_STORAGE_KEY = '@matchclothes/wardrobe:v1';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function isClothingItem(value: unknown): value is ClothingItem {
-  if (!isRecord(value)) {
-    return false;
-  }
-
-  return (
-    typeof value.id === 'string' &&
-    value.id.length > 0 &&
-    typeof value.name === 'string' &&
-    value.name.length > 0 &&
-    isClothingCategory(value.category) &&
-    typeof value.color === 'string' &&
-    value.color.length > 0 &&
-    typeof value.imageUri === 'string' &&
-    value.imageUri.length > 0 &&
-    typeof value.isFavorite === 'boolean' &&
-    typeof value.createdAt === 'string' &&
-    !Number.isNaN(Date.parse(value.createdAt))
-  );
-}
 
 function storageError(message: string, cause: unknown): Error {
   const error = new Error(message);
@@ -51,11 +27,17 @@ export async function loadWardrobeItems(): Promise<ClothingItem[]> {
   try {
     const parsedValue: unknown = JSON.parse(storedValue);
 
-    if (!Array.isArray(parsedValue) || !parsedValue.every(isClothingItem)) {
+    if (!Array.isArray(parsedValue)) {
       throw new Error('The saved wardrobe has an unsupported format.');
     }
 
-    return parsedValue;
+    const normalizedItems = parsedValue.map(normalizeClothingItem);
+
+    if (normalizedItems.some((item) => item === null)) {
+      throw new Error('The saved wardrobe has an unsupported format.');
+    }
+
+    return normalizedItems as ClothingItem[];
   } catch (error) {
     throw storageError('Could not read your saved wardrobe data.', error);
   }

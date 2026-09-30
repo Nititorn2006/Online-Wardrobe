@@ -18,7 +18,9 @@ import { EmptyCloset } from '@/components/wardrobe/empty-closet';
 import { Layout, Palette, Radius } from '@/constants/design';
 import {
   CATEGORIES,
+  FORMALITY_LEVELS,
   type ClothingCategory,
+  type ClothingFormality,
   type ClothingItem,
 } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
@@ -33,6 +35,9 @@ export default function ClosetScreen() {
 
   const [category, setCategory] =
     useState<ClothingCategory | 'all'>('all');
+
+  const [formality, setFormality] =
+    useState<ClothingFormality | 'all'>('all');
 
   const [query, setQuery] = useState('');
 
@@ -53,6 +58,11 @@ export default function ClosetScreen() {
       )
       .filter(
         (item) =>
+          formality === 'all' ||
+          item.formality === formality,
+      )
+      .filter(
+        (item) =>
           !normalizedQuery ||
           item.name
             .toLocaleLowerCase()
@@ -63,7 +73,7 @@ export default function ClosetScreen() {
           new Date(b.createdAt).getTime() -
           new Date(a.createdAt).getTime(),
       );
-  }, [category, collection, items, query]);
+  }, [category, collection, formality, items, query]);
 
   const emptyCopy = getEmptyCopy({
     hasItems: items.length > 0,
@@ -202,6 +212,41 @@ export default function ClosetScreen() {
                 ]}
               </ScrollView>
 
+              <View style={styles.filterGroup}>
+                <AppText style={styles.filterLabel}>
+                  DRESS CODE
+                </AppText>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={
+                    styles.categoryRow
+                  }
+                >
+                  {[
+                    <CategoryChip
+                      key="all-formality"
+                      isSelected={formality === 'all'}
+                      label="All"
+                      onPress={() => setFormality('all')}
+                    />,
+                    ...FORMALITY_LEVELS.map((option) => (
+                      <CategoryChip
+                        key={option.value}
+                        isSelected={
+                          formality === option.value
+                        }
+                        label={option.label}
+                        onPress={() =>
+                          setFormality(option.value)
+                        }
+                      />
+                    )),
+                  ]}
+                </ScrollView>
+              </View>
+
               {filteredItems.length > 0 && (
                 <View style={styles.resultsRow}>
                   <AppText style={styles.resultsLabel}>
@@ -213,12 +258,14 @@ export default function ClosetScreen() {
 
                   {(collection !== 'all' ||
                     category !== 'all' ||
+                    formality !== 'all' ||
                     query) && (
                     <Pressable
                       hitSlop={8}
                       onPress={() => {
                         setCollection('all');
                         setCategory('all');
+                        setFormality('all');
                         setQuery('');
                       }}
                     >
@@ -259,6 +306,7 @@ export default function ClosetScreen() {
                   onPress={() => {
                     setCollection('all');
                     setCategory('all');
+                    setFormality('all');
                     setQuery('');
                   }}
                   style={({ pressed }) => [
@@ -558,6 +606,18 @@ const styles = StyleSheet.create({
   categoryRow: {
     gap: 8,
     paddingRight: 4,
+  },
+
+  filterGroup: {
+    gap: 7,
+  },
+
+  filterLabel: {
+    color: Palette.muted,
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
 
   categoryChip: {

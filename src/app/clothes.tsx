@@ -13,15 +13,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
-import { CATEGORIES } from '@/features/wardrobe/types';
+import {
+  CATEGORIES,
+  FORMALITY_LEVELS,
+  type ClothingCategory,
+  type ClothingFormality,
+} from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 
 export default function ClothingDetailScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { items, toggleFavorite, deleteItem } = useWardrobe();
+  const {
+    items,
+    toggleFavorite,
+    deleteItem,
+    updateItemClassification,
+  } = useWardrobe();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
+  const [isEditingClassification, setIsEditingClassification] = useState(false);
+  const [isSavingClassification, setIsSavingClassification] = useState(false);
+  const [draftCategory, setDraftCategory] = useState<ClothingCategory>('tops');
+  const [draftFormality, setDraftFormality] = useState<ClothingFormality>('casual');
   const item = items.find((candidate) => candidate.id === id);
 
   if (!item) {
@@ -47,6 +61,9 @@ export default function ClothingDetailScreen() {
   }
 
   const categoryLabel = CATEGORIES.find((category) => category.value === item.category)?.label;
+  const formalityLabel = FORMALITY_LEVELS.find(
+    (level) => level.value === item.formality,
+  )?.label;
   const createdDate = new Intl.DateTimeFormat(undefined, {
     day: 'numeric',
     month: 'long',
@@ -61,6 +78,28 @@ export default function ClothingDetailScreen() {
       Alert.alert('Couldn’t update favorite', getErrorMessage(error));
     } finally {
       setIsUpdatingFavorite(false);
+    }
+  };
+
+  const startEditingClassification = () => {
+    setDraftCategory(item.category);
+    setDraftFormality(item.formality);
+    setIsEditingClassification(true);
+  };
+
+  const saveClassification = async () => {
+    setIsSavingClassification(true);
+
+    try {
+      await updateItemClassification(item.id, {
+        category: draftCategory,
+        formality: draftFormality,
+      });
+      setIsEditingClassification(false);
+    } catch (error) {
+      Alert.alert('Couldn’t update classification', getErrorMessage(error));
+    } finally {
+      setIsSavingClassification(false);
     }
   };
 
@@ -156,6 +195,11 @@ export default function ClothingDetailScreen() {
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
+                <AppText style={styles.metaLabel}>Dress code</AppText>
+                <AppText style={styles.metaValue}>{formalityLabel}</AppText>
+              </View>
+              <View style={styles.metaDivider} />
+              <View style={styles.metaRow}>
                 <AppText style={styles.metaLabel}>Added</AppText>
                 <AppText style={styles.metaValue}>{createdDate}</AppText>
               </View>
@@ -165,6 +209,81 @@ export default function ClothingDetailScreen() {
                 <AppText style={styles.metaValue}>{item.isFavorite ? 'Yes' : 'Not yet'}</AppText>
               </View>
             </View>
+
+            {isEditingClassification ? (
+              <View style={styles.classificationEditor}>
+                <View style={styles.editorGroup}>
+                  <AppText style={styles.editorLabel}>Category</AppText>
+                  <View style={styles.chipRow}>
+                    {CATEGORIES.map((option) => (
+                      <ClassificationChip
+                        isSelected={draftCategory === option.value}
+                        key={option.value}
+                        label={option.label}
+                        onPress={() => setDraftCategory(option.value)}
+                      />
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.editorGroup}>
+                  <AppText style={styles.editorLabel}>Dress code</AppText>
+                  <View style={styles.chipRow}>
+                    {FORMALITY_LEVELS.map((option) => (
+                      <ClassificationChip
+                        isSelected={draftFormality === option.value}
+                        key={option.value}
+                        label={option.label}
+                        onPress={() => setDraftFormality(option.value)}
+                      />
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.editorActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={isSavingClassification}
+                    onPress={() => setIsEditingClassification(false)}
+                    style={({ pressed }) => [
+                      styles.editorButton,
+                      styles.editorCancelButton,
+                      pressed && styles.pressed,
+                    ]}>
+                    <AppText style={styles.editorCancelText}>Cancel</AppText>
+                  </Pressable>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ busy: isSavingClassification }}
+                    disabled={isSavingClassification}
+                    onPress={() => void saveClassification()}
+                    style={({ pressed }) => [
+                      styles.editorButton,
+                      styles.editorSaveButton,
+                      pressed && styles.pressed,
+                    ]}>
+                    {isSavingClassification ? (
+                      <ActivityIndicator color={Palette.white} size="small" />
+                    ) : (
+                      <AppText style={styles.editorSaveText}>Save changes</AppText>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                onPress={startEditingClassification}
+                style={({ pressed }) => [
+                  styles.classificationButton,
+                  pressed && styles.pressed,
+                ]}>
+                <AppText style={styles.classificationButtonText}>
+                  Edit category &amp; dress code
+                </AppText>
+              </Pressable>
+            )}
 
             <Pressable
               accessibilityRole="button"
@@ -211,6 +330,36 @@ export default function ClothingDetailScreen() {
         </ScrollView>
       </SafeAreaView>
     </View>
+  );
+}
+
+function ClassificationChip({
+  isSelected,
+  label,
+  onPress,
+}: {
+  isSelected: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.classificationChip,
+        isSelected && styles.classificationChipSelected,
+        pressed && styles.pressed,
+      ]}>
+      <AppText
+        style={[
+          styles.classificationChipText,
+          isSelected && styles.classificationChipTextSelected,
+        ]}>
+        {label}
+      </AppText>
+    </Pressable>
   );
 }
 
@@ -308,6 +457,53 @@ const styles = StyleSheet.create({
   metaDivider: { height: 1, backgroundColor: Palette.border },
   metaLabel: { color: Palette.muted, fontSize: 13 },
   metaValue: { color: Palette.ink, fontSize: 13, fontWeight: '600', textAlign: 'right' },
+  classificationButton: {
+    minHeight: 48,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.brand,
+  },
+  classificationButtonText: { color: Palette.brand, fontSize: 14, fontWeight: '700' },
+  classificationEditor: {
+    gap: 18,
+    padding: 16,
+    borderRadius: Radius.medium,
+    backgroundColor: Palette.brandSoft,
+  },
+  editorGroup: { gap: 9 },
+  editorLabel: { color: Palette.ink, fontSize: 13, fontWeight: '700' },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  classificationChip: {
+    minHeight: 38,
+    paddingHorizontal: 13,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+  },
+  classificationChipSelected: {
+    backgroundColor: Palette.brand,
+    borderColor: Palette.brand,
+  },
+  classificationChipText: { color: Palette.ink, fontSize: 12, fontWeight: '600' },
+  classificationChipTextSelected: { color: Palette.white },
+  editorActions: { flexDirection: 'row', gap: 8 },
+  editorButton: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editorCancelButton: { backgroundColor: Palette.surface },
+  editorSaveButton: { backgroundColor: Palette.brand },
+  editorCancelText: { color: Palette.ink, fontSize: 13, fontWeight: '700' },
+  editorSaveText: { color: Palette.white, fontSize: 13, fontWeight: '700' },
   favoriteButton: {
     minHeight: 52,
     borderRadius: Radius.pill,

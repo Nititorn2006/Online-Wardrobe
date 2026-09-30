@@ -13,14 +13,20 @@ import { persistWardrobeImage, removeWardrobeImage } from './image-store';
 import { loadWardrobeItems, saveWardrobeItems } from './storage';
 import {
   isClothingCategory,
+  isClothingFormality,
   type AddClothingInput,
   type ClothingItem,
+  type UpdateClothingClassificationInput,
 } from './types';
 
 export type WardrobeContextValue = {
   items: ClothingItem[];
   isHydrated: boolean;
   addItem: (input: AddClothingInput) => Promise<ClothingItem>;
+  updateItemClassification: (
+    id: string,
+    input: UpdateClothingClassificationInput,
+  ) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 };
@@ -42,6 +48,9 @@ function validateInput(input: AddClothingInput): AddClothingInput {
   if (!isClothingCategory(input.category)) {
     throw new Error('Please choose a valid clothing category.');
   }
+  if (!isClothingFormality(input.formality)) {
+    throw new Error('Please choose a valid dress code.');
+  }
   if (!color) {
     throw new Error('Please choose a color for this clothing item.');
   }
@@ -49,7 +58,13 @@ function validateInput(input: AddClothingInput): AddClothingInput {
     throw new Error('Please choose a clothing photo.');
   }
 
-  return { name, category: input.category, color, sourceUri };
+  return {
+    name,
+    category: input.category,
+    formality: input.formality,
+    color,
+    sourceUri,
+  };
 }
 
 export function WardrobeProvider({ children }: PropsWithChildren) {
@@ -114,6 +129,7 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
           id,
           name: validatedInput.name,
           category: validatedInput.category,
+          formality: validatedInput.formality,
           color: validatedInput.color,
           imageUri,
           isFavorite: false,
@@ -135,6 +151,41 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
         itemsRef.current = nextItems;
         setItems(nextItems);
         return item;
+      }),
+    [runMutation],
+  );
+
+  const updateItemClassification = useCallback(
+    (id: string, input: UpdateClothingClassificationInput) =>
+      runMutation(async () => {
+        if (!isHydratedRef.current) {
+          throw new Error('Your wardrobe is still loading. Please try again in a moment.');
+        }
+        if (!isClothingCategory(input.category)) {
+          throw new Error('Please choose a valid clothing category.');
+        }
+        if (!isClothingFormality(input.formality)) {
+          throw new Error('Please choose a valid dress code.');
+        }
+
+        const itemIndex = itemsRef.current.findIndex((item) => item.id === id);
+        if (itemIndex === -1) {
+          throw new Error('This clothing item could not be found.');
+        }
+
+        const nextItems = itemsRef.current.map((item, index) =>
+          index === itemIndex
+            ? {
+                ...item,
+                category: input.category,
+                formality: input.formality,
+              }
+            : item,
+        );
+
+        await saveWardrobeItems(nextItems);
+        itemsRef.current = nextItems;
+        setItems(nextItems);
       }),
     [runMutation],
   );
@@ -190,8 +241,22 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
   );
 
   const value = useMemo<WardrobeContextValue>(
-    () => ({ items, isHydrated, addItem, toggleFavorite, deleteItem }),
-    [addItem, deleteItem, isHydrated, items, toggleFavorite],
+    () => ({
+      items,
+      isHydrated,
+      addItem,
+      updateItemClassification,
+      toggleFavorite,
+      deleteItem,
+    }),
+    [
+      addItem,
+      deleteItem,
+      isHydrated,
+      items,
+      toggleFavorite,
+      updateItemClassification,
+    ],
   );
 
   return <WardrobeContext.Provider value={value}>{children}</WardrobeContext.Provider>;
