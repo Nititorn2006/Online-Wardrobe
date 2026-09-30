@@ -12,7 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
+import { ClothingColorPicker } from '@/components/wardrobe/clothing-color-picker';
 import { Layout, Palette, Radius } from '@/constants/design';
+import { DEFAULT_CLOTHING_COLOR } from '@/features/wardrobe/color-palette';
 import {
   CATEGORIES,
   FORMALITY_LEVELS,
@@ -28,14 +30,15 @@ export default function ClothingDetailScreen() {
     items,
     toggleFavorite,
     deleteItem,
-    updateItemClassification,
+    updateItemDetails,
   } = useWardrobe();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
-  const [isEditingClassification, setIsEditingClassification] = useState(false);
-  const [isSavingClassification, setIsSavingClassification] = useState(false);
+  const [isEditingDetails, setIsEditingDetails] = useState(false);
+  const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [draftCategory, setDraftCategory] = useState<ClothingCategory>('tops');
   const [draftFormality, setDraftFormality] = useState<ClothingFormality>('casual');
+  const [draftColor, setDraftColor] = useState<string>(DEFAULT_CLOTHING_COLOR);
   const item = items.find((candidate) => candidate.id === id);
 
   if (!item) {
@@ -81,25 +84,27 @@ export default function ClothingDetailScreen() {
     }
   };
 
-  const startEditingClassification = () => {
+  const startEditingDetails = () => {
     setDraftCategory(item.category);
     setDraftFormality(item.formality);
-    setIsEditingClassification(true);
+    setDraftColor(item.color);
+    setIsEditingDetails(true);
   };
 
-  const saveClassification = async () => {
-    setIsSavingClassification(true);
+  const saveDetails = async () => {
+    setIsSavingDetails(true);
 
     try {
-      await updateItemClassification(item.id, {
+      await updateItemDetails(item.id, {
         category: draftCategory,
         formality: draftFormality,
+        color: draftColor,
       });
-      setIsEditingClassification(false);
+      setIsEditingDetails(false);
     } catch (error) {
-      Alert.alert('Couldn’t update classification', getErrorMessage(error));
+      Alert.alert('Couldn’t update details', getErrorMessage(error));
     } finally {
-      setIsSavingClassification(false);
+      setIsSavingDetails(false);
     }
   };
 
@@ -210,7 +215,7 @@ export default function ClothingDetailScreen() {
               </View>
             </View>
 
-            {isEditingClassification ? (
+            {isEditingDetails ? (
               <View style={styles.classificationEditor}>
                 <View style={styles.editorGroup}>
                   <AppText style={styles.editorLabel}>Category</AppText>
@@ -240,11 +245,20 @@ export default function ClothingDetailScreen() {
                   </View>
                 </View>
 
+                <View style={styles.editorGroup}>
+                  <AppText style={styles.editorLabel}>Main color</AppText>
+                  <ClothingColorPicker
+                    disabled={isSavingDetails}
+                    onChange={setDraftColor}
+                    value={draftColor}
+                  />
+                </View>
+
                 <View style={styles.editorActions}>
                   <Pressable
                     accessibilityRole="button"
-                    disabled={isSavingClassification}
-                    onPress={() => setIsEditingClassification(false)}
+                    disabled={isSavingDetails}
+                    onPress={() => setIsEditingDetails(false)}
                     style={({ pressed }) => [
                       styles.editorButton,
                       styles.editorCancelButton,
@@ -255,15 +269,15 @@ export default function ClothingDetailScreen() {
 
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityState={{ busy: isSavingClassification }}
-                    disabled={isSavingClassification}
-                    onPress={() => void saveClassification()}
+                    accessibilityState={{ busy: isSavingDetails }}
+                    disabled={isSavingDetails}
+                    onPress={() => void saveDetails()}
                     style={({ pressed }) => [
                       styles.editorButton,
                       styles.editorSaveButton,
                       pressed && styles.pressed,
                     ]}>
-                    {isSavingClassification ? (
+                    {isSavingDetails ? (
                       <ActivityIndicator color={Palette.white} size="small" />
                     ) : (
                       <AppText style={styles.editorSaveText}>Save changes</AppText>
@@ -274,13 +288,13 @@ export default function ClothingDetailScreen() {
             ) : (
               <Pressable
                 accessibilityRole="button"
-                onPress={startEditingClassification}
+                onPress={startEditingDetails}
                 style={({ pressed }) => [
                   styles.classificationButton,
                   pressed && styles.pressed,
                 ]}>
                 <AppText style={styles.classificationButtonText}>
-                  Edit category &amp; dress code
+                  Edit category, dress code &amp; color
                 </AppText>
               </Pressable>
             )}

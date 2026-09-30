@@ -21,6 +21,8 @@ import {
   AppText,
   AppTextInput,
 } from '@/components/app-text';
+import { ClothingColorPicker } from '@/components/wardrobe/clothing-color-picker';
+import { DEFAULT_CLOTHING_COLOR } from '@/features/wardrobe/color-palette';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 import {
   CATEGORIES,
@@ -41,36 +43,6 @@ const palette = {
 
   coral: '#EF6A67',
 } as const;
-
-const COLOR_OPTIONS = [
-  { name: 'Black', hex: '#292A2A', darkCheck: false },
-  { name: 'White', hex: '#FAFAF7', darkCheck: true },
-  { name: 'Gray', hex: '#A5AAA6', darkCheck: false },
-
-  { name: 'Cream', hex: '#F3E9D2', darkCheck: true },
-  { name: 'Beige', hex: '#D8C5A8', darkCheck: true },
-  { name: 'Khaki', hex: '#C3B091', darkCheck: true },
-
-  { name: 'Brown', hex: '#8E634C', darkCheck: false },
-  { name: 'Navy', hex: '#33445F', darkCheck: false },
-  { name: 'Blue', hex: '#5E8DBB', darkCheck: false },
-
-  { name: 'Light Blue', hex: '#A8CBE5', darkCheck: true },
-  { name: 'Green', hex: '#6E9076', darkCheck: false },
-  { name: 'Olive', hex: '#80865A', darkCheck: false },
-
-  { name: 'Teal', hex: '#4F8C88', darkCheck: false },
-  { name: 'Red', hex: '#D65A54', darkCheck: false },
-  { name: 'Maroon', hex: '#7A3E45', darkCheck: false },
-
-  { name: 'Orange', hex: '#E88A4D', darkCheck: false },
-  { name: 'Yellow', hex: '#E6C75A', darkCheck: true },
-  { name: 'Pink', hex: '#E7A1AD', darkCheck: true },
-
-  { name: 'Purple', hex: '#8C72A8', darkCheck: false },
-  { name: 'Lavender', hex: '#B7A5CC', darkCheck: true },
-  { name: 'Gold', hex: '#C9A348', darkCheck: true },
-] as const;
 
 const IMAGE_OPTIONS: ImagePicker.ImagePickerOptions = {
   allowsEditing: true,
@@ -148,16 +120,6 @@ function GalleryIcon() {
   );
 }
 
-function formatHexInput(value: string) {
-  const cleaned = value
-    .replace(/#/g, '')
-    .replace(/[^0-9a-fA-F]/g, '')
-    .slice(0, 6)
-    .toUpperCase();
-
-  return cleaned ? `#${cleaned}` : '';
-}
-
 export default function AddClothesScreen() {
   const insets = useSafeAreaInsets();
   const { addItem } = useWardrobe();
@@ -174,12 +136,7 @@ export default function AddClothesScreen() {
       'casual',
     );
 
-  const [color, setColor] = useState<string>(
-    COLOR_OPTIONS[0].name,
-  );
-
-  const [customColor, setCustomColor] =
-    useState('');
+  const [color, setColor] = useState<string>(DEFAULT_CLOTHING_COLOR);
 
   const [sourceUri, setSourceUri] =
     useState<string | null>(null);
@@ -190,26 +147,16 @@ export default function AddClothesScreen() {
   const [isSaving, setIsSaving] =
     useState(false);
 
-  const isOtherColor = color === 'Other';
-
-  const isCustomColorValid =
-    /^#[0-9A-Fa-f]{6}$/.test(customColor);
-
   const canSave =
     Boolean(name.trim() && sourceUri) &&
-    (!isOtherColor || isCustomColorValid) &&
     !isPicking &&
     !isSaving;
 
   const hasDraft =
-    Boolean(
-      name.trim() ||
-        sourceUri ||
-        customColor.trim(),
-    ) ||
+    Boolean(name.trim() || sourceUri) ||
     category !== CATEGORIES[0].value ||
     formality !== 'casual' ||
-    color !== COLOR_OPTIONS[0].name;
+    color !== DEFAULT_CLOTHING_COLOR;
 
   const closeScreen = () => {
     if (!hasDraft) {
@@ -241,9 +188,7 @@ export default function AddClothesScreen() {
         ? 'Add a photo to save'
         : !name.trim()
           ? 'Add a name to save'
-          : isOtherColor && !isCustomColorValid
-            ? 'Enter a valid HEX color, e.g. #7C5CFC'
-            : null;
+          : null;
 
   const showPermissionAlert = (
     source: PhotoSource,
@@ -363,27 +308,6 @@ export default function AddClothesScreen() {
       return;
     }
 
-    if (
-      isOtherColor &&
-      !isCustomColorValid
-    ) {
-      Alert.alert(
-        'Add a valid color',
-        'Enter a HEX color using the format #RRGGBB, for example #7C5CFC.',
-      );
-      return;
-    }
-
-    const selectedColor =
-      COLOR_OPTIONS.find(
-        (option) => option.name === color,
-      );
-
-    const finalColor = isOtherColor
-      ? customColor.toUpperCase()
-      : selectedColor?.hex ??
-        COLOR_OPTIONS[0].hex;
-
     setIsSaving(true);
 
     try {
@@ -391,7 +315,7 @@ export default function AddClothesScreen() {
         name: trimmedName,
         category,
         formality,
-        color: finalColor,
+        color,
         sourceUri,
       });
 
@@ -824,205 +748,10 @@ export default function AddClothesScreen() {
                   Main color
                 </AppText>
 
-                <View
-                  style={styles.colorGrid}
-                >
-                  {COLOR_OPTIONS.map(
-                    (option) => {
-                      const isSelected =
-                        option.name ===
-                        color;
-
-                      return (
-                        <Pressable
-                          accessibilityLabel={`${option.name} color`}
-                          accessibilityRole="button"
-                          accessibilityState={{
-                            selected:
-                              isSelected,
-                          }}
-                          key={
-                            option.name
-                          }
-                          onPress={() =>
-                            setColor(
-                              option.name,
-                            )
-                          }
-                          style={({
-                            pressed,
-                          }) => [
-                            styles.colorChip,
-                            isSelected &&
-                              styles.colorChipSelected,
-                            pressed &&
-                              styles.buttonPressed,
-                          ]}
-                        >
-                          <View
-                            style={[
-                              styles.colorSwatch,
-                              {
-                                backgroundColor:
-                                  option.hex,
-                              },
-                              option.name ===
-                                'White' &&
-                                styles.whiteSwatch,
-                            ]}
-                          >
-                            {isSelected && (
-                              <AppText
-                                style={[
-                                  styles.colorCheck,
-                                  option.darkCheck &&
-                                    styles.colorCheckDark,
-                                ]}
-                              >
-                                ✓
-                              </AppText>
-                            )}
-                          </View>
-
-                          <AppText
-                            numberOfLines={1}
-                            style={
-                              styles.colorChipText
-                            }
-                          >
-                            {option.name}
-                          </AppText>
-                        </Pressable>
-                      );
-                    },
-                  )}
-
-                  <Pressable
-                    accessibilityLabel="Other color"
-                    accessibilityRole="button"
-                    accessibilityState={{
-                      selected: isOtherColor,
-                    }}
-                    onPress={() =>
-                      setColor('Other')
-                    }
-                    style={({ pressed }) => [
-                      styles.otherColorChip,
-                      isOtherColor &&
-                        styles.colorChipSelected,
-                      pressed &&
-                        styles.buttonPressed,
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.otherColorSwatch,
-                        isCustomColorValid && {
-                          backgroundColor:
-                            customColor,
-                          borderStyle: 'solid',
-                        },
-                      ]}
-                    >
-                      {!isCustomColorValid && (
-                        <AppText
-                          style={
-                            styles.otherColorPlus
-                          }
-                        >
-                          +
-                        </AppText>
-                      )}
-                    </View>
-
-                    <AppText
-                      style={
-                        styles.colorChipText
-                      }
-                    >
-                      Other
-                    </AppText>
-                  </Pressable>
-                </View>
-
-                {isOtherColor && (
-                  <View
-                    style={
-                      styles.customColorSection
-                    }
-                  >
-                    <AppText
-                      style={
-                        styles.customColorLabel
-                      }
-                    >
-                      Custom HEX
-                    </AppText>
-
-                    <View
-                      style={
-                        styles.customColorRow
-                      }
-                    >
-                      <AppTextInput
-                        accessibilityLabel="Custom color HEX value"
-                        autoCapitalize="characters"
-                        autoCorrect={false}
-                        maxLength={7}
-                        onChangeText={(value) =>
-                          setCustomColor(
-                            formatHexInput(
-                              value,
-                            ),
-                          )
-                        }
-                        placeholder="#7C5CFC"
-                        placeholderTextColor="#9AA4A1"
-                        selectionColor={
-                          palette.teal
-                        }
-                        style={[
-                          styles.customColorInput,
-                          customColor.length >
-                            0 &&
-                            !isCustomColorValid &&
-                            styles.customColorInputInvalid,
-                        ]}
-                        value={customColor}
-                      />
-
-                      <View
-                        accessibilityLabel={
-                          isCustomColorValid
-                            ? `Preview color ${customColor}`
-                            : 'Color preview'
-                        }
-                        style={[
-                          styles.customColorPreview,
-                          {
-                            backgroundColor:
-                              isCustomColorValid
-                                ? customColor
-                                : '#E7E3DB',
-                          },
-                        ]}
-                      />
-                    </View>
-
-                    {customColor.length >
-                      0 &&
-                      !isCustomColorValid && (
-                        <AppText
-                          style={
-                            styles.customColorError
-                          }
-                        >
-                          Use 6 HEX digits,
-                          for example #FF8800
-                        </AppText>
-                      )}
-                  </View>
-                )}
+                <ClothingColorPicker
+                  onChange={setColor}
+                  value={color}
+                />
               </View>
             </View>
           </View>
@@ -1531,156 +1260,6 @@ const styles = StyleSheet.create({
 
   categoryChipTextSelected: {
     color: palette.surface,
-  },
-
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 9,
-  },
-
-  colorChip: {
-    minWidth: 98,
-    minHeight: 47,
-    paddingHorizontal: 11,
-    borderRadius: 15,
-    borderColor: '#D4CEC3',
-    borderWidth: 1,
-    backgroundColor:
-      palette.surface,
-    flexGrow: 1,
-    flexBasis: '28%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
-  },
-
-  colorChipSelected: {
-    borderColor: palette.teal,
-    borderWidth: 2,
-    backgroundColor:
-      palette.tealSoft,
-    paddingHorizontal: 10,
-  },
-
-  colorSwatch: {
-    width: 25,
-    height: 25,
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  whiteSwatch: {
-    borderColor: '#D2D1CC',
-    borderWidth: 1,
-  },
-
-  colorCheck: {
-    color: palette.surface,
-    fontSize: 13,
-    fontWeight: '900',
-  },
-
-  colorCheckDark: {
-    color: palette.ink,
-  },
-
-  colorChipText: {
-    flexShrink: 1,
-    color: palette.ink,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-
-  otherColorChip: {
-    width: '100%',
-    minHeight: 50,
-    paddingHorizontal: 11,
-    borderRadius: 15,
-    borderColor: '#D4CEC3',
-    borderWidth: 1,
-    backgroundColor:
-      palette.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
-  },
-
-  otherColorSwatch: {
-    width: 25,
-    height: 25,
-    borderRadius: 13,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#AAA59B',
-    backgroundColor: '#F3F0E9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  otherColorPlus: {
-    color: palette.muted,
-    fontSize: 18,
-    lineHeight: 19,
-    fontWeight: '500',
-  },
-
-  customColorSection: {
-    marginTop: 12,
-    padding: 14,
-    borderRadius: 16,
-    backgroundColor:
-      '#EEEAE2',
-    borderWidth: 1,
-    borderColor: '#D8D2C7',
-  },
-
-  customColorLabel: {
-    marginBottom: 8,
-    color: palette.ink,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-
-  customColorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-
-  customColorInput: {
-    flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#CFC9BE',
-    backgroundColor:
-      palette.surface,
-    color: palette.ink,
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-  },
-
-  customColorInputInvalid: {
-    borderColor: palette.coral,
-  },
-
-  customColorPreview: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#CFC9BE',
-  },
-
-  customColorError: {
-    marginTop: 7,
-    color: palette.coral,
-    fontSize: 12,
-    lineHeight: 17,
   },
 
   footer: {

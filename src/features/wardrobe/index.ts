@@ -9,5 +9,5 @@ export {
   type ClothingColor,
   type ClothingFormality,
   type ClothingItem,
-  type UpdateClothingClassificationInput,
+  type UpdateClothingDetailsInput,
 } from './types';

@@ -63,9 +63,10 @@ export type AddClothingInput = {
   sourceUri: string;
 };
 
-export type UpdateClothingClassificationInput = {
+export type UpdateClothingDetailsInput = {
   category: ClothingCategory;
   formality: ClothingFormality;
+  color: ClothingColor;
 };
 
 export function isClothingCategory(value: unknown): value is ClothingCategory {

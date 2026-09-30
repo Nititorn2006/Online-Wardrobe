@@ -25,12 +25,13 @@ import {
   type SavedOutfit,
   type SaveOutfitInput,
 } from '../outfits/types';
+import { normalizeClothingColor } from './color-palette';
 import {
   isClothingCategory,
   isClothingFormality,
   type AddClothingInput,
   type ClothingItem,
-  type UpdateClothingClassificationInput,
+  type UpdateClothingDetailsInput,
 } from './types';
 
 export type WardrobeContextValue = {
@@ -38,9 +39,9 @@ export type WardrobeContextValue = {
   outfits: SavedOutfit[];
   isHydrated: boolean;
   addItem: (input: AddClothingInput) => Promise<ClothingItem>;
-  updateItemClassification: (
+  updateItemDetails: (
     id: string,
-    input: UpdateClothingClassificationInput,
+    input: UpdateClothingDetailsInput,
   ) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
@@ -60,7 +61,7 @@ function createOutfitId(): string {
 
 function validateInput(input: AddClothingInput): AddClothingInput {
   const name = input.name.trim();
-  const color = input.color.trim();
+  const color = normalizeClothingColor(input.color);
   const sourceUri = input.sourceUri.trim();
 
   if (!name) {
@@ -186,8 +187,8 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
     [runMutation],
   );
 
-  const updateItemClassification = useCallback(
-    (id: string, input: UpdateClothingClassificationInput) =>
+  const updateItemDetails = useCallback(
+    (id: string, input: UpdateClothingDetailsInput) =>
       runMutation(async () => {
         if (!isHydratedRef.current) {
           throw new Error('Your wardrobe is still loading. Please try again in a moment.');
@@ -197,6 +198,10 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
         }
         if (!isClothingFormality(input.formality)) {
           throw new Error('Please choose a valid dress code.');
+        }
+        const color = normalizeClothingColor(input.color);
+        if (!color) {
+          throw new Error('Please choose a valid color.');
         }
 
         const itemIndex = itemsRef.current.findIndex((item) => item.id === id);
@@ -210,6 +215,7 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
                 ...item,
                 category: input.category,
                 formality: input.formality,
+                color,
               }
             : item,
         );
@@ -347,7 +353,7 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
       outfits,
       isHydrated,
       addItem,
-      updateItemClassification,
+      updateItemDetails,
       toggleFavorite,
       deleteItem,
       saveOutfit,
@@ -362,7 +368,7 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
       outfits,
       saveOutfit,
       toggleFavorite,
-      updateItemClassification,
+      updateItemDetails,
     ],
   );
 
