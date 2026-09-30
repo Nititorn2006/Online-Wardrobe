@@ -20,7 +20,7 @@ function openItem(id: string) {
 }
 
 export default function HomeScreen() {
-  const { items } = useWardrobe();
+  const { items, outfits } = useWardrobe();
 
   const favoriteCount = items.filter(
     (item) => item.isFavorite,
@@ -168,6 +168,30 @@ export default function HomeScreen() {
               <View style={styles.plannerArrow}>
                 <AppText style={styles.plannerArrowText}>→</AppText>
               </View>
+            </Pressable>
+
+            <Pressable
+              accessibilityLabel={`Saved outfits, ${outfits.length}`}
+              accessibilityRole="button"
+              onPress={() => router.push('/outfits' as Href)}
+              style={({ pressed }) => [
+                styles.savedOutfitsCard,
+                pressed && styles.pressed,
+              ]}>
+              <View style={styles.savedOutfitsIcon}>
+                <AppText style={styles.savedOutfitsIconText}>◇</AppText>
+              </View>
+
+              <View style={styles.savedOutfitsCopy}>
+                <AppText style={styles.savedOutfitsTitle}>Saved outfits</AppText>
+                <AppText style={styles.savedOutfitsBody}>
+                  {outfits.length === 0
+                    ? 'Complete looks you save will appear here.'
+                    : `${outfits.length} ${outfits.length === 1 ? 'look' : 'looks'} ready to wear`}
+                </AppText>
+              </View>
+
+              <AppText style={styles.savedOutfitsArrow}>›</AppText>
             </Pressable>
 
             {recentItems.length > 0 && (
@@ -482,6 +506,58 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 22,
     fontWeight: '700',
+  },
+
+  savedOutfitsCard: {
+    minHeight: 82,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderRadius: Radius.medium,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  savedOutfitsIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Palette.brandSoft,
+  },
+
+  savedOutfitsIconText: {
+    color: Palette.brand,
+    fontSize: 23,
+    lineHeight: 25,
+  },
+
+  savedOutfitsCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  savedOutfitsTitle: {
+    color: Palette.ink,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '700',
+  },
+
+  savedOutfitsBody: {
+    color: Palette.muted,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+
+  savedOutfitsArrow: {
+    color: Palette.brand,
+    fontSize: 26,
+    lineHeight: 28,
   },
 
   seeAll: {

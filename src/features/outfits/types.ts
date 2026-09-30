@@ -24,6 +24,23 @@ export type OutfitRecommendation = {
   missingMessage: string | null;
 };
 
+export type SavedOutfit = {
+  id: string;
+  name: string;
+  itemIds: string[];
+  formality: ClothingFormality;
+  occasion: OutfitOccasion;
+  plannedFor: string;
+  createdAt: string;
+};
+
+export type SaveOutfitInput = {
+  itemIds: string[];
+  formality: ClothingFormality;
+  occasion: OutfitOccasion;
+  plannedFor: string;
+};
+
 export function isOutfitOccasion(value: unknown): value is OutfitOccasion {
   return OUTFIT_OCCASIONS.some((occasion) => occasion.value === value);
 }

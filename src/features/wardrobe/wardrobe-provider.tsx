@@ -11,6 +11,20 @@ import {
 
 import { persistWardrobeImage, removeWardrobeImage } from './image-store';
 import { loadWardrobeItems, saveWardrobeItems } from './storage';
+import { isDateValue } from '../outfits/outfit-schema';
+import {
+  buildOutfitName,
+  removeItemFromSavedOutfits,
+} from '../outfits/saved-outfit-utils';
+import {
+  loadSavedOutfits,
+  saveSavedOutfits,
+} from '../outfits/storage';
+import {
+  isOutfitOccasion,
+  type SavedOutfit,
+  type SaveOutfitInput,
+} from '../outfits/types';
 import {
   isClothingCategory,
   isClothingFormality,
@@ -21,6 +35,7 @@ import {
 
 export type WardrobeContextValue = {
   items: ClothingItem[];
+  outfits: SavedOutfit[];
   isHydrated: boolean;
   addItem: (input: AddClothingInput) => Promise<ClothingItem>;
   updateItemClassification: (
@@ -29,12 +44,18 @@ export type WardrobeContextValue = {
   ) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
+  saveOutfit: (input: SaveOutfitInput) => Promise<SavedOutfit>;
+  deleteOutfit: (id: string) => Promise<void>;
 };
 
 const WardrobeContext = createContext<WardrobeContextValue | null>(null);
 
 function createItemId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createOutfitId(): string {
+  return `outfit-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function validateInput(input: AddClothingInput): AddClothingInput {
@@ -69,25 +90,35 @@ function validateInput(input: AddClothingInput): AddClothingInput {
 
 export function WardrobeProvider({ children }: PropsWithChildren) {
   const [items, setItems] = useState<ClothingItem[]>([]);
+  const [outfits, setOutfits] = useState<SavedOutfit[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const itemsRef = useRef<ClothingItem[]>([]);
+  const outfitsRef = useRef<SavedOutfit[]>([]);
   const isHydratedRef = useRef(false);
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     let isActive = true;
 
-    void loadWardrobeItems()
-      .then((savedItems) => {
+    void Promise.allSettled([loadWardrobeItems(), loadSavedOutfits()])
+      .then(([wardrobeResult, outfitResult]) => {
         if (!isActive) {
           return;
         }
 
-        itemsRef.current = savedItems;
-        setItems(savedItems);
-      })
-      .catch((error: unknown) => {
-        console.error(error);
+        if (wardrobeResult.status === 'fulfilled') {
+          itemsRef.current = wardrobeResult.value;
+          setItems(wardrobeResult.value);
+        } else {
+          console.error(wardrobeResult.reason);
+        }
+
+        if (outfitResult.status === 'fulfilled') {
+          outfitsRef.current = outfitResult.value;
+          setOutfits(outfitResult.value);
+        } else {
+          console.error(outfitResult.reason);
+        }
       })
       .finally(() => {
         if (!isActive) {
@@ -213,6 +244,70 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
     [runMutation],
   );
 
+  const saveOutfit = useCallback(
+    (input: SaveOutfitInput) =>
+      runMutation(async () => {
+        if (!isHydratedRef.current) {
+          throw new Error('Your wardrobe is still loading. Please try again in a moment.');
+        }
+
+        const itemIds = [...new Set(input.itemIds)];
+
+        if (itemIds.length < 2) {
+          throw new Error('Choose at least two clothing items before saving an outfit.');
+        }
+        if (!itemIds.every((id) => itemsRef.current.some((item) => item.id === id))) {
+          throw new Error('One or more pieces in this outfit are no longer in your closet.');
+        }
+        if (!isClothingFormality(input.formality)) {
+          throw new Error('Please choose a valid dress code.');
+        }
+        if (!isOutfitOccasion(input.occasion)) {
+          throw new Error('Please choose a valid occasion.');
+        }
+        if (!isDateValue(input.plannedFor)) {
+          throw new Error('Please choose a valid date.');
+        }
+
+        const outfit: SavedOutfit = {
+          id: createOutfitId(),
+          name: buildOutfitName(input.formality, input.occasion),
+          itemIds,
+          formality: input.formality,
+          occasion: input.occasion,
+          plannedFor: input.plannedFor,
+          createdAt: new Date().toISOString(),
+        };
+        const nextOutfits = [outfit, ...outfitsRef.current];
+
+        await saveSavedOutfits(nextOutfits);
+        outfitsRef.current = nextOutfits;
+        setOutfits(nextOutfits);
+
+        return outfit;
+      }),
+    [runMutation],
+  );
+
+  const deleteOutfit = useCallback(
+    (id: string) =>
+      runMutation(async () => {
+        if (!isHydratedRef.current) {
+          throw new Error('Your wardrobe is still loading. Please try again in a moment.');
+        }
+        if (!outfitsRef.current.some((outfit) => outfit.id === id)) {
+          throw new Error('This saved outfit could not be found.');
+        }
+
+        const nextOutfits = outfitsRef.current.filter((outfit) => outfit.id !== id);
+
+        await saveSavedOutfits(nextOutfits);
+        outfitsRef.current = nextOutfits;
+        setOutfits(nextOutfits);
+      }),
+    [runMutation],
+  );
+
   const deleteItem = useCallback(
     (id: string) =>
       runMutation(async () => {
@@ -226,10 +321,16 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
         }
 
         const nextItems = itemsRef.current.filter((candidate) => candidate.id !== id);
-        await saveWardrobeItems(nextItems);
+        const nextOutfits = removeItemFromSavedOutfits(outfitsRef.current, id);
+        await Promise.all([
+          saveWardrobeItems(nextItems),
+          saveSavedOutfits(nextOutfits),
+        ]);
 
         itemsRef.current = nextItems;
         setItems(nextItems);
+        outfitsRef.current = nextOutfits;
+        setOutfits(nextOutfits);
 
         try {
           await removeWardrobeImage(item.imageUri);
@@ -243,17 +344,23 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
   const value = useMemo<WardrobeContextValue>(
     () => ({
       items,
+      outfits,
       isHydrated,
       addItem,
       updateItemClassification,
       toggleFavorite,
       deleteItem,
+      saveOutfit,
+      deleteOutfit,
     }),
     [
       addItem,
       deleteItem,
+      deleteOutfit,
       isHydrated,
       items,
+      outfits,
+      saveOutfit,
       toggleFavorite,
       updateItemClassification,
     ],

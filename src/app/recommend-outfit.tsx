@@ -2,6 +2,8 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -60,13 +62,15 @@ function createDateOptions(): DateOption[] {
 }
 
 export default function RecommendOutfitScreen() {
-  const { items } = useWardrobe();
+  const { items, saveOutfit } = useWardrobe();
   const dateOptions = useMemo(() => createDateOptions(), []);
   const [occasion, setOccasion] = useState<OutfitOccasion>('everyday');
   const [formality, setFormality] = useState<ClothingFormality>('casual');
   const [plannedFor, setPlannedFor] = useState(dateOptions[0].value);
   const [seed, setSeed] = useState(0);
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [isSavingOutfit, setIsSavingOutfit] = useState(false);
+  const [savedRecommendationKey, setSavedRecommendationKey] = useState<string | null>(null);
 
   const recommendation = useMemo(
     () =>
@@ -88,23 +92,60 @@ export default function RecommendOutfitScreen() {
   const plannedDateLabel = dateOptions.find(
     (option) => option.value === plannedFor,
   )?.date;
+  const recommendationKey = `${occasion}:${formality}:${plannedFor}:${recommendation.items
+    .map((item) => item.id)
+    .join('|')}`;
+  const isSaved = savedRecommendationKey === recommendationKey;
 
   const changeOccasion = (value: OutfitOccasion) => {
     setOccasion(value);
     setSeed(0);
     setHasGenerated(false);
+    setSavedRecommendationKey(null);
   };
 
   const changeFormality = (value: ClothingFormality) => {
     setFormality(value);
     setSeed(0);
     setHasGenerated(false);
+    setSavedRecommendationKey(null);
   };
 
   const changeDate = (value: string) => {
     setPlannedFor(value);
     setSeed(0);
     setHasGenerated(false);
+    setSavedRecommendationKey(null);
+  };
+
+  const saveRecommendation = async () => {
+    if (!recommendation.isComplete || isSavingOutfit || isSaved) {
+      return;
+    }
+
+    setIsSavingOutfit(true);
+
+    try {
+      await saveOutfit({
+        itemIds: recommendation.items.map((item) => item.id),
+        formality,
+        occasion,
+        plannedFor,
+      });
+      setSavedRecommendationKey(recommendationKey);
+    } catch (error) {
+      Alert.alert(
+        'Couldn’t save this outfit',
+        error instanceof Error ? error.message : 'Please try again.',
+      );
+    } finally {
+      setIsSavingOutfit(false);
+    }
+  };
+
+  const tryAnother = () => {
+    setSavedRecommendationKey(null);
+    setSeed((value) => value + 1);
   };
 
   return (
@@ -339,7 +380,33 @@ export default function RecommendOutfitScreen() {
                 <View style={styles.resultActions}>
                   <Pressable
                     accessibilityRole="button"
-                    onPress={() => setSeed((value) => value + 1)}
+                    accessibilityState={{
+                      busy: isSavingOutfit,
+                      disabled: isSavingOutfit || isSaved,
+                    }}
+                    disabled={isSavingOutfit || isSaved}
+                    onPress={() => void saveRecommendation()}
+                    style={({ pressed }) => [
+                      styles.saveOutfitButton,
+                      isSaved && styles.saveOutfitButtonSaved,
+                      pressed && styles.pressed,
+                    ]}>
+                    {isSavingOutfit ? (
+                      <ActivityIndicator color={Palette.brand} size="small" />
+                    ) : (
+                      <AppText
+                        style={[
+                          styles.saveOutfitButtonText,
+                          isSaved && styles.saveOutfitButtonTextSaved,
+                        ]}>
+                        {isSaved ? '✓ Saved' : 'Save outfit'}
+                      </AppText>
+                    )}
+                  </Pressable>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={tryAnother}
                     style={({ pressed }) => [
                       styles.secondaryButton,
                       pressed && styles.pressed,
@@ -537,8 +604,23 @@ const styles = StyleSheet.create({
   outfitImage: { width: '100%', aspectRatio: 0.9, backgroundColor: Palette.lavender },
   outfitItemCopy: { paddingHorizontal: 11, paddingVertical: 10 },
   outfitItemName: { color: Palette.ink, fontSize: 12, fontWeight: '700' },
-  resultActions: { flexDirection: 'row' },
+  resultActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  saveOutfitButton: {
+    flex: 1,
+    minWidth: 140,
+    minHeight: 48,
+    paddingHorizontal: 18,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Palette.coral,
+  },
+  saveOutfitButtonSaved: { backgroundColor: Palette.white },
+  saveOutfitButtonText: { color: Palette.white, fontSize: 14, fontWeight: '800' },
+  saveOutfitButtonTextSaved: { color: Palette.brand },
   secondaryButton: {
+    flex: 1,
+    minWidth: 140,
     minHeight: 48,
     paddingHorizontal: 18,
     borderRadius: Radius.pill,
