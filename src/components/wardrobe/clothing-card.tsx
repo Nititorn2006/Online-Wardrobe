@@ -2,7 +2,10 @@ import { Image } from 'expo-image';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
-import type { ClothingItem } from '@/features/wardrobe/types';
+import {
+  FORMALITY_LEVELS,
+  type ClothingItem,
+} from '@/features/wardrobe/types';
 
 const CATEGORY_LABELS: Record<ClothingItem['category'], string> = {
   tops: 'Top',
@@ -11,12 +14,6 @@ const CATEGORY_LABELS: Record<ClothingItem['category'], string> = {
   outerwear: 'Outerwear',
   shoes: 'Shoes',
   accessories: 'Accessory',
-};
-
-const FORMALITY_LABELS: Record<ClothingItem['formality'], string> = {
-  casual: 'Casual',
-  'smart-casual': 'Smart casual',
-  formal: 'Formal',
 };
 
 export type ClothingCardProps = {
@@ -29,6 +26,9 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
   const favoriteLabel = item.isFavorite
     ? `Remove ${item.name} from favorites`
     : `Add ${item.name} to favorites`;
+  const formalityLabel = FORMALITY_LEVELS.find(
+    (option) => option.value === item.formality,
+  )?.label;
 
   return (
     <View style={styles.card}>
@@ -57,7 +57,7 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
               <View style={[styles.colorDot, { backgroundColor: item.color }]} />
             </View>
             <AppText numberOfLines={1} style={styles.category}>
-              {CATEGORY_LABELS[item.category]} · {FORMALITY_LABELS[item.formality]}
+              {CATEGORY_LABELS[item.category]} · {formalityLabel}
             </AppText>
           </View>
         </View>

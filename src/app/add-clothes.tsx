@@ -171,7 +171,7 @@ export default function AddClothesScreen() {
 
   const [formality, setFormality] =
     useState<ClothingFormality>(
-      FORMALITY_LEVELS[0].value,
+      'casual',
     );
 
   const [color, setColor] = useState<string>(
@@ -208,7 +208,7 @@ export default function AddClothesScreen() {
         customColor.trim(),
     ) ||
     category !== CATEGORIES[0].value ||
-    formality !== FORMALITY_LEVELS[0].value ||
+    formality !== 'casual' ||
     color !== COLOR_OPTIONS[0].name;
 
   const closeScreen = () => {

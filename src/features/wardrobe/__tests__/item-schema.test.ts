@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
 import { normalizeClothingItem } from '../item-schema';
+import { FORMALITY_LEVELS } from '../types';
 
 const legacyItem = {
   id: 'item-1',
@@ -30,6 +31,15 @@ describe('normalizeClothingItem', () => {
       ...legacyItem,
       formality: 'casual',
     });
+  });
+
+  test.each(FORMALITY_LEVELS)('accepts the $label dress code', ({ value }) => {
+    expect(
+      normalizeClothingItem({
+        ...legacyItem,
+        formality: value,
+      })?.formality,
+    ).toBe(value);
   });
 
   test('rejects invalid wardrobe rows', () => {

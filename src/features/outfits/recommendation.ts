@@ -1,7 +1,8 @@
-import type {
-  ClothingCategory,
-  ClothingFormality,
-  ClothingItem,
+import {
+  CATEGORIES,
+  type ClothingCategory,
+  type ClothingFormality,
+  type ClothingItem,
 } from '../wardrobe/types';
 import type {
   OutfitOccasion,
@@ -10,9 +11,12 @@ import type {
 } from './types';
 
 const FORMALITY_RANK: Record<ClothingFormality, number> = {
-  casual: 0,
-  'smart-casual': 1,
-  formal: 2,
+  relaxed: 0,
+  casual: 1,
+  'smart-casual': 2,
+  business: 3,
+  formal: 4,
+  'black-tie': 5,
 };
 
 const DRESS_FIRST_OCCASIONS = new Set<OutfitOccasion>([
@@ -33,15 +37,14 @@ const ACCESSORY_OCCASIONS = new Set<OutfitOccasion>([
   'wedding',
 ]);
 
-function hashString(value: string): number {
-  let hash = 0;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
-  }
-
-  return hash;
-}
+const CATEGORY_SINGULAR: Record<ClothingCategory, string> = {
+  tops: 'top',
+  bottoms: 'bottom',
+  dresses: 'dress',
+  outerwear: 'outerwear',
+  shoes: 'shoes',
+  accessories: 'accessory',
+};
 
 function rankItems(
   items: readonly ClothingItem[],
@@ -66,32 +69,48 @@ function rankItems(
   });
 }
 
-function pickCategory(
+function preferredItems(
   items: readonly ClothingItem[],
   category: ClothingCategory,
   formality: ClothingFormality,
-  seed: number,
-  offset: number,
-): ClothingItem | undefined {
+): ClothingItem[] {
   const ranked = rankItems(
     items.filter((item) => item.category === category),
     formality,
   );
 
   if (ranked.length === 0) {
+    return [];
+  }
+
+  const nearestDistance = Math.abs(
+    FORMALITY_RANK[ranked[0].formality] - FORMALITY_RANK[formality],
+  );
+  const compatible = ranked.filter(
+    (item) =>
+      Math.abs(FORMALITY_RANK[item.formality] - FORMALITY_RANK[formality]) <= 1,
+  );
+
+  if (compatible.length > 0) {
+    return compatible;
+  }
+
+  return ranked.filter(
+    (item) =>
+      Math.abs(FORMALITY_RANK[item.formality] - FORMALITY_RANK[formality]) ===
+      nearestDistance,
+  );
+}
+
+function pickCategory(
+  candidates: readonly ClothingItem[],
+  turn: number,
+): ClothingItem | undefined {
+  if (candidates.length === 0) {
     return undefined;
   }
 
-  const preferredDistance = Math.abs(
-    FORMALITY_RANK[ranked[0].formality] - FORMALITY_RANK[formality],
-  );
-  const preferred = ranked.filter(
-    (item) =>
-      Math.abs(FORMALITY_RANK[item.formality] - FORMALITY_RANK[formality]) ===
-      preferredDistance,
-  );
-
-  return preferred[(seed + offset) % preferred.length];
+  return candidates[turn % candidates.length];
 }
 
 function addIfPresent(
@@ -107,64 +126,115 @@ export function recommendOutfit(
   items: readonly ClothingItem[],
   request: OutfitRequest,
 ): OutfitRecommendation {
-  const seed =
-    Math.abs(request.seed) +
-    hashString(`${request.plannedFor}:${request.occasion}:${request.formality}`);
+  const turn = Math.abs(Math.trunc(request.seed));
   const recommendation: ClothingItem[] = [];
+  const options = Object.fromEntries(
+    CATEGORIES.map((category) => [
+      category.value,
+      preferredItems(items, category.value, request.formality),
+    ]),
+  ) as Record<ClothingCategory, ClothingItem[]>;
 
-  const dress = pickCategory(items, 'dresses', request.formality, seed, 0);
-  const top = pickCategory(items, 'tops', request.formality, seed, 1);
-  const bottom = pickCategory(items, 'bottoms', request.formality, seed, 2);
-  const hasSeparates = Boolean(top && bottom);
+  const includeOuterwear =
+    OUTERWEAR_OCCASIONS.has(request.occasion) ||
+    FORMALITY_RANK[request.formality] >= FORMALITY_RANK.business;
+  const includeAccessory = ACCESSORY_OCCASIONS.has(request.occasion);
+  const hasSeparates = options.tops.length > 0 && options.bottoms.length > 0;
+  const hasDressCompanion =
+    options.shoes.length > 0 ||
+    (includeOuterwear && options.outerwear.length > 0) ||
+    (includeAccessory && options.accessories.length > 0);
+  const hasCompleteDress = options.dresses.length > 0 && hasDressCompanion;
+  const hasAlternativeStructure = hasSeparates && hasCompleteDress;
   const preferDress = DRESS_FIRST_OCCASIONS.has(request.occasion);
 
-  if (dress && (preferDress || !hasSeparates)) {
-    addIfPresent(recommendation, dress);
+  let useDress = options.dresses.length > 0 && !hasSeparates;
+
+  if (hasAlternativeStructure) {
+    useDress = turn % 2 === 0 ? preferDress : !preferDress;
+  } else if (hasCompleteDress && !hasSeparates) {
+    useDress = true;
+  } else if (hasSeparates) {
+    useDress = false;
+  }
+
+  if (useDress) {
+    addIfPresent(
+      recommendation,
+      pickCategory(options.dresses, turn),
+    );
   } else {
-    addIfPresent(recommendation, top);
-    addIfPresent(recommendation, bottom);
+    addIfPresent(
+      recommendation,
+      pickCategory(options.tops, turn),
+    );
+    addIfPresent(
+      recommendation,
+      pickCategory(options.bottoms, turn),
+    );
   }
 
   addIfPresent(
     recommendation,
-    pickCategory(items, 'shoes', request.formality, seed, 3),
+    pickCategory(options.shoes, turn),
   );
 
-  if (
-    OUTERWEAR_OCCASIONS.has(request.occasion) ||
-    request.formality === 'formal'
-  ) {
+  if (includeOuterwear) {
     addIfPresent(
       recommendation,
-      pickCategory(items, 'outerwear', request.formality, seed, 4),
+      pickCategory(options.outerwear, turn),
     );
   }
 
-  if (recommendation.length < 4 && ACCESSORY_OCCASIONS.has(request.occasion)) {
+  if (recommendation.length < 4 && includeAccessory) {
     addIfPresent(
       recommendation,
-      pickCategory(items, 'accessories', request.formality, seed, 5),
+      pickCategory(options.accessories, turn),
     );
   }
 
-  const hasCore = recommendation.some((item) => item.category === 'dresses')
-    ? recommendation.length >= 2
-    : recommendation.some((item) => item.category === 'tops') &&
-      recommendation.some((item) => item.category === 'bottoms');
+  const finalItems = recommendation.slice(0, 4);
+  const hasCore = finalItems.some((item) => item.category === 'dresses')
+    ? finalItems.length >= 2
+    : finalItems.some((item) => item.category === 'tops') &&
+      finalItems.some((item) => item.category === 'bottoms');
 
   let missingMessage: string | null = null;
 
   if (!hasCore) {
-    if (!dress && (!top || !bottom)) {
+    if (options.dresses.length === 0 && !hasSeparates) {
       missingMessage = 'Add a dress, or both a top and bottom, to build a complete look.';
     } else {
       missingMessage = 'Add one more piece to turn this into a complete look.';
     }
   }
 
+  const selectedCategories = [...new Set(finalItems.map((item) => item.category))];
+  const changeableCategories = selectedCategories.filter(
+    (category) => options[category].length > 1,
+  );
+  const canTryAnother = hasAlternativeStructure || changeableCategories.length > 0;
+  const onlyChangeableCategory =
+    !hasAlternativeStructure && changeableCategories.length === 1
+      ? changeableCategories[0]
+      : null;
+  const tryAnotherLabel = onlyChangeableCategory
+    ? `Change ${CATEGORY_SINGULAR[onlyChangeableCategory]}`
+    : canTryAnother
+      ? 'Try another'
+      : 'No other look yet';
+  const variationMessage = onlyChangeableCategory
+    ? `Only the ${CATEGORY_SINGULAR[onlyChangeableCategory]} has another option right now. Add more pieces in the other categories for a bigger change.`
+    : !canTryAnother && hasCore
+      ? 'This is the only complete combination for these choices. Add more pieces to create another look.'
+      : null;
+
   return {
-    items: recommendation.slice(0, 4),
+    items: finalItems,
     isComplete: hasCore,
     missingMessage,
+    canTryAnother,
+    tryAnotherLabel,
+    variationMessage,
   };
 }

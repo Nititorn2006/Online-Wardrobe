@@ -93,6 +93,56 @@ describe('recommendOutfit', () => {
 
     expect(first.items[0].id).not.toBe(next.items[0].id);
     expect(new Set(next.items.map((piece) => piece.id)).size).toBe(next.items.length);
+    expect(first.tryAnotherLabel).toBe('Change top');
+    expect(first.variationMessage).toContain('Only the top');
+  });
+
+  test('switches between separates and a dress when both are complete', () => {
+    const wardrobe = [
+      item('dress', 'dresses'),
+      item('top', 'tops'),
+      item('bottom', 'bottoms'),
+      item('shoes', 'shoes'),
+    ];
+
+    const first = recommendOutfit(wardrobe, baseRequest);
+    const next = recommendOutfit(wardrobe, { ...baseRequest, seed: 1 });
+
+    expect(first.items.map((piece) => piece.category)).toEqual([
+      'tops',
+      'bottoms',
+      'shoes',
+    ]);
+    expect(next.items.map((piece) => piece.category)).toEqual([
+      'dresses',
+      'shoes',
+    ]);
+    expect(first.canTryAnother).toBe(true);
+  });
+
+  test('supports the expanded black-tie dress code', () => {
+    const result = recommendOutfit(
+      [
+        item('formal-top', 'tops', 'formal'),
+        item('black-tie-top', 'tops', 'black-tie'),
+        item('black-tie-bottom', 'bottoms', 'black-tie'),
+      ],
+      { ...baseRequest, formality: 'black-tie' },
+    );
+
+    expect(result.items.map((piece) => piece.id)).toContain('black-tie-top');
+    expect(result.items.map((piece) => piece.id)).not.toContain('formal-top');
+  });
+
+  test('disables Try Another when there is only one complete combination', () => {
+    const result = recommendOutfit(
+      [item('top', 'tops'), item('bottom', 'bottoms')],
+      baseRequest,
+    );
+
+    expect(result.canTryAnother).toBe(false);
+    expect(result.tryAnotherLabel).toBe('No other look yet');
+    expect(result.variationMessage).toContain('only complete combination');
   });
 
   test('explains when the wardrobe cannot make a complete look', () => {

@@ -40,6 +40,15 @@ describe('saved outfits', () => {
     );
   });
 
+  test('keeps expanded dress codes in saved outfits', () => {
+    expect(
+      normalizeSavedOutfit(outfit({ formality: 'black-tie' }))?.formality,
+    ).toBe('black-tie');
+    expect(buildOutfitName('black-tie', 'wedding')).toBe(
+      'Black tie wedding look',
+    );
+  });
+
   test('removes a deleted item and drops incomplete outfits', () => {
     const kept = outfit({ id: 'kept', itemIds: ['top', 'bottom', 'shoes'] });
     const dropped = outfit({ id: 'dropped', itemIds: ['top', 'bottom'] });

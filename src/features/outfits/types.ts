@@ -22,6 +22,9 @@ export type OutfitRecommendation = {
   items: ClothingItem[];
   isComplete: boolean;
   missingMessage: string | null;
+  canTryAnother: boolean;
+  tryAnotherLabel: string;
+  variationMessage: string | null;
 };
 
 export type SavedOutfit = {

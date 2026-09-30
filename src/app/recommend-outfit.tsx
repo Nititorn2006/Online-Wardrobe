@@ -144,6 +144,10 @@ export default function RecommendOutfitScreen() {
   };
 
   const tryAnother = () => {
+    if (!recommendation.canTryAnother) {
+      return;
+    }
+
     setSavedRecommendationKey(null);
     setSeed((value) => value + 1);
   };
@@ -406,13 +410,20 @@ export default function RecommendOutfitScreen() {
 
                   <Pressable
                     accessibilityRole="button"
+                    accessibilityState={{
+                      disabled: !recommendation.canTryAnother,
+                    }}
+                    disabled={!recommendation.canTryAnother}
                     onPress={tryAnother}
                     style={({ pressed }) => [
                       styles.secondaryButton,
+                      !recommendation.canTryAnother && styles.secondaryButtonDisabled,
                       pressed && styles.pressed,
                     ]}>
                     <AppText style={styles.secondaryButtonIcon}>↻</AppText>
-                    <AppText style={styles.secondaryButtonText}>Try another</AppText>
+                    <AppText style={styles.secondaryButtonText}>
+                      {recommendation.tryAnotherLabel}
+                    </AppText>
                   </Pressable>
                 </View>
               ) : (
@@ -431,6 +442,12 @@ export default function RecommendOutfitScreen() {
                     <AppText style={styles.addButtonText}>Add clothes</AppText>
                   </Pressable>
                 </View>
+              )}
+
+              {recommendation.isComplete && recommendation.variationMessage && (
+                <AppText style={styles.variationMessage}>
+                  {recommendation.variationMessage}
+                </AppText>
               )}
             </View>
           )}
@@ -630,8 +647,15 @@ const styles = StyleSheet.create({
     gap: 7,
     backgroundColor: Palette.white,
   },
+  secondaryButtonDisabled: { opacity: 0.58 },
   secondaryButtonIcon: { color: Palette.brand, fontSize: 18, fontWeight: '700' },
   secondaryButtonText: { color: Palette.brand, fontSize: 14, fontWeight: '700' },
+  variationMessage: {
+    color: '#D7D4FF',
+    fontSize: 11,
+    lineHeight: 17,
+    textAlign: 'center',
+  },
   missingCard: { gap: 7, padding: 16, borderRadius: Radius.medium, backgroundColor: Palette.white },
   missingTitle: { color: Palette.ink, fontSize: 16, fontWeight: '700' },
   missingBody: { color: Palette.muted, fontSize: 13, lineHeight: 19 },

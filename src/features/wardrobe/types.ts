@@ -9,9 +9,14 @@ export const CATEGORIES = [
 
 export const FORMALITY_LEVELS = [
   {
+    value: 'relaxed',
+    label: 'Relaxed',
+    description: 'Very laid-back looks for home and easy days',
+  },
+  {
     value: 'casual',
     label: 'Casual',
-    description: 'Relaxed, everyday outfits',
+    description: 'Comfortable everyday outfits',
   },
   {
     value: 'smart-casual',
@@ -19,9 +24,19 @@ export const FORMALITY_LEVELS = [
     description: 'Polished without being too formal',
   },
   {
+    value: 'business',
+    label: 'Business',
+    description: 'Professional looks for work and meetings',
+  },
+  {
     value: 'formal',
     label: 'Formal',
-    description: 'Ceremonies, important events, and dress codes',
+    description: 'Ceremonies and important events',
+  },
+  {
+    value: 'black-tie',
+    label: 'Black tie',
+    description: 'The most polished option for gala dress codes',
   },
 ] as const;
 
