@@ -38,10 +38,6 @@ function buildScaledMetrics(
   isNested: boolean,
   defaultFontSize: number,
 ): TextStyle | undefined {
-  if (scale === 1) {
-    return undefined;
-  }
-
   const flattened = StyleSheet.flatten(style);
 
   const fontSize = isFiniteNumber(flattened?.fontSize)
