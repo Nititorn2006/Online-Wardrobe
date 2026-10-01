@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { Palette } from '@/constants/design';
-import { TextSizeProvider } from '@/features/wardrobe/settings/text-size-provider';
+import { TextSizeProvider } from '@/features/wardrobe/text-size-provider';
 import {
   WardrobeProvider,
   useWardrobe,

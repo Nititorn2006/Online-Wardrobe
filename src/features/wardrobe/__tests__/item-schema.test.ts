@@ -50,4 +50,22 @@ describe('normalizeClothingItem', () => {
       }),
     ).toBeNull();
   });
+
+  test.each([
+    ['missing record', null],
+    ['primitive value', 'not-an-item'],
+    ['non-string id', { ...legacyItem, id: 12 }],
+    ['empty id', { ...legacyItem, id: '' }],
+    ['non-string name', { ...legacyItem, name: null }],
+    ['empty name', { ...legacyItem, name: '' }],
+    ['non-string color', { ...legacyItem, color: 123 }],
+    ['empty color', { ...legacyItem, color: '' }],
+    ['non-string image URI', { ...legacyItem, imageUri: false }],
+    ['empty image URI', { ...legacyItem, imageUri: '' }],
+    ['non-boolean favorite flag', { ...legacyItem, isFavorite: 'yes' }],
+    ['non-string creation date', { ...legacyItem, createdAt: 123 }],
+    ['invalid creation date', { ...legacyItem, createdAt: 'not-a-date' }],
+  ])('rejects a row with %s', (_label, value) => {
+    expect(normalizeClothingItem(value)).toBeNull();
+  });
 });

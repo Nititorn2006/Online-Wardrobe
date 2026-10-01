@@ -9,6 +9,8 @@ import {
 import type { SavedOutfit } from '../types';
 
 jest.mock('@react-native-async-storage/async-storage', () => {
+  // The factory runs before ESM imports, so obtain Jest lazily.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const mockJest = require('@jest/globals').jest as typeof jest;
   const storage = {
     getItem: mockJest.fn(),

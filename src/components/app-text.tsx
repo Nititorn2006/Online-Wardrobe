@@ -15,7 +15,7 @@ import {
   type TextStyle,
 } from 'react-native';
 
-import { useTextSize } from '@/features/wardrobe/settings/text-size-provider';
+import { useTextSize } from '@/features/wardrobe/text-size-provider';
 
 const DEFAULT_FONT_SIZE = 14;
 

@@ -16,7 +16,7 @@ import {
 import {
   useTextSize,
   type TextSizeOption,
-} from '@/features/wardrobe/settings/text-size-provider';
+} from '@/features/wardrobe/text-size-provider';
 
 const TEXT_SIZE_OPTIONS: {
   value: TextSizeOption;
