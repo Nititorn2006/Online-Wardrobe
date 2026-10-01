@@ -97,6 +97,38 @@ describe('recommendOutfit', () => {
     expect(first.variationMessage).toContain('Only the top');
   });
 
+  test('ranks favorites first regardless of their original order', () => {
+    const result = recommendOutfit(
+      [
+        item('plain-top', 'tops'),
+        item('favorite-top', 'tops', 'casual', true),
+        item('favorite-bottom', 'bottoms', 'casual', true),
+        item('plain-bottom', 'bottoms'),
+      ],
+      baseRequest,
+    );
+
+    expect(result.items.map((piece) => piece.id)).toEqual([
+      'favorite-top',
+      'favorite-bottom',
+    ]);
+  });
+
+  test('falls back to the nearest tier when no item is within one level', () => {
+    const result = recommendOutfit(
+      [
+        item('relaxed-top', 'tops', 'relaxed'),
+        item('relaxed-bottom', 'bottoms', 'relaxed'),
+      ],
+      { ...baseRequest, formality: 'black-tie' },
+    );
+
+    expect(result.items.map((piece) => piece.id)).toEqual([
+      'relaxed-top',
+      'relaxed-bottom',
+    ]);
+  });
+
   test('switches between separates and a dress when both are complete', () => {
     const wardrobe = [
       item('dress', 'dresses'),
@@ -134,6 +166,33 @@ describe('recommendOutfit', () => {
     expect(result.items.map((piece) => piece.id)).not.toContain('formal-top');
   });
 
+  test.each([
+    [
+      'shoes',
+      [item('dress', 'dresses'), item('shoes', 'shoes')],
+      baseRequest,
+    ],
+    [
+      'outerwear',
+      [
+        item('dress', 'dresses', 'business'),
+        item('jacket', 'outerwear', 'business'),
+      ],
+      { ...baseRequest, formality: 'business' as const },
+    ],
+    [
+      'an accessory',
+      [item('dress', 'dresses'), item('bag', 'accessories')],
+      { ...baseRequest, occasion: 'date' as const },
+    ],
+  ])('builds a complete dress look with %s', (_description, wardrobe, request) => {
+    const result = recommendOutfit(wardrobe, request);
+
+    expect(result.isComplete).toBe(true);
+    expect(result.items[0].category).toBe('dresses');
+    expect(result.items).toHaveLength(2);
+  });
+
   test('disables Try Another when there is only one complete combination', () => {
     const result = recommendOutfit(
       [item('top', 'tops'), item('bottom', 'bottoms')],
@@ -150,5 +209,14 @@ describe('recommendOutfit', () => {
 
     expect(result.isComplete).toBe(false);
     expect(result.missingMessage).toContain('dress');
+  });
+
+  test('explains when a dress still needs a companion piece', () => {
+    const result = recommendOutfit([item('dress', 'dresses')], baseRequest);
+
+    expect(result.isComplete).toBe(false);
+    expect(result.missingMessage).toBe(
+      'Add one more piece to turn this into a complete look.',
+    );
   });
 });

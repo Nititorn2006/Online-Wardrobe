@@ -40,6 +40,15 @@ describe('saved outfits', () => {
     );
   });
 
+  test('falls back to generic labels for unsupported runtime values', () => {
+    expect(
+      buildOutfitName(
+        'unsupported-formality' as SavedOutfit['formality'],
+        'unsupported-occasion' as SavedOutfit['occasion'],
+      ),
+    ).toBe('Styled outfit look');
+  });
+
   test('keeps expanded dress codes in saved outfits', () => {
     expect(
       normalizeSavedOutfit(outfit({ formality: 'black-tie' }))?.formality,
@@ -72,5 +81,24 @@ describe('saved outfits', () => {
         (candidate) => candidate.id,
       ),
     ).toEqual(['soon', 'later', 'past']);
+  });
+
+  test('sorts multiple past outfits by newest creation time', () => {
+    const older = outfit({
+      id: 'older',
+      plannedFor: '2026-09-20',
+      createdAt: '2026-09-29T08:00:00.000Z',
+    });
+    const newer = outfit({
+      id: 'newer',
+      plannedFor: '2026-09-21',
+      createdAt: '2026-09-30T08:00:00.000Z',
+    });
+
+    expect(
+      sortSavedOutfits([older, newer], '2026-10-01').map(
+        (candidate) => candidate.id,
+      ),
+    ).toEqual(['newer', 'older']);
   });
 });
