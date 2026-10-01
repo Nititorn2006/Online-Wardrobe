@@ -4,16 +4,16 @@ import { router } from 'expo-router';
 import type { ElementType } from 'react';
 import { Alert } from 'react-native';
 
-import RecommendOutfitScreen from '../recommend-outfit';
+import RecommendOutfitScreen from '@/app/recommend-outfit';
 import {
   OUTFIT_OCCASIONS,
   type OutfitRecommendation,
   type OutfitRequest,
-} from '../../features/outfits/types';
+} from '@/features/outfits/types';
 import {
   FORMALITY_LEVELS,
   type ClothingItem,
-} from '../../features/wardrobe/types';
+} from '@/features/wardrobe/types';
 
 const mockSaveOutfit = jest.fn<() => Promise<unknown>>();
 const mockWardrobe: {

@@ -8,7 +8,7 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert } from 'react-native';
 
-import ClothingDetailScreen from '../clothes';
+import ClothingDetailScreen from '@/app/clothes';
 import type { ClothingItem } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 

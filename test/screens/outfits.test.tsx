@@ -9,9 +9,9 @@ import {
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
 
-import SavedOutfitsScreen from '../outfits';
-import type { SavedOutfit } from '../../features/outfits/types';
-import type { ClothingItem } from '../../features/wardrobe/types';
+import SavedOutfitsScreen from '@/app/outfits';
+import type { SavedOutfit } from '@/features/outfits/types';
+import type { ClothingItem } from '@/features/wardrobe/types';
 
 const mockWardrobe: {
   outfits: SavedOutfit[];

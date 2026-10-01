@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import TryOutfitsScreen from '../try-outfits';
+import TryOutfitsScreen from '@/app/(tabs)/try-outfits';
 import type { SavedOutfit, SaveOutfitInput } from '@/features/outfits/types';
 import type { ClothingCategory, ClothingItem } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';

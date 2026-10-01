@@ -3,7 +3,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 
 import type { TextSizeOption } from '@/features/wardrobe/text-size-provider';
 
-import SettingsScreen from '../settings';
+import SettingsScreen from '@/app/(tabs)/settings';
 
 const mockSetTextSize = jest.fn<(value: TextSizeOption) => Promise<void>>();
 const mockTextSize: {

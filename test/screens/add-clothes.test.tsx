@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { Alert, Platform } from 'react-native';
 
-import AddClothesScreen from '../add-clothes';
+import AddClothesScreen from '@/app/add-clothes';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 
 const mockAddItem = jest.fn<(...args: any[]) => Promise<unknown>>();

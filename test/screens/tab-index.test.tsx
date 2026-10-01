@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
-import HomeScreen from '../index';
-import type { ClothingItem } from '../../../features/wardrobe/types';
+import HomeScreen from '@/app/(tabs)/index';
+import type { ClothingItem } from '@/features/wardrobe/types';
 
 const mockWardrobe: {
   items: ClothingItem[];

@@ -3,7 +3,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 
-import AddClothesScreen from '../add-clothes';
+import AddClothesScreen from '@/app/add-clothes';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 
 const mockAddItem = jest.fn<(...args: any[]) => Promise<unknown>>();

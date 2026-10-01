@@ -1,7 +1,7 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 
-import TabLayout from '../_layout';
+import TabLayout from '@/app/(tabs)/_layout';
 
 const mockAppTabs = jest.fn(() => null);
 

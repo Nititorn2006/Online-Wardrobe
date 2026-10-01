@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 
 import type { ClothingItem } from '@/features/wardrobe/types';
 
-import ClosetScreen from '../closet';
+import ClosetScreen from '@/app/(tabs)/closet';
 
 const mockToggleFavorite = jest.fn<(id: string) => Promise<void>>();
 const mockWardrobe: {

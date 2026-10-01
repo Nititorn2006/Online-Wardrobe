@@ -2,7 +2,7 @@
 import { expect, jest, test } from '@jest/globals';
 import { render, waitFor } from '@testing-library/react-native';
 
-import RootLayout from '../_layout';
+import RootLayout from '@/app/_layout';
 
 jest.mock('expo-router', () => {
   const React = require('react');
