@@ -28,7 +28,7 @@ jest.mock('expo-image-picker', () => ({
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
   const React = jest.requireActual<typeof import('react')>('react');
-  const View = jest.requireActual(
+  const View = jest.requireActual<{ default: typeof import('react-native').View }>(
     'react-native/Libraries/Components/View/View',
   ).default;
 
@@ -40,7 +40,10 @@ jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
         resolvedStyle = style({ pressed: false });
         style({ pressed: true });
       }
-      return React.createElement(View, { ...props, accessible: true, style: resolvedStyle });
+      return React.createElement(
+        View,
+        { ...props, accessible: true, style: resolvedStyle } as never,
+      );
     },
   };
 });
@@ -118,6 +121,28 @@ function deferred<T>() {
   return { promise, reject, resolve };
 }
 
+function cameraPermission(granted: boolean) {
+  return {
+    canAskAgain: true,
+    expires: 'never',
+    granted,
+    status: granted ? 'granted' : 'denied',
+  } as Awaited<ReturnType<typeof ImagePicker.requestCameraPermissionsAsync>>;
+}
+
+function libraryPermission(granted: boolean) {
+  return {
+    canAskAgain: true,
+    expires: 'never',
+    granted,
+    status: granted ? 'granted' : 'denied',
+  } as Awaited<ReturnType<typeof ImagePicker.requestMediaLibraryPermissionsAsync>>;
+}
+
+function imageAsset(uri: string): ImagePicker.ImagePickerAsset {
+  return { height: 100, uri, width: 100 };
+}
+
 type TestView = Awaited<ReturnType<typeof render>>;
 
 function saveButton(view: TestView) {
@@ -128,7 +153,7 @@ async function chooseSuccessfulPhoto(view: TestView, source: 'camera' | 'library
   const launcher = source === 'camera' ? mockLaunchCamera : mockLaunchLibrary;
   launcher.mockResolvedValueOnce({
     canceled: false,
-    assets: [{ uri: 'file:///shirt.jpg' }],
+    assets: [imageAsset('file:///shirt.jpg')],
   });
   const label = source === 'camera' ? 'Take clothing photo' : 'Choose clothing photo from library';
   await fireEvent.press(view.getByRole('button', { name: label }));
@@ -137,11 +162,13 @@ async function chooseSuccessfulPhoto(view: TestView, source: 'camera' | 'library
 describe('AddClothesScreen on native platforms', () => {
   beforeEach(() => {
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
-    mockUseWardrobe.mockReturnValue({ addItem: mockAddItem } as ReturnType<typeof useWardrobe>);
-    mockRequestCamera.mockResolvedValue({ granted: true });
-    mockRequestLibrary.mockResolvedValue({ granted: true });
-    mockLaunchCamera.mockResolvedValue({ canceled: true, assets: [] });
-    mockLaunchLibrary.mockResolvedValue({ canceled: true, assets: [] });
+    mockUseWardrobe.mockReturnValue(
+      { addItem: mockAddItem } as unknown as ReturnType<typeof useWardrobe>,
+    );
+    mockRequestCamera.mockResolvedValue(cameraPermission(true));
+    mockRequestLibrary.mockResolvedValue(libraryPermission(true));
+    mockLaunchCamera.mockResolvedValue({ canceled: true, assets: null });
+    mockLaunchLibrary.mockResolvedValue({ canceled: true, assets: null });
     mockAddItem.mockResolvedValue({});
   });
 
@@ -200,7 +227,7 @@ describe('AddClothesScreen on native platforms', () => {
   });
 
   test('handles denied camera and library permissions', async () => {
-    mockRequestCamera.mockResolvedValueOnce({ granted: false });
+    mockRequestCamera.mockResolvedValueOnce(cameraPermission(false));
     const cameraView = await render(<AddClothesScreen />);
     await fireEvent.press(cameraView.getByRole('button', { name: 'Take clothing photo' }));
     expect(alertSpy).toHaveBeenLastCalledWith(
@@ -211,7 +238,7 @@ describe('AddClothesScreen on native platforms', () => {
     expect(mockLaunchCamera).not.toHaveBeenCalled();
     await cameraView.unmount();
 
-    mockRequestLibrary.mockResolvedValueOnce({ granted: false });
+    mockRequestLibrary.mockResolvedValueOnce(libraryPermission(false));
     const libraryView = await render(<AddClothesScreen />);
     await fireEvent.press(
       libraryView.getByRole('button', { name: 'Choose clothing photo from library' }),
@@ -225,7 +252,7 @@ describe('AddClothesScreen on native platforms', () => {
   });
 
   test('ignores a second picker request and renders the busy overlay', async () => {
-    const permission = deferred<{ granted: boolean }>();
+    const permission = deferred<ReturnType<typeof cameraPermission>>();
     mockRequestCamera.mockReturnValueOnce(permission.promise);
     const view = await render(<AddClothesScreen />);
 
@@ -235,7 +262,7 @@ describe('AddClothesScreen on native platforms', () => {
     busyCamera.props.onPress();
     expect(mockRequestCamera).toHaveBeenCalledTimes(1);
 
-    await act(async () => permission.resolve({ granted: true }));
+    await act(async () => permission.resolve(cameraPermission(true)));
     await waitFor(() => expect(view.queryByText('Opening photos…')).toBeNull());
   });
 

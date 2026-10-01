@@ -28,7 +28,10 @@ jest.mock('react-native', () => {
         style({ pressed: true });
       }
 
-      return React.createElement(actual.Pressable, { ...props, style });
+      return React.createElement(actual.Pressable as never, {
+        ...props,
+        style,
+      } as never);
     },
   });
   return mocked;

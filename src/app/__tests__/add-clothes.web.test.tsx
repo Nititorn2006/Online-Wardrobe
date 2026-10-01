@@ -31,7 +31,7 @@ jest.mock('expo-image-picker', () => ({
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
   const React = jest.requireActual<typeof import('react')>('react');
-  const View = jest.requireActual(
+  const View = jest.requireActual<{ default: typeof import('react-native').View }>(
     'react-native/Libraries/Components/View/View',
   ).default;
   return {
@@ -42,7 +42,10 @@ jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
         resolvedStyle = style({ pressed: false });
         style({ pressed: true });
       }
-      return React.createElement(View, { ...props, accessible: true, style: resolvedStyle });
+      return React.createElement(
+        View,
+        { ...props, accessible: true, style: resolvedStyle } as never,
+      );
     },
   };
 });
@@ -87,17 +90,26 @@ const mockUseWardrobe = useWardrobe as jest.MockedFunction<typeof useWardrobe>;
 
 const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
 
+function imageAsset(
+  uri: string,
+  details: Partial<ImagePicker.ImagePickerAsset> = {},
+): ImagePicker.ImagePickerAsset {
+  return { height: 100, uri, width: 100, ...details };
+}
+
 describe('AddClothesScreen in a browser', () => {
   beforeEach(() => {
-    mockUseWardrobe.mockReturnValue({ addItem: mockAddItem } as ReturnType<typeof useWardrobe>);
-    mockLaunchCamera.mockResolvedValue({ canceled: true, assets: [] });
-    mockLaunchLibrary.mockResolvedValue({ canceled: true, assets: [] });
+    mockUseWardrobe.mockReturnValue(
+      { addItem: mockAddItem } as unknown as ReturnType<typeof useWardrobe>,
+    );
+    mockLaunchCamera.mockResolvedValue({ canceled: true, assets: null });
+    mockLaunchLibrary.mockResolvedValue({ canceled: true, assets: null });
   });
 
   test('uses an existing data URL without requesting native permission', async () => {
     mockLaunchCamera.mockResolvedValueOnce({
       canceled: false,
-      assets: [{ uri: 'data:image/png;base64,already-data' }],
+      assets: [imageAsset('data:image/png;base64,already-data')],
     });
     const view = await render(<AddClothesScreen />);
 
@@ -112,11 +124,11 @@ describe('AddClothesScreen in a browser', () => {
   test('converts browser assets with explicit and default MIME types', async () => {
     const cases = [
       {
-        asset: { uri: 'blob:one', base64: 'AAAA', mimeType: 'image/webp' },
+        asset: imageAsset('blob:one', { base64: 'AAAA', mimeType: 'image/webp' }),
         expected: 'data:image/webp;base64,AAAA',
       },
       {
-        asset: { uri: 'blob:two', base64: 'BBBB' },
+        asset: imageAsset('blob:two', { base64: 'BBBB' }),
         expected: 'data:image/jpeg;base64,BBBB',
       },
     ];
@@ -137,7 +149,7 @@ describe('AddClothesScreen in a browser', () => {
   test('reports when a browser asset has no image data', async () => {
     mockLaunchLibrary.mockResolvedValueOnce({
       canceled: false,
-      assets: [{ uri: 'blob:missing' }],
+      assets: [imageAsset('blob:missing')],
     });
     const view = await render(<AddClothesScreen />);
 

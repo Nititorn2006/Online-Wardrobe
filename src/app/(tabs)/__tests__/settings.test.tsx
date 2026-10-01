@@ -27,7 +27,10 @@ jest.mock('react-native', () => {
         style({ pressed: true });
       }
 
-      return React.createElement(actual.Pressable, { ...props, style });
+      return React.createElement(actual.Pressable as never, {
+        ...props,
+        style,
+      } as never);
     },
   });
   return mocked;
@@ -82,12 +85,12 @@ describe('SettingsScreen', () => {
     ).toEqual({ selected: false });
   });
 
-  test.each([
+  test.each<[string, TextSizeOption]>([
     ['Small', 'small'],
     ['Default', 'default'],
     ['Large', 'large'],
     ['Extra Large', 'extraLarge'],
-  ] as const)('selects %s text', async (label, value) => {
+  ])('selects %s text', async (label, value) => {
     const view = await render(<SettingsScreen />);
 
     await fireEvent.press(view.getByRole('button', { name: new RegExp(`^${label}`) }));

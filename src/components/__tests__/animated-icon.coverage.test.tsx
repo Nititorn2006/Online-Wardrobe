@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { act, render, waitFor } from '@testing-library/react-native';
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
@@ -65,17 +66,18 @@ describe('animated icons', () => {
   test('animates and then removes the native splash overlay', async () => {
     const view = await render(<NativeAnimatedSplashOverlay />);
     await act(async () => {
-      view.root.props.onLayout();
+      view.root!.props.onLayout();
       await Promise.resolve();
     });
 
     expect(mockHideAsync).toHaveBeenCalledTimes(1);
     await waitFor(() => {
-      expect(view.root.props.entering).toBeTruthy();
+      expect(view.root!.props.entering).toBeTruthy();
     });
 
     const splashKeyframe = mockKeyframe.mock.instances.find(
-      (instance: { withCallback?: jest.Mock }) => instance.withCallback?.mock.calls.length,
+      (instance) =>
+        (instance as { withCallback?: jest.Mock }).withCallback?.mock.calls.length,
     ) as { callback: (finished: boolean) => void };
 
     await act(() => splashKeyframe.callback(false));

@@ -91,7 +91,7 @@ afterAll(() => {
 
 beforeEach(() => {
   mockUseTheme.mockReset();
-  mockUseTheme.mockReturnValue(mockTheme);
+  mockUseTheme.mockReturnValue(mockTheme as unknown as ReturnType<typeof useTheme>);
   mockUseColorScheme.mockReset();
   mockUseColorScheme.mockReturnValue('light');
   mockOpenBrowserAsync.mockClear();

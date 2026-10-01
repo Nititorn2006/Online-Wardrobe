@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import type { ElementType } from 'react';
 import {
   act,
   fireEvent,
   render,
   waitFor,
-  type RenderAPI,
 } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
@@ -24,12 +24,12 @@ const mockWardrobe: {
 };
 
 const mockSortSavedOutfits = jest.fn(
-  (outfits: readonly SavedOutfit[]) => [...outfits],
+  (outfits: readonly SavedOutfit[], _today: string) => [...outfits],
 );
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
   const React = jest.requireActual<typeof import('react')>('react');
-  const View = jest.requireActual(
+  const View = jest.requireActual<{ default: ElementType }>(
     'react-native/Libraries/Components/View/View',
   ).default;
 
@@ -115,7 +115,9 @@ function savedOutfit(
   };
 }
 
-async function coverPressedStyles(view: RenderAPI) {
+async function coverPressedStyles(
+  view: Awaited<ReturnType<typeof render>>,
+) {
   for (const button of view.getAllByRole('button')) {
     await fireEvent(button, 'pressIn');
     await fireEvent(button, 'pressOut');

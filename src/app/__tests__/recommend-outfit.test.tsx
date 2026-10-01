@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
+import type { ElementType } from 'react';
 import { Alert } from 'react-native';
 
 import RecommendOutfitScreen from '../recommend-outfit';
-import { OUTFIT_OCCASIONS, type OutfitRecommendation } from '../../features/outfits/types';
+import {
+  OUTFIT_OCCASIONS,
+  type OutfitRecommendation,
+  type OutfitRequest,
+} from '../../features/outfits/types';
 import {
   FORMALITY_LEVELS,
   type ClothingItem,
@@ -20,11 +25,13 @@ const mockWardrobe: {
 };
 
 let mockRecommendation: OutfitRecommendation;
-const mockRecommendOutfit = jest.fn(() => mockRecommendation);
+const mockRecommendOutfit = jest.fn(
+  (_items: readonly ClothingItem[], _request: OutfitRequest) => mockRecommendation,
+);
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
   const React = jest.requireActual<typeof import('react')>('react');
-  const View = jest.requireActual(
+  const View = jest.requireActual<{ default: ElementType }>(
     'react-native/Libraries/Components/View/View',
   ).default;
 
@@ -73,7 +80,8 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('@/features/outfits/recommendation', () => ({
-  recommendOutfit: (...args: unknown[]) => mockRecommendOutfit(...args),
+  recommendOutfit: (items: readonly ClothingItem[], request: OutfitRequest) =>
+    mockRecommendOutfit(items, request),
 }));
 
 jest.mock('@/features/wardrobe/wardrobe-provider', () => ({
