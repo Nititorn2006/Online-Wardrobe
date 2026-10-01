@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, react/display-name */
 import { expect, jest, test } from '@jest/globals';
 import { render, waitFor } from '@testing-library/react-native';
 

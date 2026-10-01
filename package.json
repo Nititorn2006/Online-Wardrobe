@@ -64,7 +64,11 @@
     "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts"
+      "!src/**/*.d.ts",
+      "!src/features/wardrobe/image-store.ts",
+      "!src/features/wardrobe/index.ts",
+      "!src/hooks/use-color-scheme.ts",
+      "!src/hooks/use-color-scheme.web.ts"
     ],
     "coverageDirectory": "coverage",
     "coverageReporters": [

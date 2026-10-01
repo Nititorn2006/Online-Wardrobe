@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, import/no-duplicates */
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import type { ReactNode } from 'react';

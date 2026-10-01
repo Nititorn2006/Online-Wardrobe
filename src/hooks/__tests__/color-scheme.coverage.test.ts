@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, import/first, import/no-duplicates */
 import { describe, expect, jest, test } from '@jest/globals';
 
 jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({

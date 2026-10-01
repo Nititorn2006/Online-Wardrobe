@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, import/no-duplicates */
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { act, render, waitFor } from '@testing-library/react-native';
 import { Image } from 'expo-image';

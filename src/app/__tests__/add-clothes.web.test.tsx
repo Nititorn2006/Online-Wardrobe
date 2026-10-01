@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
 import { Alert } from 'react-native';
 
 import AddClothesScreen from '../add-clothes';
@@ -77,7 +76,6 @@ jest.mock('@/features/wardrobe/wardrobe-provider', () => ({
   useWardrobe: jest.fn(),
 }));
 
-const mockBack = router.back as jest.MockedFunction<typeof router.back>;
 const mockRequestCamera = ImagePicker.requestCameraPermissionsAsync as jest.Mock;
 const mockRequestLibrary = ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock;
 const mockLaunchCamera = ImagePicker.launchCameraAsync as jest.MockedFunction<

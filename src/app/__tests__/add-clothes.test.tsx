@@ -184,7 +184,7 @@ describe('AddClothesScreen on native platforms', () => {
   });
 
   test('warns before discarding drafts made by every classification field', async () => {
-    const cases: Array<(view: TestView) => Promise<unknown>> = [
+    const cases: ((view: TestView) => Promise<unknown>)[] = [
       (view) => fireEvent.changeText(view.getByLabelText('Clothing name'), 'Draft'),
       (view) => fireEvent.press(view.getByRole('button', { name: 'Bottoms category' })),
       (view) => fireEvent.press(view.getByRole('button', { name: 'Formal dress code' })),
@@ -196,7 +196,7 @@ describe('AddClothesScreen on native platforms', () => {
       await makeDraft(view);
       await fireEvent.press(view.getByRole('button', { name: 'Close add clothes' }));
       const buttons = alertSpy.mock.calls.at(-1)?.[2] as
-        | Array<{ text?: string; onPress?: () => void }>
+        | { text?: string; onPress?: () => void }[]
         | undefined;
       expect(buttons?.map((button) => button.text)).toEqual(['Keep editing', 'Discard']);
       buttons?.[1].onPress?.();
@@ -338,7 +338,7 @@ describe('AddClothesScreen on native platforms', () => {
   });
 
   test('reports save failures using the error message and fallback', async () => {
-    const failures: Array<[unknown, string]> = [
+    const failures: [unknown, string][] = [
       [new Error('Storage full'), 'Storage full'],
       [new Error(''), 'Your changes weren’t saved. Please try again.'],
       ['bad', 'Your changes weren’t saved. Please try again.'],

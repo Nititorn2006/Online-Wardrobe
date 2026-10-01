@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { renderHook } from '@testing-library/react-native';
 
