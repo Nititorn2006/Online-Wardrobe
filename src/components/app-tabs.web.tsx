@@ -30,7 +30,7 @@ export default function AppTabs() {
             onPress={() => router.push('/add-clothes')}
             style={({ pressed }) => [
               styles.addButton,
-              pressed && styles.pressed,
+              [undefined, styles.pressed][Number(pressed)],
             ]}>
             <View style={styles.addCircle}>
               <AppText style={styles.addIcon}>＋</AppText>
@@ -65,7 +65,7 @@ export function TabButton({
       style={({ pressed }) => [
         styles.tabButton,
         isFocused && styles.tabButtonFocused,
-        pressed && styles.pressed,
+        [undefined, styles.pressed][Number(pressed)],
       ]}>
       <AppText style={[styles.tabIcon, isFocused && styles.tabTextFocused]}>{icon}</AppText>
       <AppText style={[styles.tabLabel, isFocused && styles.tabTextFocused]}>{children}</AppText>
