@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -425,6 +425,30 @@ export default function RecommendOutfitScreen() {
                       {recommendation.tryAnotherLabel}
                     </AppText>
                   </Pressable>
+
+                  <Pressable
+                    accessibilityHint="Open this recommendation in the outfit mixer"
+                    accessibilityLabel="Mix this look"
+                    accessibilityRole="button"
+                    onPress={() =>
+                      router.navigate({
+                        pathname: '/try-outfits',
+                        params: {
+                          itemIds: recommendation.items.map((item) => item.id).join(','),
+                          occasion,
+                          formality,
+                          plannedFor,
+                          importToken: `${Date.now()}`,
+                        },
+                      } as Href)
+                    }
+                    style={({ pressed }) => [
+                      styles.mixLookButton,
+                      pressed && styles.pressed,
+                    ]}>
+                    <AppText style={styles.mixLookButtonIcon}>↔</AppText>
+                    <AppText style={styles.mixLookButtonText}>Mix this look</AppText>
+                  </Pressable>
                 </View>
               ) : (
                 <View style={styles.missingCard}>
@@ -650,6 +674,21 @@ const styles = StyleSheet.create({
   secondaryButtonDisabled: { opacity: 0.58 },
   secondaryButtonIcon: { color: Palette.brand, fontSize: 18, fontWeight: '700' },
   secondaryButtonText: { color: Palette.brand, fontSize: 14, fontWeight: '700' },
+  mixLookButton: {
+    width: '100%',
+    minHeight: 48,
+    paddingHorizontal: 18,
+    borderRadius: Radius.pill,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  mixLookButtonIcon: { color: Palette.white, fontSize: 18, fontWeight: '700' },
+  mixLookButtonText: { color: Palette.white, fontSize: 14, fontWeight: '700' },
   variationMessage: {
     color: '#D7D4FF',
     fontSize: 11,

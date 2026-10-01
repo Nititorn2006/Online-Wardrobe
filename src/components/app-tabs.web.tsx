@@ -6,6 +6,7 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
@@ -20,8 +21,24 @@ export default function AppTabs() {
           <TabTrigger name="home" href="/" asChild>
             <TabButton icon="⌂">Home</TabButton>
           </TabTrigger>
+          <TabTrigger name="try-outfits" href="/try-outfits" asChild>
+            <TabButton icon="↻">Try</TabButton>
+          </TabTrigger>
+          <Pressable
+            accessibilityLabel="Add clothes"
+            accessibilityRole="button"
+            onPress={() => router.push('/add-clothes')}
+            style={({ pressed }) => [
+              styles.addButton,
+              pressed && styles.pressed,
+            ]}>
+            <View style={styles.addCircle}>
+              <AppText style={styles.addIcon}>＋</AppText>
+            </View>
+            <AppText style={styles.addLabel}>Add</AppText>
+          </Pressable>
           <TabTrigger name="closet" href="/closet" asChild>
-            <TabButton icon="▣">My Clothes</TabButton>
+            <TabButton icon="▣">Closet</TabButton>
           </TabTrigger>
           <TabTrigger
             name="settings"
@@ -118,4 +135,21 @@ const styles = StyleSheet.create({
   tabTextFocused: {
     color: Palette.brand,
   },
+  addButton: {
+    flex: 1,
+    minHeight: 54,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 1,
+  },
+  addCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Palette.brand,
+  },
+  addIcon: { color: Palette.white, fontSize: 22, lineHeight: 23 },
+  addLabel: { color: Palette.brand, fontSize: 10, lineHeight: 12, fontWeight: '700' },
 });

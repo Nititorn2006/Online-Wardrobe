@@ -21,6 +21,7 @@ export default function AppTabs() {
   const insets = useSafeAreaInsets();
 
   const isHome = pathname === '/';
+  const isTryOutfits = pathname.startsWith('/try-outfits');
   const isCloset = pathname.startsWith('/closet');
   const isSettings = pathname.startsWith('/settings');
 
@@ -63,6 +64,29 @@ export default function AppTabs() {
               ]}
             >
               Home
+            </AppText>
+          </TabTrigger>
+
+          {/* TRY OUTFITS */}
+          <TabTrigger
+            name="try-outfits"
+            style={[
+              styles.tabButton,
+              isTryOutfits && styles.tabButtonSelected,
+            ]}>
+            <Ionicons
+              name={isTryOutfits ? 'shuffle' : 'shuffle-outline'}
+              size={26}
+              color={isTryOutfits ? Palette.brand : Palette.ink}
+            />
+
+            <AppText
+              numberOfLines={1}
+              style={[
+                styles.tabLabel,
+                isTryOutfits && styles.tabLabelSelected,
+              ]}>
+              Try
             </AppText>
           </TabTrigger>
 
@@ -122,7 +146,7 @@ export default function AppTabs() {
                   styles.tabLabelSelected,
               ]}
             >
-              My Clothes
+              Closet
             </AppText>
           </TabTrigger>
 
@@ -166,6 +190,11 @@ export default function AppTabs() {
         <TabTrigger
           name="home"
           href="/"
+        />
+
+        <TabTrigger
+          name="try-outfits"
+          href="/try-outfits"
         />
 
         <TabTrigger
