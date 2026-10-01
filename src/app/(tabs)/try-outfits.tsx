@@ -470,6 +470,7 @@ export default function TryOutfitsScreen() {
       <Modal
         animationType="slide"
         onRequestClose={() => setIsSaveOpen(false)}
+        testID="save-outfit-modal"
         transparent
         visible={isSaveOpen}>
         <View style={styles.modalBackdrop}>
