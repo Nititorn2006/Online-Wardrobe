@@ -10,7 +10,10 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
@@ -59,6 +62,9 @@ const SLOT_LABELS: Record<OutfitSlot, string> = {
   accessory: 'Accessory',
 };
 
+const TAB_BAR_HEIGHT = 78;
+const ACTION_TAB_GAP = 12;
+
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -94,6 +100,7 @@ function createDateOptions(): DateOption[] {
 }
 
 export default function TryOutfitsScreen() {
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
     itemIds?: string | string[];
     occasion?: string | string[];
@@ -354,7 +361,16 @@ export default function TryOutfitsScreen() {
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.content}>
+        <View
+          style={[
+            styles.content,
+            {
+              paddingBottom:
+                TAB_BAR_HEIGHT +
+                Math.max(insets.bottom, 12) +
+                ACTION_TAB_GAP,
+            },
+          ]}>
           <View style={styles.header}>
             <View style={styles.headerCopy}>
               <AppText style={styles.eyebrow}>MIX &amp; MATCH</AppText>
@@ -613,7 +629,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 14,
     paddingTop: 7,
-    paddingBottom: Layout.tabClearance,
     gap: 9,
   },
   header: {
