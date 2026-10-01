@@ -144,7 +144,7 @@ export default function HomeScreen() {
               }
               style={({ pressed }) => [
                 styles.plannerCard,
-                pressed && styles.pressed,
+                PRESSED_STYLES[Number(pressed)],
               ]}
             >
               <View style={styles.plannerIcon}>
@@ -176,7 +176,7 @@ export default function HomeScreen() {
               onPress={() => router.push('/outfits' as Href)}
               style={({ pressed }) => [
                 styles.savedOutfitsCard,
-                pressed && styles.pressed,
+                PRESSED_STYLES[Number(pressed)],
               ]}>
               <View style={styles.savedOutfitsIcon}>
                 <AppText style={styles.savedOutfitsIconText}>◇</AppText>
@@ -260,8 +260,9 @@ export default function HomeScreen() {
                           pressed,
                         }) => [
                           styles.recentCard,
-                          pressed &&
-                            styles.pressed,
+                          PRESSED_STYLES[
+                            Number(pressed)
+                          ],
                         ]}
                       >
                         <Image
@@ -598,3 +599,5 @@ const styles = StyleSheet.create({
     padding: 11,
   },
 });
+
+const PRESSED_STYLES = [undefined, styles.pressed] as const;
