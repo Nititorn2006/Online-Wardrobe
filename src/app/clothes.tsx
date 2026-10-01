@@ -275,7 +275,7 @@ export default function ClothingDetailScreen() {
 
                 <View style={styles.editorActions}>
                   <Pressable
-                    accessibilityLabel="Save clothing changes"
+                    accessibilityLabel="Cancel clothing changes"
                     accessibilityRole="button"
                     disabled={isSavingDetails}
                     onPress={() => setIsEditingDetails(false)}
@@ -288,6 +288,7 @@ export default function ClothingDetailScreen() {
                   </Pressable>
 
                   <Pressable
+                    accessibilityLabel="Save clothing changes"
                     accessibilityRole="button"
                     accessibilityState={{ busy: isSavingDetails }}
                     disabled={isSavingDetails}

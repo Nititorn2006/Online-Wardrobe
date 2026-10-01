@@ -242,12 +242,13 @@ describe('ClothingDetailScreen', () => {
     await fireEvent.press(view.getByText('Bottoms'));
     await fireEvent.press(view.getByText('Formal'));
     await fireEvent.press(view.getByRole('button', { name: /^Color picker/ }));
+    expect(view.getByRole('button', { name: 'Cancel clothing changes' })).toBeTruthy();
     expect(view.getByRole('button', { name: 'Save clothing changes' })).toBeTruthy();
 
     await fireEvent.press(view.getByText('Cancel'));
     expect(view.queryByText('Main color')).toBeNull();
     await fireEvent.press(editButton(view));
-    expect(view.getByRole('button', { name: 'Save clothing changes' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'Cancel clothing changes' })).toBeTruthy();
   });
 
   test('saves a renamed item with changed category, dress code, and color while showing progress', async () => {
