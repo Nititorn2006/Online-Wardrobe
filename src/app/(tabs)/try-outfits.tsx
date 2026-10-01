@@ -416,7 +416,7 @@ export default function TryOutfitsScreen() {
             </View>
           </View>
 
-          <View style={styles.actionArea}>
+          <View>
             <View style={styles.actionRow}>
               <Pressable
                 accessibilityRole="button"
@@ -447,13 +447,6 @@ export default function TryOutfitsScreen() {
                 </AppText>
               </Pressable>
             </View>
-
-            <AppText numberOfLines={1} style={styles.actionHint}>
-              {readiness.message ??
-                (shuffleAvailable
-                  ? 'Keep a piece to protect it from Shuffle.'
-                  : 'Add more clothes or unlock a piece to shuffle.')}
-            </AppText>
           </View>
         </View>
       </SafeAreaView>
@@ -750,7 +743,6 @@ const styles = StyleSheet.create({
   tileArrowRight: { right: 5 },
   tileArrowDisabled: { opacity: 0.28 },
   tileArrowText: { color: Palette.brand, fontSize: 23, lineHeight: 24, fontWeight: '700' },
-  actionArea: { gap: 5 },
   actionRow: { height: 49, flexDirection: 'row', gap: 8 },
   shuffleButton: {
     flex: 1,
@@ -772,12 +764,6 @@ const styles = StyleSheet.create({
   },
   saveButtonText: { color: Palette.white, fontSize: 13, fontWeight: '800' },
   buttonDisabled: { opacity: 0.43 },
-  actionHint: {
-    color: Palette.muted,
-    fontSize: 9,
-    lineHeight: 12,
-    textAlign: 'center',
-  },
   modalBackdrop: {
     flex: 1,
     justifyContent: 'flex-end',
