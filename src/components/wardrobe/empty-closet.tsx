@@ -81,7 +81,7 @@ export function EmptyCloset({
           onPress={onButtonPress}
           style={({ pressed }) => [
             styles.button,
-            pressed && styles.buttonPressed,
+            PRESSED_STYLES[Number(pressed)],
           ]}
         >
           <AppText style={styles.buttonText}>
@@ -331,3 +331,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
+
+const PRESSED_STYLES = [undefined, styles.buttonPressed] as const;

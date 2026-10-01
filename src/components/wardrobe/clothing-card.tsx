@@ -37,7 +37,7 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
         accessibilityLabel={item.name}
         accessibilityRole="button"
         onPress={onPress}
-        style={({ pressed }) => [styles.cardContent, pressed && styles.pressed]}>
+        style={({ pressed }) => [styles.cardContent, PRESSED_STYLES[Number(pressed)]]}>
         <View style={styles.imageFrame}>
           <Image
             accessibilityLabel={`Photo of ${item.name}`}
@@ -69,7 +69,10 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
         accessibilityState={{ selected: item.isFavorite }}
         hitSlop={4}
         onPress={onToggleFavorite}
-        style={({ pressed }) => [styles.favoriteButton, pressed && styles.favoritePressed]}>
+        style={({ pressed }) => [
+          styles.favoriteButton,
+          FAVORITE_PRESSED_STYLES[Number(pressed)],
+        ]}>
         <AppText
           importantForAccessibility="no"
           style={[styles.heart, item.isFavorite && styles.heartSelected]}>
@@ -182,3 +185,6 @@ const styles = StyleSheet.create({
     color: '#EF6A67',
   },
 });
+
+const PRESSED_STYLES = [undefined, styles.pressed] as const;
+const FAVORITE_PRESSED_STYLES = [undefined, styles.favoritePressed] as const;
