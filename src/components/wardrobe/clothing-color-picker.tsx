@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
-import { Palette, Radius } from '@/constants/design';
+import { AdvancedColorPicker } from '@/components/wardrobe/advanced-color-picker';
+import { Palette } from '@/constants/design';
 import {
   COMMON_COLOR_OPTIONS,
-  EXTENDED_COLOR_SWATCHES,
   isDarkClothingColor,
   normalizeClothingColor,
 } from '@/features/wardrobe/color-palette';
@@ -19,19 +19,11 @@ export function ClothingColorPicker({
   onChange: (value: string) => void;
   value: string;
 }) {
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const normalizedValue = normalizeClothingColor(value) ?? value.toUpperCase();
   const isCommonColor = COMMON_COLOR_OPTIONS.some(
     (option) => option.hex === normalizedValue,
   );
-  const [isPaletteOpen, setIsPaletteOpen] = useState(!isCommonColor);
-  const customSwatches =
-    !isCommonColor &&
-    normalizeClothingColor(normalizedValue) &&
-    !EXTENDED_COLOR_SWATCHES.includes(
-      normalizedValue as (typeof EXTENDED_COLOR_SWATCHES)[number],
-    )
-      ? [normalizedValue, ...EXTENDED_COLOR_SWATCHES]
-      : [...EXTENDED_COLOR_SWATCHES];
 
   return (
     <View style={styles.container}>
@@ -50,7 +42,7 @@ export function ClothingColorPicker({
               style={({ pressed }) => [
                 styles.commonChip,
                 isSelected && styles.commonChipSelected,
-                pressed && styles.pressed,
+                PRESSED_STYLES[Number(pressed)],
               ]}>
               <View
                 style={[
@@ -76,23 +68,27 @@ export function ClothingColorPicker({
         })}
 
         <Pressable
-          accessibilityLabel="More colors"
+          accessibilityLabel="Other colors"
           accessibilityRole="button"
-          accessibilityState={{ expanded: isPaletteOpen, selected: !isCommonColor, disabled }}
+          accessibilityState={{
+            expanded: isPickerOpen,
+            selected: !isCommonColor,
+            disabled,
+          }}
           disabled={disabled}
-          onPress={() => setIsPaletteOpen((value) => !value)}
+          onPress={() => setIsPickerOpen(true)}
           style={({ pressed }) => [
-            styles.moreChip,
+            styles.otherChip,
             !isCommonColor && styles.commonChipSelected,
-            pressed && styles.pressed,
+            PRESSED_STYLES[Number(pressed)],
           ]}>
           <View
             style={[
-              styles.moreSwatch,
+              styles.otherSwatch,
               !isCommonColor && { backgroundColor: normalizedValue },
             ]}>
             {isCommonColor ? (
-              <AppText style={styles.moreIcon}>+</AppText>
+              <AppText style={styles.otherIcon}>＋</AppText>
             ) : (
               <AppText
                 style={[
@@ -103,54 +99,20 @@ export function ClothingColorPicker({
               </AppText>
             )}
           </View>
-          <AppText style={styles.commonLabel}>More colors</AppText>
+          <View style={styles.otherCopy}>
+            <AppText style={styles.commonLabel}>Other</AppText>
+            <AppText style={styles.otherHint}>Grid, spectrum, and sliders</AppText>
+          </View>
+          <AppText style={styles.otherArrow}>›</AppText>
         </Pressable>
       </View>
 
-      {isPaletteOpen && (
-        <View style={styles.paletteCard}>
-          <View style={styles.paletteHeading}>
-            <View>
-              <AppText style={styles.paletteTitle}>Pick a shade</AppText>
-              <AppText style={styles.paletteHint}>Tap a color—no HEX code needed.</AppText>
-            </View>
-            <View style={[styles.currentPreview, { backgroundColor: normalizedValue }]} />
-          </View>
-
-          <View style={styles.swatchGrid}>
-            {customSwatches.map((hex, index) => {
-              const isSelected = normalizedValue === hex;
-
-              return (
-                <Pressable
-                  accessibilityLabel={`Color shade ${index + 1}`}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected, disabled }}
-                  disabled={disabled}
-                  key={hex}
-                  onPress={() => onChange(hex)}
-                  style={({ pressed }) => [
-                    styles.swatchButton,
-                    isSelected && styles.swatchButtonSelected,
-                    pressed && styles.pressed,
-                  ]}>
-                  <View style={[styles.extendedSwatch, { backgroundColor: hex }]}>
-                    {isSelected && (
-                      <AppText
-                        style={[
-                          styles.check,
-                          !isDarkClothingColor(hex) && styles.checkDark,
-                        ]}>
-                        ✓
-                      </AppText>
-                    )}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      )}
+      <AdvancedColorPicker
+        onChange={onChange}
+        onClose={() => setIsPickerOpen(false)}
+        value={normalizedValue}
+        visible={isPickerOpen}
+      />
     </View>
   );
 }
@@ -192,9 +154,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  moreChip: {
+  otherChip: {
     width: '100%',
-    minHeight: 50,
+    minHeight: 56,
     paddingHorizontal: 11,
     borderRadius: 15,
     borderColor: '#D4CEC3',
@@ -204,56 +166,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 9,
   },
-  moreSwatch: {
-    width: 25,
-    height: 25,
-    borderRadius: 13,
+  otherSwatch: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     borderWidth: 1,
-    borderStyle: 'dashed',
     borderColor: '#AAA59B',
     backgroundColor: '#F3F0E9',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  moreIcon: { color: Palette.muted, fontSize: 18, lineHeight: 19, fontWeight: '500' },
+  otherIcon: { color: Palette.muted, fontSize: 18, lineHeight: 19, fontWeight: '500' },
+  otherCopy: { flex: 1, minWidth: 0 },
+  otherHint: { color: Palette.muted, fontSize: 10, lineHeight: 14 },
+  otherArrow: { color: Palette.brand, fontSize: 24, lineHeight: 25 },
   check: { color: Palette.white, fontSize: 13, lineHeight: 16, fontWeight: '900' },
   checkDark: { color: Palette.ink },
-  paletteCard: {
-    padding: 14,
-    gap: 13,
-    borderRadius: Radius.medium,
-    backgroundColor: '#EEEAE2',
-    borderWidth: 1,
-    borderColor: '#D8D2C7',
-  },
-  paletteHeading: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  paletteTitle: { color: Palette.ink, fontSize: 14, fontWeight: '700' },
-  paletteHint: { color: Palette.muted, fontSize: 11, lineHeight: 16 },
-  currentPreview: {
-    width: 36,
-    height: 36,
-    marginLeft: 'auto',
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: Palette.surface,
-  },
-  swatchGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  swatchButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  swatchButtonSelected: { backgroundColor: Palette.surface },
-  extendedSwatch: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
-  },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
 });
+
+const PRESSED_STYLES = [undefined, styles.pressed] as const;

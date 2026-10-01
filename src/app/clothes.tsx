@@ -287,15 +287,14 @@ export default function ClothingDetailScreen() {
               </View>
             ) : (
               <Pressable
+                accessibilityLabel="Edit category, dress code, and color"
                 accessibilityRole="button"
                 onPress={startEditingDetails}
                 style={({ pressed }) => [
                   styles.classificationButton,
                   pressed && styles.pressed,
                 ]}>
-                <AppText style={styles.classificationButtonText}>
-                  Edit category, dress code &amp; color
-                </AppText>
+                <AppText style={styles.classificationButtonText}>Edit</AppText>
               </Pressable>
             )}
 
