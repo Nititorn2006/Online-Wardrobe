@@ -64,6 +64,7 @@ export type AddClothingInput = {
 };
 
 export type UpdateClothingDetailsInput = {
+  name: string;
   category: ClothingCategory;
   formality: ClothingFormality;
   color: ClothingColor;

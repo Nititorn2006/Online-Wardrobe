@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppText } from '@/components/app-text';
+import { AppText, AppTextInput } from '@/components/app-text';
 import { ClothingColorPicker } from '@/components/wardrobe/clothing-color-picker';
 import { Layout, Palette, Radius } from '@/constants/design';
 import { DEFAULT_CLOTHING_COLOR } from '@/features/wardrobe/color-palette';
@@ -36,6 +36,7 @@ export default function ClothingDetailScreen() {
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [isSavingDetails, setIsSavingDetails] = useState(false);
+  const [draftName, setDraftName] = useState('');
   const [draftCategory, setDraftCategory] = useState<ClothingCategory>('tops');
   const [draftFormality, setDraftFormality] = useState<ClothingFormality>('casual');
   const [draftColor, setDraftColor] = useState<string>(DEFAULT_CLOTHING_COLOR);
@@ -85,6 +86,7 @@ export default function ClothingDetailScreen() {
   };
 
   const startEditingDetails = () => {
+    setDraftName(item.name);
     setDraftCategory(item.category);
     setDraftFormality(item.formality);
     setDraftColor(item.color);
@@ -96,6 +98,7 @@ export default function ClothingDetailScreen() {
 
     try {
       await updateItemDetails(item.id, {
+        name: draftName,
         category: draftCategory,
         formality: draftFormality,
         color: draftColor,
@@ -218,6 +221,22 @@ export default function ClothingDetailScreen() {
             {isEditingDetails ? (
               <View style={styles.classificationEditor}>
                 <View style={styles.editorGroup}>
+                  <AppText style={styles.editorLabel}>Name</AppText>
+                  <AppTextInput
+                    accessibilityLabel="Clothing name"
+                    autoCapitalize="sentences"
+                    editable={!isSavingDetails}
+                    maxLength={80}
+                    onChangeText={setDraftName}
+                    placeholder="e.g. White linen shirt"
+                    placeholderTextColor={Palette.muted}
+                    returnKeyType="done"
+                    style={styles.nameInput}
+                    value={draftName}
+                  />
+                </View>
+
+                <View style={styles.editorGroup}>
                   <AppText style={styles.editorLabel}>Category</AppText>
                   <View style={styles.chipRow}>
                     {CATEGORIES.map((option) => (
@@ -256,6 +275,7 @@ export default function ClothingDetailScreen() {
 
                 <View style={styles.editorActions}>
                   <Pressable
+                    accessibilityLabel="Save clothing changes"
                     accessibilityRole="button"
                     disabled={isSavingDetails}
                     onPress={() => setIsEditingDetails(false)}
@@ -278,7 +298,11 @@ export default function ClothingDetailScreen() {
                       pressed && styles.pressed,
                     ]}>
                     {isSavingDetails ? (
-                      <ActivityIndicator color={Palette.white} size="small" />
+                      <ActivityIndicator
+                        accessibilityLabel="Saving clothing changes"
+                        color={Palette.white}
+                        size="small"
+                      />
                     ) : (
                       <AppText style={styles.editorSaveText}>Save changes</AppText>
                     )}
@@ -287,7 +311,7 @@ export default function ClothingDetailScreen() {
               </View>
             ) : (
               <Pressable
-                accessibilityLabel="Edit category, dress code, and color"
+                accessibilityLabel="Edit clothing details"
                 accessibilityRole="button"
                 onPress={startEditingDetails}
                 style={({ pressed }) => [
@@ -326,6 +350,7 @@ export default function ClothingDetailScreen() {
           </View>
 
           <Pressable
+            accessibilityLabel="Delete clothing item"
             accessibilityRole="button"
             accessibilityState={{ busy: isDeleting, disabled: isDeleting }}
             disabled={isDeleting}
@@ -488,6 +513,16 @@ const styles = StyleSheet.create({
   },
   editorGroup: { gap: 9 },
   editorLabel: { color: Palette.ink, fontSize: 13, fontWeight: '700' },
+  nameInput: {
+    minHeight: 46,
+    paddingHorizontal: 14,
+    borderRadius: Radius.medium,
+    color: Palette.ink,
+    fontSize: 14,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+  },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   classificationChip: {
     minHeight: 38,

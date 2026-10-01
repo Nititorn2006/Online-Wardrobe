@@ -193,6 +193,10 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
         if (!isHydratedRef.current) {
           throw new Error('Your wardrobe is still loading. Please try again in a moment.');
         }
+        const name = input.name.trim();
+        if (!name) {
+          throw new Error('Please enter a name for this clothing item.');
+        }
         if (!isClothingCategory(input.category)) {
           throw new Error('Please choose a valid clothing category.');
         }
@@ -211,8 +215,9 @@ export function WardrobeProvider({ children }: PropsWithChildren) {
 
         const nextItems = itemsRef.current.map((item, index) =>
           index === itemIndex
-            ? {
+              ? {
                 ...item,
+                name,
                 category: input.category,
                 formality: input.formality,
                 color,

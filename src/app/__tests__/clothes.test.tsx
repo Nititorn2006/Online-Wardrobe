@@ -25,7 +25,7 @@ jest.mock('expo-router', () => ({
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
   const React = jest.requireActual<typeof import('react')>('react');
-  const View = jest.requireActual(
+  const View = jest.requireActual<{ default: typeof import('react-native').View }>(
     'react-native/Libraries/Components/View/View',
   ).default;
   return {
@@ -36,7 +36,10 @@ jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => {
         resolvedStyle = style({ pressed: false });
         style({ pressed: true });
       }
-      return React.createElement(View, { ...props, accessible: true, style: resolvedStyle });
+      return React.createElement(
+        View,
+        { ...props, accessible: true, style: resolvedStyle } as never,
+      );
     },
   };
 });
@@ -55,7 +58,7 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('@/components/app-text', () => {
   const reactNative = jest.requireActual<typeof import('react-native')>('react-native');
-  return { AppText: reactNative.Text };
+  return { AppText: reactNative.Text, AppTextInput: reactNative.TextInput };
 });
 
 jest.mock('@/components/wardrobe/clothing-color-picker', () => {
@@ -123,7 +126,7 @@ function deferred<T>() {
 type TestView = Awaited<ReturnType<typeof render>>;
 
 function editButton(view: TestView) {
-  return view.getByRole('button', { name: 'Edit category, dress code, and color' });
+  return view.getByRole('button', { name: 'Edit clothing details' });
 }
 
 describe('ClothingDetailScreen', () => {
@@ -131,17 +134,20 @@ describe('ClothingDetailScreen', () => {
     mockParams.id = 'item-1';
     mockWardrobe.items = [item()];
     mockUseLocalSearchParams.mockReturnValue(mockParams);
-    mockUseWardrobe.mockImplementation(() => ({
-      items: mockWardrobe.items,
-      outfits: [],
-      isHydrated: true,
-      addItem: jest.fn(),
-      toggleFavorite: mockToggleFavorite,
-      deleteItem: mockDeleteItem,
-      updateItemDetails: mockUpdateItemDetails,
-      saveOutfit: jest.fn(),
-      deleteOutfit: jest.fn(),
-    }));
+    mockUseWardrobe.mockImplementation(
+      () =>
+        ({
+          items: mockWardrobe.items,
+          outfits: [],
+          isHydrated: true,
+          addItem: jest.fn(),
+          toggleFavorite: mockToggleFavorite,
+          deleteItem: mockDeleteItem,
+          updateItemDetails: mockUpdateItemDetails,
+          saveOutfit: jest.fn(),
+          deleteOutfit: jest.fn(),
+        }) as unknown as ReturnType<typeof useWardrobe>,
+    );
     mockToggleFavorite.mockResolvedValue(undefined);
     mockDeleteItem.mockResolvedValue(undefined);
     mockUpdateItemDetails.mockResolvedValue(undefined);
@@ -209,7 +215,7 @@ describe('ClothingDetailScreen', () => {
   });
 
   test('reports favorite errors with explicit and fallback messages', async () => {
-    const failures: Array<[unknown, string]> = [
+    const failures: [unknown, string][] = [
       [new Error('Favorite unavailable'), 'Favorite unavailable'],
       ['bad', 'Please try again.'],
     ];
@@ -228,34 +234,38 @@ describe('ClothingDetailScreen', () => {
     await fireEvent.press(editButton(view));
 
     expect(view.getByText('Main color')).toBeTruthy();
-    expect(view.getByText('Tops').parent?.props.accessibilityState?.selected).toBe(true);
+    expect(view.getByLabelText('Clothing name').props.value).toBe('Black shirt');
+    await fireEvent.changeText(view.getByLabelText('Clothing name'), 'Renamed shirt');
+    expect(
+      view.getByRole('button', { name: 'Tops' }).props.accessibilityState?.selected,
+    ).toBe(true);
     await fireEvent.press(view.getByText('Bottoms'));
     await fireEvent.press(view.getByText('Formal'));
     await fireEvent.press(view.getByRole('button', { name: /^Color picker/ }));
-    expect(view.getByRole('button', { name: 'Save changes' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'Save clothing changes' })).toBeTruthy();
 
     await fireEvent.press(view.getByText('Cancel'));
     expect(view.queryByText('Main color')).toBeNull();
     await fireEvent.press(editButton(view));
-    expect(view.getByRole('button', { name: 'Save changes' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'Save clothing changes' })).toBeTruthy();
   });
 
-  test('saves changed category, dress code, and color while showing progress', async () => {
+  test('saves a renamed item with changed category, dress code, and color while showing progress', async () => {
     const pending = deferred<void>();
     mockUpdateItemDetails.mockReturnValueOnce(pending.promise);
     const view = await render(<ClothingDetailScreen />);
     await fireEvent.press(editButton(view));
+    await fireEvent.changeText(view.getByLabelText('Clothing name'), '  Renamed shirt  ');
     await fireEvent.press(view.getByText('Bottoms'));
     await fireEvent.press(view.getByText('Formal'));
     await fireEvent.press(view.getByRole('button', { name: /^Color picker/ }));
-    await fireEvent.press(view.getByRole('button', { name: 'Save changes' }));
+    await fireEvent.press(view.getByText('Save changes'));
 
     await waitFor(() =>
-      expect(
-        view.container.findAllByProps({ accessibilityState: { busy: true } }).length,
-      ).toBeGreaterThan(0),
+      expect(view.getByLabelText('Saving clothing changes')).toBeTruthy(),
     );
     expect(mockUpdateItemDetails).toHaveBeenCalledWith('item-1', {
+      name: '  Renamed shirt  ',
       category: 'bottoms',
       formality: 'formal',
       color: '#ABCDEF',
@@ -266,7 +276,7 @@ describe('ClothingDetailScreen', () => {
   });
 
   test('keeps the editor open and reports detail update failures', async () => {
-    const failures: Array<[unknown, string]> = [
+    const failures: [unknown, string][] = [
       [new Error('Update unavailable'), 'Update unavailable'],
       [{ reason: 'bad' }, 'Please try again.'],
     ];
@@ -275,7 +285,7 @@ describe('ClothingDetailScreen', () => {
       mockUpdateItemDetails.mockRejectedValueOnce(failure);
       const view = await render(<ClothingDetailScreen />);
       await fireEvent.press(editButton(view));
-      await fireEvent.press(view.getByRole('button', { name: 'Save changes' }));
+      await fireEvent.press(view.getByText('Save changes'));
       expect(alertSpy).toHaveBeenLastCalledWith('Couldn’t update details', expected);
       expect(view.getByText('Main color')).toBeTruthy();
       await view.unmount();
@@ -293,16 +303,16 @@ describe('ClothingDetailScreen', () => {
       'This will delete the piece and its saved photo from your closet.',
       expect.any(Array),
     );
-    const buttons = alertSpy.mock.calls.at(-1)?.[2] as Array<{
+    const buttons = alertSpy.mock.calls.at(-1)?.[2] as {
       text: string;
       onPress?: () => void;
-    }>;
+    }[];
     expect(buttons.map((button) => button.text)).toEqual(['Cancel', 'Remove']);
     await act(async () => buttons[1].onPress?.());
     await waitFor(() =>
       expect(
-        view.container.findAllByProps({ accessibilityState: { busy: true, disabled: true } }),
-      ).toHaveLength(1),
+        view.getByRole('button', { name: 'Delete clothing item' }).props.accessibilityState,
+      ).toEqual({ busy: true, disabled: true }),
     );
 
     await act(async () => pending.resolve(undefined));
@@ -311,7 +321,7 @@ describe('ClothingDetailScreen', () => {
   });
 
   test('recovers from deletion errors with explicit and fallback messages', async () => {
-    const failures: Array<[unknown, string]> = [
+    const failures: [unknown, string][] = [
       [new Error('Delete unavailable'), 'Delete unavailable'],
       [null, 'Please try again.'],
     ];
@@ -320,7 +330,7 @@ describe('ClothingDetailScreen', () => {
       mockDeleteItem.mockRejectedValueOnce(failure);
       const view = await render(<ClothingDetailScreen />);
       await fireEvent.press(view.getByText('Remove from closet'));
-      const buttons = alertSpy.mock.calls.at(-1)?.[2] as Array<{ onPress?: () => void }>;
+      const buttons = alertSpy.mock.calls.at(-1)?.[2] as { onPress?: () => void }[];
       await act(async () => buttons[1].onPress?.());
       expect(alertSpy).toHaveBeenLastCalledWith('Couldn’t remove item', expected);
       expect(view.getByText('Remove from closet')).toBeTruthy();

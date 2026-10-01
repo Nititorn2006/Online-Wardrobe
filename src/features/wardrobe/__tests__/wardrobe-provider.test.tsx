@@ -230,12 +230,14 @@ describe('WardrobeProvider', () => {
 
     await act(async () => {
       await context().updateItemDetails(added.id, {
+        name: '  Renamed jacket  ',
         category: 'dresses',
         formality: 'formal',
         color: '#abcdef',
       });
     });
     expect(context().items.find((item) => item.id === added.id)).toMatchObject({
+      name: 'Renamed jacket',
       category: 'dresses',
       formality: 'formal',
       color: '#ABCDEF',
@@ -323,6 +325,7 @@ describe('WardrobeProvider', () => {
     const operations = [
       context().addItem(validAddInput),
       context().updateItemDetails('shirt', {
+        name: 'Shirt',
         category: 'tops',
         formality: 'casual',
         color: '#112233',
@@ -401,18 +404,23 @@ describe('WardrobeProvider', () => {
 
   test.each([
     [
+      'name',
+      { name: '   ', category: 'tops', formality: 'casual', color: '#112233' },
+      'Please enter a name for this clothing item',
+    ],
+    [
       'category',
-      { category: 'pets' as ClothingCategory, formality: 'casual', color: '#112233' },
+      { name: 'Shirt', category: 'pets' as ClothingCategory, formality: 'casual', color: '#112233' },
       'Please choose a valid clothing category',
     ],
     [
       'dress code',
-      { category: 'tops', formality: 'costume' as ClothingFormality, color: '#112233' },
+      { name: 'Shirt', category: 'tops', formality: 'costume' as ClothingFormality, color: '#112233' },
       'Please choose a valid dress code',
     ],
     [
       'color',
-      { category: 'tops', formality: 'casual', color: 'blue' },
+      { name: 'Shirt', category: 'tops', formality: 'casual', color: 'blue' },
       'Please choose a valid color',
     ],
   ])(
@@ -434,6 +442,7 @@ describe('WardrobeProvider', () => {
 
     await expect(
       context().updateItemDetails('missing', {
+        name: 'Missing shirt',
         category: 'tops',
         formality: 'casual',
         color: '#112233',
