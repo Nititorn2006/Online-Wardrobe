@@ -3,23 +3,20 @@
     "name": "ONLINEWARDROBE",
     "slug": "onlinewardrobe",
     "icon": "./assets/images/online-wardrobe.png",
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/online-wardrobe.png",
         "backgroundColor": "#4338B8"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.tapo.onlinewardrobe"
     },
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/online-wardrobe.png"
     },
-
     "plugins": [
       "expo-router",
-
       [
         "expo-splash-screen",
         {
@@ -28,7 +25,6 @@
           "imageWidth": 112
         }
       ],
-
       [
         "expo-image-picker",
         {
@@ -38,10 +34,15 @@
         }
       ]
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "07430fd6-41d8-4b64-891d-2f25ce6f221f"
+      }
     }
   }
 }

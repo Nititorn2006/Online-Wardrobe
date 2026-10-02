@@ -1,18 +1,19 @@
-import {
-  DefaultTheme,
-  Stack,
-  ThemeProvider,
-} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { LogBox } from "react-native";
 
-import { Palette } from '@/constants/design';
-import { TextSizeProvider } from '@/features/wardrobe/text-size-provider';
+import { Palette } from "@/constants/design";
+import { TextSizeProvider } from "@/features/wardrobe/text-size-provider";
 import {
   WardrobeProvider,
   useWardrobe,
-} from '@/features/wardrobe/wardrobe-provider';
+} from "@/features/wardrobe/wardrobe-provider";
+
+if (__DEV__) {
+  LogBox.ignoreAllLogs();
+}
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -52,8 +53,7 @@ function Navigation() {
           headerShown: false,
 
           contentStyle: {
-            backgroundColor:
-              Palette.background,
+            backgroundColor: Palette.background,
           },
         }}
       >
@@ -62,19 +62,16 @@ function Navigation() {
         <Stack.Screen
           name="add-clothes"
           options={{
-            animation:
-              'slide_from_bottom',
-            presentation:
-              'fullScreenModal',
+            animation: "slide_from_bottom",
+            presentation: "fullScreenModal",
           }}
         />
 
         <Stack.Screen
           name="clothes"
           options={{
-            animation:
-              'slide_from_bottom',
-            presentation: 'modal',
+            animation: "slide_from_bottom",
+            presentation: "modal",
           }}
         />
       </Stack>

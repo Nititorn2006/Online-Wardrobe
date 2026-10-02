@@ -1,0 +1,111 @@
+appId: com.tapo.onlinewardrobe
+---
+# ============================================================
+# START
+# ============================================================
+
+- launchApp:
+    clearState: true
+
+# ============================================================
+# HOME
+# ============================================================
+
+- assertVisible: "ONLINEWARDROBE"
+- assertVisible: "Your online wardrobe, always ready for your next look."
+- assertVisible: "Plan your next look"
+- assertVisible: "Saved outfits"
+
+- assertVisible: "Home"
+- assertVisible: "Try"
+- assertVisible: "Add"
+- assertVisible: "Closet"
+- assertVisible: "Settings"
+
+# ============================================================
+# CLOSET
+# ============================================================
+
+- tapOn: "Closet"
+
+# เช็กว่า bottom navigation ยังอยู่
+- assertVisible: "Home"
+- assertVisible: "Closet"
+
+# กลับ Home
+- tapOn: "Home"
+- assertVisible: "ONLINEWARDROBE"
+
+# ============================================================
+# SETTINGS
+# ============================================================
+
+- tapOn: "Settings"
+
+- assertVisible: "Home"
+- assertVisible: "Settings"
+
+- tapOn: "Home"
+- assertVisible: "ONLINEWARDROBE"
+
+# ============================================================
+# ADD
+# ============================================================
+
+- tapOn: "Add"
+
+- assertVisible: "Add a piece"
+- assertVisible: "Show us the piece"
+- assertVisible: "Take photo"
+- assertVisible: "Photo library"
+- assertVisible: "Make it easy to find later"
+- assertVisible: "Save to My Clothes"
+
+- back
+
+- assertVisible: "ONLINEWARDROBE"
+- assertVisible: "Home"
+
+# ============================================================
+# TRY
+# ============================================================
+
+- tapOn: "Try"
+
+- assertVisible: "Home"
+- assertVisible: "Try"
+
+# ============================================================
+# NAVIGATION STRESS TEST
+# ============================================================
+
+- tapOn: "Home"
+- tapOn: "Try"
+- tapOn: "Closet"
+- tapOn: "Settings"
+- tapOn: "Home"
+
+- assertVisible: "ONLINEWARDROBE"
+
+# ============================================================
+# APP RESTART
+# ============================================================
+
+- stopApp
+- launchApp
+
+- assertVisible: "ONLINEWARDROBE"
+- assertVisible: "Home"
+- assertVisible: "Try"
+- assertVisible: "Add"
+- assertVisible: "Closet"
+- assertVisible: "Settings"
+
+# ============================================================
+# END
+# ============================================================
+
+- tapOn: "Try"
+- tapOn: "Home"
+
+- assertVisible: "ONLINEWARDROBE"
