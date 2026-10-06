@@ -68,4 +68,15 @@ export function getCurrentLanguage(): SupportedLanguage {
   return i18nInstance.resolvedLanguage === "th" ? "th" : "en";
 }
 
+export function getLocalizedErrorMessage(
+  error: unknown,
+  fallback: string,
+): string {
+  if (getCurrentLanguage() !== "en") {
+    return fallback;
+  }
+
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 export default i18nInstance;

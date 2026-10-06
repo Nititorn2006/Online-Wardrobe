@@ -46,7 +46,11 @@ import {
   type ClothingFormality,
 } from "@/features/wardrobe/types";
 import { useWardrobe } from "@/features/wardrobe/wardrobe-provider";
-import { getCurrentLanguage, type SupportedLanguage } from "@/i18n";
+import {
+  getCurrentLanguage,
+  getLocalizedErrorMessage,
+  type SupportedLanguage,
+} from "@/i18n";
 
 type DateOption = {
   value: string;
@@ -291,7 +295,7 @@ export default function TryOutfitsScreen() {
     } catch (error) {
       Alert.alert(
         t("tryOutfits.saveErrorTitle"),
-        error instanceof Error ? error.message : t("common.tryAgain"),
+        getLocalizedErrorMessage(error, t("common.tryAgain")),
       );
     } finally {
       setIsSaving(false);

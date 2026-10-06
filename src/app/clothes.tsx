@@ -23,6 +23,7 @@ import {
   type ClothingFormality,
 } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { getLocalizedErrorMessage } from '@/i18n';
 
 export default function ClothingDetailScreen() {
   const { i18n, t } = useTranslation();
@@ -94,7 +95,7 @@ export default function ClothingDetailScreen() {
     } catch (error) {
       Alert.alert(
         t('clothingDetails.errors.favoriteTitle'),
-        getErrorMessage(error, t('common.tryAgain')),
+        getLocalizedErrorMessage(error, t('common.tryAgain')),
       );
     } finally {
       setIsUpdatingFavorite(false);
@@ -123,7 +124,7 @@ export default function ClothingDetailScreen() {
     } catch (error) {
       Alert.alert(
         t('clothingDetails.errors.updateTitle'),
-        getErrorMessage(error, t('common.tryAgain')),
+        getLocalizedErrorMessage(error, t('common.tryAgain')),
       );
     } finally {
       setIsSavingDetails(false);
@@ -154,7 +155,7 @@ export default function ClothingDetailScreen() {
       setIsDeleting(false);
       Alert.alert(
         t('clothingDetails.errors.deleteTitle'),
-        getErrorMessage(error, t('common.tryAgain')),
+        getLocalizedErrorMessage(error, t('common.tryAgain')),
       );
     }
   };
@@ -468,10 +469,6 @@ function ClassificationChip({
       </AppText>
     </Pressable>
   );
-}
-
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
 }
 
 const styles = StyleSheet.create({

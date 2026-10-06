@@ -31,6 +31,7 @@ import {
   type ClothingCategory,
   type ClothingFormality,
 } from '@/features/wardrobe/types';
+import { getLocalizedErrorMessage } from '@/i18n';
 
 const palette = {
   background: '#F7F5F1',
@@ -280,7 +281,7 @@ export default function AddClothesScreen() {
     } catch (error) {
       Alert.alert(
         t('addClothes.errors.addPhotoTitle'),
-        getErrorMessage(
+        getLocalizedErrorMessage(
           error,
           t('addClothes.errors.addPhotoFallback'),
         ),
@@ -327,7 +328,7 @@ export default function AddClothesScreen() {
     } catch (error) {
       Alert.alert(
         t('addClothes.errors.saveTitle'),
-        getErrorMessage(
+        getLocalizedErrorMessage(
           error,
           t('addClothes.errors.saveFallback'),
         ),
@@ -835,16 +836,6 @@ export default function AddClothesScreen() {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
-
-function getErrorMessage(
-  error: unknown,
-  fallback: string,
-) {
-  return error instanceof Error &&
-    error.message
-    ? error.message
-    : fallback;
 }
 
 const styles = StyleSheet.create({

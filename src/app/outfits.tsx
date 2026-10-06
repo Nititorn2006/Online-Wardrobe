@@ -21,6 +21,7 @@ import {
 import { OUTFIT_OCCASIONS } from '@/features/outfits/types';
 import { FORMALITY_LEVELS } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { getLocalizedErrorMessage } from '@/i18n';
 
 function toLocalDateValue(date: Date) {
   const year = date.getFullYear();
@@ -73,7 +74,7 @@ export default function SavedOutfitsScreen() {
     } catch (error) {
       Alert.alert(
         t('savedOutfits.deleteErrorTitle'),
-        error instanceof Error ? error.message : t('common.tryAgain'),
+        getLocalizedErrorMessage(error, t('common.tryAgain')),
       );
     } finally {
       setDeletingId(null);

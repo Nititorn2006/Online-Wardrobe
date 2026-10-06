@@ -7,6 +7,7 @@ import {
   changeLanguage,
   getCurrentLanguage,
   getDeviceLanguage,
+  getLocalizedErrorMessage,
   i18nInstance as i18n,
   LANGUAGE_KEY,
   loadSavedLanguage,
@@ -137,6 +138,20 @@ describe("i18n", () => {
     );
     expect(i18n.t("missing.translation", { defaultValue: "Fallback" })).toBe(
       "Fallback",
+    );
+  });
+
+  test("keeps technical error details in English and uses translated fallbacks in Thai", async () => {
+    expect(getLocalizedErrorMessage(new Error("Detailed failure"), "Fallback")).toBe(
+      "Detailed failure",
+    );
+    expect(getLocalizedErrorMessage(new Error(""), "Fallback")).toBe("Fallback");
+    expect(getLocalizedErrorMessage("failure", "Fallback")).toBe("Fallback");
+
+    await i18n.changeLanguage("th");
+
+    expect(getLocalizedErrorMessage(new Error("English failure"), "ข้อความไทย")).toBe(
+      "ข้อความไทย",
     );
   });
 });
