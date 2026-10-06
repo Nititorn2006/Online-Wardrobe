@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -123,6 +124,7 @@ function GalleryIcon() {
 export default function AddClothesScreen() {
   const insets = useSafeAreaInsets();
   const { addItem } = useWardrobe();
+  const { t } = useTranslation();
 
   const [name, setName] = useState('');
 
@@ -165,15 +167,15 @@ export default function AddClothesScreen() {
     }
 
     Alert.alert(
-      'Discard this item?',
-      'Your photo and details haven’t been saved yet.',
+      t('addClothes.discard.title'),
+      t('addClothes.discard.body'),
       [
         {
-          text: 'Keep editing',
+          text: t('addClothes.discard.keepEditing'),
           style: 'cancel',
         },
         {
-          text: 'Discard',
+          text: t('addClothes.discard.confirm'),
           style: 'destructive',
           onPress: () => router.back(),
         },
@@ -183,11 +185,11 @@ export default function AddClothesScreen() {
 
   const saveRequirement =
     !sourceUri && !name.trim()
-      ? 'Add a photo and name to save'
+      ? t('addClothes.saveRequirements.photoAndName')
       : !sourceUri
-        ? 'Add a photo to save'
+        ? t('addClothes.saveRequirements.photo')
         : !name.trim()
-          ? 'Add a name to save'
+          ? t('addClothes.saveRequirements.name')
           : null;
 
   const showPermissionAlert = (
@@ -195,13 +197,15 @@ export default function AddClothesScreen() {
   ) => {
     const permissionName =
       source === 'camera'
-        ? 'camera'
-        : 'photo library';
+        ? t('addClothes.permissions.camera')
+        : t('addClothes.permissions.library');
 
     Alert.alert(
-      'Permission needed',
-      `MatchClothes needs access to your ${permissionName} so you can add this piece. You can allow access in your device settings.`,
-      [{ text: 'OK' }],
+      t('addClothes.permissions.title'),
+      t('addClothes.permissions.body', {
+        permission: permissionName,
+      }),
+      [{ text: t('addClothes.permissions.confirm') }],
     );
   };
 
@@ -252,7 +256,7 @@ export default function AddClothesScreen() {
 
       if (!asset) {
         throw new Error(
-          'The image picker returned no photo.',
+          t('addClothes.errors.pickerNoPhoto'),
         );
       }
 
@@ -264,7 +268,7 @@ export default function AddClothesScreen() {
       ) {
         if (!asset.base64) {
           throw new Error(
-            'The browser did not return image data.',
+            t('addClothes.errors.browserNoData'),
           );
         }
 
@@ -275,12 +279,12 @@ export default function AddClothesScreen() {
       setSourceUri(imageUri);
     } catch (error) {
       Alert.alert(
-        'Couldn’t add that photo',
+        t('addClothes.errors.addPhotoTitle'),
         getErrorMessage(
           error,
-          'Something went wrong while opening your photo. Please try again.',
+          t('addClothes.errors.addPhotoFallback'),
         ),
-        [{ text: 'OK' }],
+        [{ text: t('addClothes.permissions.confirm') }],
       );
     } finally {
       setIsPicking(false);
@@ -294,16 +298,16 @@ export default function AddClothesScreen() {
 
     if (!sourceUri) {
       Alert.alert(
-        'Add a photo',
-        'Choose or take a photo before saving this item.',
+        t('addClothes.validation.photoTitle'),
+        t('addClothes.validation.photoBody'),
       );
       return;
     }
 
     if (!trimmedName) {
       Alert.alert(
-        'Add a name',
-        'Give this piece a short name before saving it.',
+        t('addClothes.validation.nameTitle'),
+        t('addClothes.validation.nameBody'),
       );
       return;
     }
@@ -322,12 +326,12 @@ export default function AddClothesScreen() {
       router.back();
     } catch (error) {
       Alert.alert(
-        'Couldn’t save this item',
+        t('addClothes.errors.saveTitle'),
         getErrorMessage(
           error,
-          'Your changes weren’t saved. Please try again.',
+          t('addClothes.errors.saveFallback'),
         ),
-        [{ text: 'OK' }],
+        [{ text: t('addClothes.permissions.confirm') }],
       );
     } finally {
       setIsSaving(false);
@@ -357,7 +361,7 @@ export default function AddClothesScreen() {
       >
         <View style={styles.header}>
           <Pressable
-            accessibilityLabel="Close add clothes"
+            accessibilityLabel={t('addClothes.accessibility.close')}
             accessibilityRole="button"
             disabled={isSaving}
             hitSlop={12}
@@ -378,11 +382,11 @@ export default function AddClothesScreen() {
             ]}
           >
             <AppText style={styles.headerEyebrow}>
-              MY CLOTHES
+              {t('addClothes.eyebrow')}
             </AppText>
 
             <AppText style={styles.headerTitle}>
-              Add a piece
+              {t('addClothes.title')}
             </AppText>
           </View>
 
@@ -409,10 +413,11 @@ export default function AddClothesScreen() {
               {sourceUri ? (
                 <>
                   <Image
-                    accessibilityLabel={`Photo of ${
-                      name.trim() ||
-                      'new clothing item'
-                    }`}
+                    accessibilityLabel={t('addClothes.accessibility.photo', {
+                      name:
+                        name.trim() ||
+                        t('addClothes.accessibility.newItem'),
+                    })}
                     resizeMode="cover"
                     source={{
                       uri: sourceUri,
@@ -428,7 +433,9 @@ export default function AddClothesScreen() {
                   />
 
                   <Pressable
-                    accessibilityLabel="Remove selected photo"
+                    accessibilityLabel={t(
+                      'addClothes.accessibility.removePhoto',
+                    )}
                     accessibilityRole="button"
                     hitSlop={8}
                     onPress={() =>
@@ -449,7 +456,7 @@ export default function AddClothesScreen() {
                         styles.removePhotoText
                       }
                     >
-                      Remove
+                      {t('addClothes.remove')}
                     </AppText>
                   </Pressable>
                 </>
@@ -470,14 +477,13 @@ export default function AddClothesScreen() {
                   <AppText
                     style={styles.photoTitle}
                   >
-                    Show us the piece
+                    {t('addClothes.photoTitle')}
                   </AppText>
 
                   <AppText
                     style={styles.photoHint}
                   >
-                    A clear photo on a plain
-                    background works best.
+                    {t('addClothes.photoHint')}
                   </AppText>
                 </View>
               )}
@@ -498,7 +504,7 @@ export default function AddClothesScreen() {
                       styles.loadingText
                     }
                   >
-                    Opening photos…
+                    {t('addClothes.openingPhotos')}
                   </AppText>
                 </View>
               )}
@@ -508,7 +514,9 @@ export default function AddClothesScreen() {
               style={styles.photoActions}
             >
               <Pressable
-                accessibilityLabel="Take clothing photo"
+                accessibilityLabel={t(
+                  'addClothes.accessibility.takePhoto',
+                )}
                 accessibilityRole="button"
                 disabled={isPicking}
                 onPress={() =>
@@ -530,12 +538,14 @@ export default function AddClothesScreen() {
                     styles.photoActionPrimaryText
                   }
                 >
-                  Take photo
+                  {t('addClothes.takePhoto')}
                 </AppText>
               </Pressable>
 
               <Pressable
-                accessibilityLabel="Choose clothing photo from library"
+                accessibilityLabel={t(
+                  'addClothes.accessibility.choosePhoto',
+                )}
                 accessibilityRole="button"
                 disabled={isPicking}
                 onPress={() =>
@@ -557,7 +567,7 @@ export default function AddClothesScreen() {
                     styles.photoActionSecondaryText
                   }
                 >
-                  Photo library
+                  {t('addClothes.photoLibrary')}
                 </AppText>
               </Pressable>
             </View>
@@ -570,7 +580,7 @@ export default function AddClothesScreen() {
                   styles.sectionKicker
                 }
               >
-                THE DETAILS
+                {t('addClothes.detailsEyebrow')}
               </AppText>
 
               <AppText
@@ -578,7 +588,7 @@ export default function AddClothesScreen() {
                   styles.sectionTitle
                 }
               >
-                Make it easy to find later
+                {t('addClothes.detailsTitle')}
               </AppText>
 
               <View
@@ -587,16 +597,16 @@ export default function AddClothesScreen() {
                 <AppText
                   style={styles.fieldLabel}
                 >
-                  Name
+                  {t('addClothes.name')}
                 </AppText>
 
                 <AppTextInput
-                  accessibilityLabel="Clothing name"
+                  accessibilityLabel={t('addClothes.nameAccessibility')}
                   autoCapitalize="sentences"
                   enterKeyHint="done"
                   maxLength={60}
                   onChangeText={setName}
-                  placeholder="e.g. Linen weekend shirt"
+                  placeholder={t('addClothes.namePlaceholder')}
                   placeholderTextColor="#9AA4A1"
                   returnKeyType="done"
                   selectionColor={
@@ -613,7 +623,7 @@ export default function AddClothesScreen() {
                 <AppText
                   style={styles.fieldLabel}
                 >
-                  Category
+                  {t('addClothes.category')}
                 </AppText>
 
                 <View
@@ -624,10 +634,16 @@ export default function AddClothesScreen() {
                       const isSelected =
                         option.value ===
                         category;
+                      const optionLabel = t(
+                        `options.categories.${option.value}`,
+                      );
 
                       return (
                         <Pressable
-                          accessibilityLabel={`${option.label} category`}
+                          accessibilityLabel={t(
+                            'addClothes.accessibility.category',
+                            { category: optionLabel },
+                          )}
                           accessibilityRole="button"
                           accessibilityState={{
                             selected:
@@ -658,7 +674,7 @@ export default function AddClothesScreen() {
                                 styles.categoryChipTextSelected,
                             ]}
                           >
-                            {option.label}
+                            {optionLabel}
                           </AppText>
                         </Pressable>
                       );
@@ -673,7 +689,7 @@ export default function AddClothesScreen() {
                 <AppText
                   style={styles.fieldLabel}
                 >
-                  Dress code
+                  {t('addClothes.dressCode')}
                 </AppText>
 
                 <View
@@ -684,10 +700,16 @@ export default function AddClothesScreen() {
                       const isSelected =
                         option.value ===
                         formality;
+                      const optionLabel = t(
+                        `options.formalities.${option.value}.label`,
+                      );
 
                       return (
                         <Pressable
-                          accessibilityLabel={`${option.label} dress code`}
+                          accessibilityLabel={t(
+                            'addClothes.accessibility.formality',
+                            { formality: optionLabel },
+                          )}
                           accessibilityRole="button"
                           accessibilityState={{
                             selected:
@@ -718,7 +740,7 @@ export default function AddClothesScreen() {
                                 styles.categoryChipTextSelected,
                             ]}
                           >
-                            {option.label}
+                            {optionLabel}
                           </AppText>
                         </Pressable>
                       );
@@ -729,13 +751,7 @@ export default function AddClothesScreen() {
                 <AppText
                   style={styles.fieldHint}
                 >
-                  {
-                    FORMALITY_LEVELS.find(
-                      (option) =>
-                        option.value ===
-                        formality,
-                    )?.description
-                  }
+                  {t(`options.formalities.${formality}.description`)}
                 </AppText>
               </View>
 
@@ -745,7 +761,7 @@ export default function AddClothesScreen() {
                 <AppText
                   style={styles.fieldLabel}
                 >
-                  Main color
+                  {t('addClothes.mainColor')}
                 </AppText>
 
                 <ClothingColorPicker
@@ -762,8 +778,8 @@ export default function AddClothesScreen() {
             style={styles.footerInner}
           >
             <Pressable
-              accessibilityHint="Adds this piece to My Clothes"
-              accessibilityLabel="Save clothing item"
+              accessibilityHint={t('addClothes.accessibility.saveHint')}
+              accessibilityLabel={t('addClothes.accessibility.save')}
               accessibilityRole="button"
               accessibilityState={{
                 disabled: !canSave,
@@ -792,7 +808,7 @@ export default function AddClothesScreen() {
                       styles.saveButtonText
                     }
                   >
-                    Save to My Clothes
+                    {t('addClothes.save')}
                   </AppText>
 
                   <AppText

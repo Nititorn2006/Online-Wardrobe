@@ -11,6 +11,7 @@ import { Alert } from 'react-native';
 import ClothingDetailScreen from '@/app/clothes';
 import type { ClothingItem } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockParams: { id?: string | string[] } = { id: 'item-1' };
 const mockToggleFavorite = jest.fn<(id: string) => Promise<void>>();
@@ -130,7 +131,8 @@ function editButton(view: TestView) {
 }
 
 describe('ClothingDetailScreen', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     mockParams.id = 'item-1';
     mockWardrobe.items = [item()];
     mockUseLocalSearchParams.mockReturnValue(mockParams);
@@ -164,6 +166,18 @@ describe('ClothingDetailScreen', () => {
     mockParams.id = ['missing', 'ignored'];
     const arrayView = await render(<ClothingDetailScreen />);
     expect(arrayView.getByText('This piece is no longer here')).toBeTruthy();
+  });
+
+  test('renders clothing details in Thai with the Thai date locale', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<ClothingDetailScreen />);
+
+    expect(view.getByText('รายละเอียดเสื้อผ้า')).toBeTruthy();
+    expect(view.getAllByText('เสื้อท่อนบน')).toHaveLength(2);
+    expect(view.getByText('ลำลอง')).toBeTruthy();
+    expect(view.getByText('ยังไม่ใช่')).toBeTruthy();
+    expect(view.getByText(/2569/)).toBeTruthy();
+    expect(view.getByRole('button', { name: 'แก้ไขรายละเอียดเสื้อผ้า' })).toBeTruthy();
   });
 
   test('renders all item metadata, closes, and covers favorite and pressed appearances', async () => {

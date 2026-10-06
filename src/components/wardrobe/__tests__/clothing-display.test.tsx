@@ -1,6 +1,8 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 
+import { i18nInstance as i18n } from '@/i18n';
+
 import { ClothingCard } from '../clothing-card';
 import { EmptyCloset } from '../empty-closet';
 import type { ClothingItem } from '../../../features/wardrobe/types';
@@ -38,12 +40,12 @@ function clothingItem(
 
 describe('ClothingCard', () => {
   const categoryCases: [ClothingItem['category'], string][] = [
-    ['tops', 'Top'],
-    ['bottoms', 'Bottom'],
-    ['dresses', 'Dress'],
+    ['tops', 'Tops'],
+    ['bottoms', 'Bottoms'],
+    ['dresses', 'Dresses'],
     ['outerwear', 'Outerwear'],
     ['shoes', 'Shoes'],
-    ['accessories', 'Accessory'],
+    ['accessories', 'Accessories'],
   ];
 
   test.each(categoryCases)('renders %s metadata and opens the item', async (category, label) => {
@@ -85,7 +87,7 @@ describe('ClothingCard', () => {
       />,
     );
 
-    expect(view.getByText('Top ·')).toBeTruthy();
+    expect(view.getByText('Tops ·')).toBeTruthy();
     const favorite = view.getByRole('button', {
       name: `Remove ${item.name} from favorites`,
     });
@@ -93,6 +95,25 @@ describe('ClothingCard', () => {
     expect(view.getByText('♥')).toBeTruthy();
     await fireEvent.press(favorite);
     expect(onToggleFavorite).toHaveBeenCalledTimes(1);
+  });
+
+  test('translates metadata and accessibility copy', async () => {
+    await i18n.changeLanguage('th');
+    const item = clothingItem('tops');
+    const view = await render(
+      <ClothingCard
+        item={item}
+        onPress={jest.fn()}
+        onToggleFavorite={jest.fn()}
+      />,
+    );
+
+    expect(view.getByText('เสื้อท่อนบน · สมาร์ตแคชชวล')).toBeTruthy();
+    expect(view.getByLabelText(`รูปภาพของ ${item.name}`)).toBeTruthy();
+    expect(view.getByLabelText(`สี: ${item.color}`)).toBeTruthy();
+    expect(
+      view.getByRole('button', { name: `เพิ่ม ${item.name} ในรายการโปรด` }),
+    ).toBeTruthy();
   });
 });
 
@@ -119,5 +140,14 @@ describe('EmptyCloset', () => {
     expect(view.getByText('Custom title')).toBeTruthy();
     expect(view.getByText('Custom body')).toBeTruthy();
     expect(view.queryByRole('button', { name: 'Custom action' })).toBeNull();
+  });
+
+  test('renders translated defaults', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<EmptyCloset onButtonPress={jest.fn()} />);
+
+    expect(view.getByText('ตู้เสื้อผ้าของคุณกำลังรออยู่')).toBeTruthy();
+    expect(view.getByText('เพิ่มเสื้อผ้าชิ้นโปรด แล้วเริ่มจัดชุดในแบบที่เป็นคุณ')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'เพิ่มเสื้อผ้า' })).toBeTruthy();
   });
 });

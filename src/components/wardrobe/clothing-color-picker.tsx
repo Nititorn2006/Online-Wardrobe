@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { AppText } from '@/components/app-text';
 import { AdvancedColorPicker } from '@/components/wardrobe/advanced-color-picker';
@@ -19,6 +20,7 @@ export function ClothingColorPicker({
   onChange: (value: string) => void;
   value: string;
 }) {
+  const { t } = useTranslation();
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const normalizedValue = normalizeClothingColor(value) ?? value.toUpperCase();
   const isCommonColor = COMMON_COLOR_OPTIONS.some(
@@ -30,10 +32,17 @@ export function ClothingColorPicker({
       <View style={styles.commonGrid}>
         {COMMON_COLOR_OPTIONS.map((option) => {
           const isSelected = normalizedValue === option.hex;
+          const colorLabel = t(
+            `colors.${option.name
+              .replace(/^./, (letter) => letter.toLowerCase())
+              .replace(/ (.)/, (_, letter: string) => letter.toUpperCase())}`,
+          );
 
           return (
             <Pressable
-              accessibilityLabel={`${option.name} color`}
+              accessibilityLabel={t('components.clothingColorPicker.color', {
+                color: colorLabel,
+              })}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected, disabled }}
               disabled={disabled}
@@ -61,14 +70,14 @@ export function ClothingColorPicker({
                 )}
               </View>
               <AppText numberOfLines={1} style={styles.commonLabel}>
-                {option.name}
+                {colorLabel}
               </AppText>
             </Pressable>
           );
         })}
 
         <Pressable
-          accessibilityLabel="Other colors"
+          accessibilityLabel={t('components.clothingColorPicker.otherColors')}
           accessibilityRole="button"
           accessibilityState={{
             expanded: isPickerOpen,
@@ -100,8 +109,12 @@ export function ClothingColorPicker({
             )}
           </View>
           <View style={styles.otherCopy}>
-            <AppText style={styles.commonLabel}>Other</AppText>
-            <AppText style={styles.otherHint}>Grid, spectrum, and sliders</AppText>
+            <AppText style={styles.commonLabel}>
+              {t('components.clothingColorPicker.other')}
+            </AppText>
+            <AppText style={styles.otherHint}>
+              {t('components.clothingColorPicker.modesHint')}
+            </AppText>
           </View>
           <AppText style={styles.otherArrow}>›</AppText>
         </Pressable>

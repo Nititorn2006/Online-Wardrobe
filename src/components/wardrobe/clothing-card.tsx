@@ -1,20 +1,9 @@
 import { Image } from 'expo-image';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { AppText } from '@/components/app-text';
-import {
-  FORMALITY_LEVELS,
-  type ClothingItem,
-} from '@/features/wardrobe/types';
-
-const CATEGORY_LABELS: Record<ClothingItem['category'], string> = {
-  tops: 'Top',
-  bottoms: 'Bottom',
-  dresses: 'Dress',
-  outerwear: 'Outerwear',
-  shoes: 'Shoes',
-  accessories: 'Accessory',
-};
+import { type ClothingItem } from '@/features/wardrobe/types';
 
 export type ClothingCardProps = {
   item: ClothingItem;
@@ -23,24 +12,26 @@ export type ClothingCardProps = {
 };
 
 export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardProps) {
+  const { t } = useTranslation();
   const favoriteLabel = item.isFavorite
-    ? `Remove ${item.name} from favorites`
-    : `Add ${item.name} to favorites`;
-  const formalityLabel = FORMALITY_LEVELS.find(
-    (option) => option.value === item.formality,
-  )?.label;
+    ? t('components.clothingCard.removeFavorite', { name: item.name })
+    : t('components.clothingCard.addFavorite', { name: item.name });
+  const categoryLabel = t(`options.categories.${item.category}`);
+  const formalityLabel = t(`options.formalities.${item.formality}.label`, {
+    defaultValue: '',
+  });
 
   return (
     <View style={styles.card}>
       <Pressable
-        accessibilityHint="Opens clothing details"
+        accessibilityHint={t('components.clothingCard.opensDetails')}
         accessibilityLabel={item.name}
         accessibilityRole="button"
         onPress={onPress}
         style={({ pressed }) => [styles.cardContent, PRESSED_STYLES[Number(pressed)]]}>
         <View style={styles.imageFrame}>
           <Image
-            accessibilityLabel={`Photo of ${item.name}`}
+            accessibilityLabel={t('components.clothingCard.photo', { name: item.name })}
             contentFit="cover"
             source={{ uri: item.imageUri }}
             style={styles.image}
@@ -53,11 +44,15 @@ export function ClothingCard({ item, onPress, onToggleFavorite }: ClothingCardPr
             {item.name}
           </AppText>
           <View style={styles.metaRow}>
-            <View accessibilityLabel={`Color: ${item.color}`} style={styles.colorDotWrap}>
+            <View
+              accessibilityLabel={t('components.clothingCard.color', {
+                color: item.color,
+              })}
+              style={styles.colorDotWrap}>
               <View style={[styles.colorDot, { backgroundColor: item.color }]} />
             </View>
             <AppText numberOfLines={1} style={styles.category}>
-              {CATEGORY_LABELS[item.category]} · {formalityLabel}
+              {categoryLabel} · {formalityLabel}
             </AppText>
           </View>
         </View>

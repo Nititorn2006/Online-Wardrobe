@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -24,6 +25,7 @@ import {
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
 
 export default function ClothingDetailScreen() {
+  const { i18n, t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const {
@@ -49,26 +51,37 @@ export default function ClothingDetailScreen() {
           <View style={styles.missingMark}>
             <AppText style={styles.missingMarkText}>✓</AppText>
           </View>
-          <AppText style={styles.missingTitle}>This piece is no longer here</AppText>
+          <AppText style={styles.missingTitle}>
+            {t('clothingDetails.missing.title')}
+          </AppText>
           <AppText style={styles.missingBody}>
-            It may have already been removed from your wardrobe.
+            {t('clothingDetails.missing.body')}
           </AppText>
           <Pressable
             accessibilityRole="button"
             onPress={() => router.back()}
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-            <AppText style={styles.primaryButtonText}>Back to my clothes</AppText>
+            <AppText style={styles.primaryButtonText}>
+              {t('clothingDetails.missing.back')}
+            </AppText>
           </Pressable>
         </SafeAreaView>
       </View>
     );
   }
 
-  const categoryLabel = CATEGORIES.find((category) => category.value === item.category)?.label;
-  const formalityLabel = FORMALITY_LEVELS.find(
+  const categoryOption = CATEGORIES.find((category) => category.value === item.category);
+  const formalityOption = FORMALITY_LEVELS.find(
     (level) => level.value === item.formality,
-  )?.label;
-  const createdDate = new Intl.DateTimeFormat(undefined, {
+  );
+  const categoryLabel = categoryOption
+    ? t(`options.categories.${categoryOption.value}`)
+    : undefined;
+  const formalityLabel = formalityOption
+    ? t(`options.formalities.${formalityOption.value}.label`)
+    : undefined;
+  const dateLocale = i18n.resolvedLanguage === 'th' ? 'th-TH' : 'en-US';
+  const createdDate = new Intl.DateTimeFormat(dateLocale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -79,7 +92,10 @@ export default function ClothingDetailScreen() {
     try {
       await toggleFavorite(item.id);
     } catch (error) {
-      Alert.alert('Couldn’t update favorite', getErrorMessage(error));
+      Alert.alert(
+        t('clothingDetails.errors.favoriteTitle'),
+        getErrorMessage(error, t('common.tryAgain')),
+      );
     } finally {
       setIsUpdatingFavorite(false);
     }
@@ -105,7 +121,10 @@ export default function ClothingDetailScreen() {
       });
       setIsEditingDetails(false);
     } catch (error) {
-      Alert.alert('Couldn’t update details', getErrorMessage(error));
+      Alert.alert(
+        t('clothingDetails.errors.updateTitle'),
+        getErrorMessage(error, t('common.tryAgain')),
+      );
     } finally {
       setIsSavingDetails(false);
     }
@@ -113,12 +132,12 @@ export default function ClothingDetailScreen() {
 
   const confirmDelete = () => {
     Alert.alert(
-      `Remove ${item.name}?`,
-      'This will delete the piece and its saved photo from your closet.',
+      t('clothingDetails.deleteConfirmation.title', { name: item.name }),
+      t('clothingDetails.deleteConfirmation.body'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Remove',
+          text: t('clothingDetails.deleteConfirmation.confirm'),
           style: 'destructive',
           onPress: () => void handleDelete(),
         },
@@ -133,7 +152,10 @@ export default function ClothingDetailScreen() {
       router.back();
     } catch (error) {
       setIsDeleting(false);
-      Alert.alert('Couldn’t remove item', getErrorMessage(error));
+      Alert.alert(
+        t('clothingDetails.errors.deleteTitle'),
+        getErrorMessage(error, t('common.tryAgain')),
+      );
     }
   };
 
@@ -142,16 +164,22 @@ export default function ClothingDetailScreen() {
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable
-            accessibilityLabel="Close clothing details"
+            accessibilityLabel={t('clothingDetails.accessibility.close')}
             accessibilityRole="button"
             hitSlop={8}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}>
             <AppText style={styles.closeIcon}>×</AppText>
           </Pressable>
-          <AppText style={styles.topBarTitle}>Clothing details</AppText>
+          <AppText style={styles.topBarTitle}>
+            {t('clothingDetails.title')}
+          </AppText>
           <Pressable
-            accessibilityLabel={item.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            accessibilityLabel={
+              item.isFavorite
+                ? t('clothingDetails.accessibility.removeFavorite')
+                : t('clothingDetails.accessibility.addFavorite')
+            }
             accessibilityRole="button"
             accessibilityState={{ selected: item.isFavorite, busy: isUpdatingFavorite }}
             disabled={isUpdatingFavorite}
@@ -177,7 +205,9 @@ export default function ClothingDetailScreen() {
           contentContainerStyle={styles.scrollContent}>
           <View style={styles.imageCard}>
             <Image
-              accessibilityLabel={`Photo of ${item.name}`}
+              accessibilityLabel={t('clothingDetails.accessibility.photo', {
+                name: item.name,
+              })}
               contentFit="cover"
               source={{ uri: item.imageUri }}
               style={styles.image}
@@ -191,44 +221,60 @@ export default function ClothingDetailScreen() {
                 <AppText style={styles.category}>{categoryLabel}</AppText>
                 <AppText style={styles.name}>{item.name}</AppText>
               </View>
-              <View accessibilityLabel={`Color ${item.color}`} style={styles.colorBadge}>
+              <View
+                accessibilityLabel={t('common.color', { color: item.color })}
+                style={styles.colorBadge}>
                 <View style={[styles.colorSwatch, { backgroundColor: item.color }]} />
               </View>
             </View>
 
             <View style={styles.metaList}>
               <View style={styles.metaRow}>
-                <AppText style={styles.metaLabel}>Category</AppText>
+                <AppText style={styles.metaLabel}>
+                  {t('clothingDetails.category')}
+                </AppText>
                 <AppText style={styles.metaValue}>{categoryLabel}</AppText>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
-                <AppText style={styles.metaLabel}>Dress code</AppText>
+                <AppText style={styles.metaLabel}>
+                  {t('clothingDetails.dressCode')}
+                </AppText>
                 <AppText style={styles.metaValue}>{formalityLabel}</AppText>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
-                <AppText style={styles.metaLabel}>Added</AppText>
+                <AppText style={styles.metaLabel}>
+                  {t('clothingDetails.added')}
+                </AppText>
                 <AppText style={styles.metaValue}>{createdDate}</AppText>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaRow}>
-                <AppText style={styles.metaLabel}>Favorite</AppText>
-                <AppText style={styles.metaValue}>{item.isFavorite ? 'Yes' : 'Not yet'}</AppText>
+                <AppText style={styles.metaLabel}>
+                  {t('clothingDetails.favorite')}
+                </AppText>
+                <AppText style={styles.metaValue}>
+                  {item.isFavorite
+                    ? t('clothingDetails.yes')
+                    : t('clothingDetails.notYet')}
+                </AppText>
               </View>
             </View>
 
             {isEditingDetails ? (
               <View style={styles.classificationEditor}>
                 <View style={styles.editorGroup}>
-                  <AppText style={styles.editorLabel}>Name</AppText>
+                  <AppText style={styles.editorLabel}>
+                    {t('clothingDetails.name')}
+                  </AppText>
                   <AppTextInput
-                    accessibilityLabel="Clothing name"
+                    accessibilityLabel={t('clothingDetails.nameAccessibility')}
                     autoCapitalize="sentences"
                     editable={!isSavingDetails}
                     maxLength={80}
                     onChangeText={setDraftName}
-                    placeholder="e.g. White linen shirt"
+                    placeholder={t('clothingDetails.namePlaceholder')}
                     placeholderTextColor={Palette.muted}
                     returnKeyType="done"
                     style={styles.nameInput}
@@ -237,13 +283,15 @@ export default function ClothingDetailScreen() {
                 </View>
 
                 <View style={styles.editorGroup}>
-                  <AppText style={styles.editorLabel}>Category</AppText>
+                  <AppText style={styles.editorLabel}>
+                    {t('clothingDetails.category')}
+                  </AppText>
                   <View style={styles.chipRow}>
                     {CATEGORIES.map((option) => (
                       <ClassificationChip
                         isSelected={draftCategory === option.value}
                         key={option.value}
-                        label={option.label}
+                        label={t(`options.categories.${option.value}`)}
                         onPress={() => setDraftCategory(option.value)}
                       />
                     ))}
@@ -251,13 +299,15 @@ export default function ClothingDetailScreen() {
                 </View>
 
                 <View style={styles.editorGroup}>
-                  <AppText style={styles.editorLabel}>Dress code</AppText>
+                  <AppText style={styles.editorLabel}>
+                    {t('clothingDetails.dressCode')}
+                  </AppText>
                   <View style={styles.chipRow}>
                     {FORMALITY_LEVELS.map((option) => (
                       <ClassificationChip
                         isSelected={draftFormality === option.value}
                         key={option.value}
-                        label={option.label}
+                        label={t(`options.formalities.${option.value}.label`)}
                         onPress={() => setDraftFormality(option.value)}
                       />
                     ))}
@@ -265,7 +315,9 @@ export default function ClothingDetailScreen() {
                 </View>
 
                 <View style={styles.editorGroup}>
-                  <AppText style={styles.editorLabel}>Main color</AppText>
+                  <AppText style={styles.editorLabel}>
+                    {t('clothingDetails.mainColor')}
+                  </AppText>
                   <ClothingColorPicker
                     disabled={isSavingDetails}
                     onChange={setDraftColor}
@@ -275,7 +327,9 @@ export default function ClothingDetailScreen() {
 
                 <View style={styles.editorActions}>
                   <Pressable
-                    accessibilityLabel="Cancel clothing changes"
+                    accessibilityLabel={t(
+                      'clothingDetails.accessibility.cancelChanges',
+                    )}
                     accessibilityRole="button"
                     disabled={isSavingDetails}
                     onPress={() => setIsEditingDetails(false)}
@@ -284,11 +338,15 @@ export default function ClothingDetailScreen() {
                       styles.editorCancelButton,
                       pressed && styles.pressed,
                     ]}>
-                    <AppText style={styles.editorCancelText}>Cancel</AppText>
+                    <AppText style={styles.editorCancelText}>
+                      {t('common.cancel')}
+                    </AppText>
                   </Pressable>
 
                   <Pressable
-                    accessibilityLabel="Save clothing changes"
+                    accessibilityLabel={t(
+                      'clothingDetails.accessibility.saveChanges',
+                    )}
                     accessibilityRole="button"
                     accessibilityState={{ busy: isSavingDetails }}
                     disabled={isSavingDetails}
@@ -300,26 +358,32 @@ export default function ClothingDetailScreen() {
                     ]}>
                     {isSavingDetails ? (
                       <ActivityIndicator
-                        accessibilityLabel="Saving clothing changes"
+                        accessibilityLabel={t(
+                          'clothingDetails.accessibility.savingChanges',
+                        )}
                         color={Palette.white}
                         size="small"
                       />
                     ) : (
-                      <AppText style={styles.editorSaveText}>Save changes</AppText>
+                      <AppText style={styles.editorSaveText}>
+                        {t('clothingDetails.saveChanges')}
+                      </AppText>
                     )}
                   </Pressable>
                 </View>
               </View>
             ) : (
               <Pressable
-                accessibilityLabel="Edit clothing details"
+                accessibilityLabel={t('clothingDetails.accessibility.edit')}
                 accessibilityRole="button"
                 onPress={startEditingDetails}
                 style={({ pressed }) => [
                   styles.classificationButton,
                   pressed && styles.pressed,
                 ]}>
-                <AppText style={styles.classificationButtonText}>Edit</AppText>
+                <AppText style={styles.classificationButtonText}>
+                  {t('common.edit')}
+                </AppText>
               </Pressable>
             )}
 
@@ -345,13 +409,15 @@ export default function ClothingDetailScreen() {
                   styles.favoriteButtonText,
                   item.isFavorite && styles.favoriteButtonTextSelected,
                 ]}>
-                {item.isFavorite ? 'Saved to favorites' : 'Add to favorites'}
+                {item.isFavorite
+                  ? t('clothingDetails.savedFavorite')
+                  : t('clothingDetails.addFavorite')}
               </AppText>
             </Pressable>
           </View>
 
           <Pressable
-            accessibilityLabel="Delete clothing item"
+            accessibilityLabel={t('clothingDetails.accessibility.delete')}
             accessibilityRole="button"
             accessibilityState={{ busy: isDeleting, disabled: isDeleting }}
             disabled={isDeleting}
@@ -362,7 +428,9 @@ export default function ClothingDetailScreen() {
             ) : (
               <>
                 <AppText style={styles.deleteIcon}>⌫</AppText>
-                <AppText style={styles.deleteText}>Remove from closet</AppText>
+                <AppText style={styles.deleteText}>
+                  {t('clothingDetails.removeFromCloset')}
+                </AppText>
               </>
             )}
           </Pressable>
@@ -402,8 +470,8 @@ function ClassificationChip({
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Please try again.';
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }
 
 const styles = StyleSheet.create({

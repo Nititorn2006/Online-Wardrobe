@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { AppText } from '@/components/app-text';
 
@@ -26,11 +27,16 @@ const COLORS = {
 } as const;
 
 export function EmptyCloset({
-  title = 'Your closet is waiting',
-  body = 'Add a few favorite pieces and start building outfits that feel like you.',
-  buttonLabel = 'Add clothing',
+  title,
+  body,
+  buttonLabel,
   onButtonPress,
 }: EmptyClosetProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('components.emptyCloset.title');
+  const resolvedBody = body ?? t('components.emptyCloset.body');
+  const resolvedButtonLabel = buttonLabel ?? t('components.emptyCloset.action');
+
   return (
     <View style={styles.container}>
       <View
@@ -66,17 +72,17 @@ export function EmptyCloset({
 
       <View style={styles.copy}>
         <AppText style={styles.title}>
-          {title}
+          {resolvedTitle}
         </AppText>
 
         <AppText style={styles.body}>
-          {body}
+          {resolvedBody}
         </AppText>
       </View>
 
       {onButtonPress ? (
         <Pressable
-          accessibilityLabel={buttonLabel}
+          accessibilityLabel={resolvedButtonLabel}
           accessibilityRole="button"
           onPress={onButtonPress}
           style={({ pressed }) => [
@@ -85,7 +91,7 @@ export function EmptyCloset({
           ]}
         >
           <AppText style={styles.buttonText}>
-            {buttonLabel}
+            {resolvedButtonLabel}
           </AppText>
 
           <AppText

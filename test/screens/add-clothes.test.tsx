@@ -11,6 +11,7 @@ import { Alert, Platform } from 'react-native';
 
 import AddClothesScreen from '@/app/add-clothes';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockAddItem = jest.fn<(...args: any[]) => Promise<unknown>>();
 
@@ -160,7 +161,8 @@ async function chooseSuccessfulPhoto(view: TestView, source: 'camera' | 'library
 }
 
 describe('AddClothesScreen on native platforms', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
     mockUseWardrobe.mockReturnValue(
       { addItem: mockAddItem } as unknown as ReturnType<typeof useWardrobe>,
@@ -181,6 +183,18 @@ describe('AddClothesScreen on native platforms', () => {
     await fireEvent.press(view.getByRole('button', { name: 'Close add clothes' }));
     expect(mockBack).toHaveBeenCalledTimes(1);
     expect(alertSpy).not.toHaveBeenCalled();
+  });
+
+  test('renders the complete add-clothes form in Thai', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<AddClothesScreen />);
+
+    expect(view.getByText('เพิ่มเสื้อผ้า')).toBeTruthy();
+    expect(view.getByText('เพิ่มรูปและชื่อเพื่อบันทึก')).toBeTruthy();
+    expect(view.getByText('ถ่ายรูปเสื้อผ้าชิ้นนี้')).toBeTruthy();
+    expect(view.getByText('ชุดใส่สบายสำหรับทุกวัน')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'ปิดหน้าเพิ่มเสื้อผ้า' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'บันทึกเสื้อผ้า' })).toBeTruthy();
   });
 
   test('warns before discarding drafts made by every classification field', async () => {

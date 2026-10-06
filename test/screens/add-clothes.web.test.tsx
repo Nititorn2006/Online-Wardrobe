@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 
 import AddClothesScreen from '@/app/add-clothes';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockAddItem = jest.fn<(...args: any[]) => Promise<unknown>>();
 
@@ -96,7 +97,8 @@ function imageAsset(
 }
 
 describe('AddClothesScreen in a browser', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     mockUseWardrobe.mockReturnValue(
       { addItem: mockAddItem } as unknown as ReturnType<typeof useWardrobe>,
     );

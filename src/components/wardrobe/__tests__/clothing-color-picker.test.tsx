@@ -2,6 +2,8 @@ import { describe, expect, jest, test } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import { useState } from 'react';
 
+import { i18nInstance as i18n } from '@/i18n';
+
 import { ClothingColorPicker } from '../clothing-color-picker';
 import {
   ADVANCED_COLOR_GRID,
@@ -154,5 +156,20 @@ describe('ClothingColorPicker', () => {
     await fireEvent(close, 'pressOut');
     await fireEvent.press(close);
     expect(view.queryByText('Colors')).toBeNull();
+  });
+
+  test('translates color choices and advanced picker controls', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(
+      <PickerHarness initialValue="#292A2A" onChange={jest.fn()} />,
+    );
+
+    expect(view.getByRole('button', { name: 'สีดำ' })).toBeTruthy();
+    expect(view.getByText('ฟ้าอ่อน')).toBeTruthy();
+    await fireEvent.press(view.getByRole('button', { name: 'สีอื่น ๆ' }));
+    expect(view.getByText('สี')).toBeTruthy();
+    expect(view.getByRole('tab', { name: 'สเปกตรัม' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'สีดำที่ใช้บ่อย' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'เสร็จสิ้น' })).toBeTruthy();
   });
 });

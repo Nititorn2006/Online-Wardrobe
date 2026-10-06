@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
@@ -25,33 +26,25 @@ import {
 
 type PickerTab = 'grid' | 'spectrum' | 'sliders';
 
-const PICKER_TABS: { value: PickerTab; label: string }[] = [
-  { value: 'grid', label: 'Grid' },
-  { value: 'spectrum', label: 'Spectrum' },
-  { value: 'sliders', label: 'Sliders' },
-];
+const PICKER_TABS: PickerTab[] = ['grid', 'spectrum', 'sliders'];
 
 const SLIDER_OPTIONS: {
   channel: HsvChannel;
-  label: string;
   suffix: string;
   values: number[];
 }[] = [
   {
     channel: 'hue',
-    label: 'Hue',
     suffix: '°',
     values: Array.from({ length: 13 }, (_, index) => Math.min(index * 30, 359)),
   },
   {
     channel: 'saturation',
-    label: 'Saturation',
     suffix: '%',
     values: Array.from({ length: 11 }, (_, index) => index * 10),
   },
   {
     channel: 'value',
-    label: 'Brightness',
     suffix: '%',
     values: Array.from({ length: 11 }, (_, index) => index * 10),
   },
@@ -68,6 +61,7 @@ export function AdvancedColorPicker({
   value: string;
   visible: boolean;
 }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<PickerTab>('grid');
   const normalizedValue = normalizeClothingColor(value) ?? DEFAULT_CLOTHING_COLOR;
   const hsv = clothingColorToHsv(normalizedValue)!;
@@ -80,43 +74,51 @@ export function AdvancedColorPicker({
 
   const renderColorGrid = (
     grid: readonly (readonly string[])[],
-    label: string,
-  ) => (
-    <View accessibilityLabel={label} style={styles.colorGrid}>
-      {grid.map((row, rowIndex) => (
-        <View key={`${label}-row-${rowIndex}`} style={styles.colorRow}>
-          {row.map((color, columnIndex) => {
-            const isSelected = color === normalizedValue;
+    gridType: Exclude<PickerTab, 'sliders'>,
+  ) => {
+    const gridLabel = t(`components.colorPicker.tabs.${gridType}`);
 
-            return (
-              <Pressable
-                accessibilityLabel={`${label} color, row ${rowIndex + 1}, column ${columnIndex + 1}`}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                key={`${label}-${rowIndex}-${columnIndex}`}
-                onPress={() => selectColor(color)}
-                style={({ pressed }) => [
-                  styles.gridCell,
-                  { backgroundColor: color },
-                  isSelected && styles.gridCellSelected,
-                  PRESSED_STYLES[Number(pressed)],
-                ]}>
-                {isSelected && (
-                  <AppText
-                    style={[
-                      styles.gridCheck,
-                      !isDarkClothingColor(color) && styles.gridCheckDark,
-                    ]}>
-                    ✓
-                  </AppText>
-                )}
-              </Pressable>
-            );
-          })}
-        </View>
-      ))}
-    </View>
-  );
+    return (
+      <View accessibilityLabel={gridLabel} style={styles.colorGrid}>
+        {grid.map((row, rowIndex) => (
+          <View key={`${gridType}-row-${rowIndex}`} style={styles.colorRow}>
+            {row.map((color, columnIndex) => {
+              const isSelected = color === normalizedValue;
+
+              return (
+                <Pressable
+                  accessibilityLabel={t('components.colorPicker.colorCell', {
+                    grid: gridLabel,
+                    row: rowIndex + 1,
+                    column: columnIndex + 1,
+                  })}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  key={`${gridType}-${rowIndex}-${columnIndex}`}
+                  onPress={() => selectColor(color)}
+                  style={({ pressed }) => [
+                    styles.gridCell,
+                    { backgroundColor: color },
+                    isSelected && styles.gridCellSelected,
+                    PRESSED_STYLES[Number(pressed)],
+                  ]}>
+                  {isSelected && (
+                    <AppText
+                      style={[
+                        styles.gridCheck,
+                        !isDarkClothingColor(color) && styles.gridCheckDark,
+                      ]}>
+                      ✓
+                    </AppText>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <Modal
@@ -134,9 +136,9 @@ export function AdvancedColorPicker({
             <View style={styles.headerPreviewWrap}>
               <View style={[styles.headerPreview, { backgroundColor: normalizedValue }]} />
             </View>
-            <AppText style={styles.title}>Colors</AppText>
+            <AppText style={styles.title}>{t('components.colorPicker.title')}</AppText>
             <Pressable
-              accessibilityLabel="Close color picker"
+              accessibilityLabel={t('components.colorPicker.close')}
               accessibilityRole="button"
               onPress={onClose}
               style={({ pressed }) => [styles.closeButton, PRESSED_STYLES[Number(pressed)]]}>
@@ -146,14 +148,14 @@ export function AdvancedColorPicker({
 
           <View accessibilityRole="tablist" style={styles.tabBar}>
             {PICKER_TABS.map((tab) => {
-              const isSelected = activeTab === tab.value;
+              const isSelected = activeTab === tab;
 
               return (
                 <Pressable
                   accessibilityRole="tab"
                   accessibilityState={{ selected: isSelected }}
-                  key={tab.value}
-                  onPress={() => setActiveTab(tab.value)}
+                  key={tab}
+                  onPress={() => setActiveTab(tab)}
                   style={({ pressed }) => [
                     styles.tab,
                     isSelected && styles.tabSelected,
@@ -161,7 +163,7 @@ export function AdvancedColorPicker({
                   ]}>
                   <AppText
                     style={[styles.tabText, isSelected && styles.tabTextSelected]}>
-                    {tab.label}
+                    {t(`components.colorPicker.tabs.${tab}`)}
                   </AppText>
                 </Pressable>
               );
@@ -171,14 +173,14 @@ export function AdvancedColorPicker({
           <ScrollView
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}>
-            {activeTab === 'grid' && renderColorGrid(ADVANCED_COLOR_GRID, 'Grid')}
+            {activeTab === 'grid' && renderColorGrid(ADVANCED_COLOR_GRID, 'grid')}
             {activeTab === 'spectrum' && (
               <View style={styles.spectrumPanel}>
-                {renderColorGrid(SPECTRUM_COLOR_GRID, 'Spectrum')}
+                {renderColorGrid(SPECTRUM_COLOR_GRID, 'spectrum')}
                 <View style={styles.spectrumNoteRow}>
                   <View style={[styles.smallPreview, { backgroundColor: normalizedValue }]} />
                   <AppText style={styles.spectrumNote}>
-                    Tap anywhere in the spectrum to choose a shade.
+                    {t('components.colorPicker.spectrumHint')}
                   </AppText>
                 </View>
               </View>
@@ -189,11 +191,14 @@ export function AdvancedColorPicker({
 
                 {SLIDER_OPTIONS.map((option) => {
                   const currentValue = hsv[option.channel];
+                  const channelLabel = t(
+                    `components.colorPicker.channels.${option.channel}`,
+                  );
 
                   return (
                     <View key={option.channel} style={styles.sliderGroup}>
                       <View style={styles.sliderHeading}>
-                        <AppText style={styles.sliderLabel}>{option.label}</AppText>
+                        <AppText style={styles.sliderLabel}>{channelLabel}</AppText>
                         <AppText style={styles.sliderValue}>
                           {currentValue}{option.suffix}
                         </AppText>
@@ -220,7 +225,11 @@ export function AdvancedColorPicker({
 
                           return (
                             <Pressable
-                              accessibilityLabel={`Set ${option.label} to ${channelValue}${option.suffix}`}
+                              accessibilityLabel={t('components.colorPicker.setChannel', {
+                                channel: channelLabel,
+                                value: channelValue,
+                                suffix: option.suffix,
+                              })}
                               accessibilityRole="button"
                               key={channelValue}
                               onPress={() =>
@@ -262,14 +271,22 @@ export function AdvancedColorPicker({
 
             <View style={styles.savedColorsSection}>
               <View style={styles.divider} />
-              <AppText style={styles.savedColorsLabel}>Quick colors</AppText>
+              <AppText style={styles.savedColorsLabel}>
+                {t('components.colorPicker.quickColors')}
+              </AppText>
               <View style={styles.savedColorsRow}>
                 {COMMON_COLOR_OPTIONS.slice(0, 10).map((option) => {
                   const isSelected = option.hex === normalizedValue;
 
                   return (
                     <Pressable
-                      accessibilityLabel={`${option.name} quick color`}
+                      accessibilityLabel={t('components.colorPicker.quickColor', {
+                        color: t(
+                          `colors.${option.name
+                            .replace(/^./, (letter) => letter.toLowerCase())
+                            .replace(/ (.)/, (_, letter: string) => letter.toUpperCase())}`,
+                        ),
+                      })}
                       accessibilityRole="button"
                       accessibilityState={{ selected: isSelected }}
                       key={option.name}
@@ -297,7 +314,7 @@ export function AdvancedColorPicker({
             accessibilityRole="button"
             onPress={onClose}
             style={({ pressed }) => [styles.doneButton, PRESSED_STYLES[Number(pressed)]]}>
-            <AppText style={styles.doneButtonText}>Done</AppText>
+            <AppText style={styles.doneButtonText}>{t('common.done')}</AppText>
           </Pressable>
         </SafeAreaView>
       </View>
