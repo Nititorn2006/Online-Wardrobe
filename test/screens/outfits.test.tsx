@@ -12,6 +12,7 @@ import { Alert } from 'react-native';
 import SavedOutfitsScreen from '@/app/outfits';
 import type { SavedOutfit } from '@/features/outfits/types';
 import type { ClothingItem } from '@/features/wardrobe/types';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockWardrobe: {
   outfits: SavedOutfit[];
@@ -78,6 +79,7 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('@/features/outfits/saved-outfit-utils', () => ({
+  buildOutfitName: jest.fn(() => 'generated outfit name'),
   sortSavedOutfits: (...args: [readonly SavedOutfit[], string]) =>
     mockSortSavedOutfits(...args),
 }));
@@ -133,7 +135,8 @@ function confirmLatestDelete(alertSpy: jest.SpiedFunction<typeof Alert.alert>) {
 describe('SavedOutfitsScreen', () => {
   let alertSpy: jest.SpiedFunction<typeof Alert.alert>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     mockWardrobe.outfits = [];
     mockWardrobe.items = [];
     mockWardrobe.deleteOutfit.mockResolvedValue(undefined);
@@ -259,5 +262,23 @@ describe('SavedOutfitsScreen', () => {
       view.getByRole('button', { name: 'Delete Broken look' }).props
         .accessibilityState.busy,
     ).toBe(false);
+  });
+
+  test('renders translated Thai copy and metadata', async () => {
+    await i18n.changeLanguage('th');
+    mockWardrobe.items = [clothingItem('shirt', 'เสื้อ')];
+    mockWardrobe.outfits = [
+      savedOutfit('thai', {
+        name: 'generated outfit name',
+        itemIds: ['shirt'],
+      }),
+    ];
+
+    const view = await render(<SavedOutfitsScreen />);
+
+    expect(view.getAllByText('ชุดที่บันทึกไว้')).toHaveLength(2);
+    expect(view.getByText('ลุคทุกวันแบบลำลอง')).toBeTruthy();
+    expect(view.getByText('ทุกวัน · ลำลอง · 1 ชิ้น')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'ลบ ลุคทุกวันแบบลำลอง' })).toBeTruthy();
   });
 });

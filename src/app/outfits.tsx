@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -13,7 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Layout, Palette, Radius } from '@/constants/design';
-import { sortSavedOutfits } from '@/features/outfits/saved-outfit-utils';
+import {
+  buildOutfitName,
+  sortSavedOutfits,
+} from '@/features/outfits/saved-outfit-utils';
 import { OUTFIT_OCCASIONS } from '@/features/outfits/types';
 import { FORMALITY_LEVELS } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
@@ -26,8 +30,8 @@ function toLocalDateValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatPlannedDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatPlannedDate(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -36,6 +40,7 @@ function formatPlannedDate(value: string) {
 }
 
 export default function SavedOutfitsScreen() {
+  const { t, i18n } = useTranslation();
   const { outfits, items, deleteOutfit } = useWardrobe();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const today = toLocalDateValue(new Date());
@@ -43,15 +48,16 @@ export default function SavedOutfitsScreen() {
     () => sortSavedOutfits(outfits, today),
     [outfits, today],
   );
+  const locale = i18n.resolvedLanguage === 'th' ? 'th-TH' : 'en-US';
 
   const confirmDelete = (id: string, name: string) => {
     Alert.alert(
-      `Delete ${name}?`,
-      'The clothes will stay in My Clothes. Only this saved outfit will be removed.',
+      t('savedOutfits.deleteConfirmTitle', { name }),
+      t('savedOutfits.deleteConfirmBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete outfit',
+          text: t('savedOutfits.deleteAction'),
           style: 'destructive',
           onPress: () => void handleDelete(id),
         },
@@ -66,8 +72,8 @@ export default function SavedOutfitsScreen() {
       await deleteOutfit(id);
     } catch (error) {
       Alert.alert(
-        'Couldn’t delete this outfit',
-        error instanceof Error ? error.message : 'Please try again.',
+        t('savedOutfits.deleteErrorTitle'),
+        error instanceof Error ? error.message : t('common.tryAgain'),
       );
     } finally {
       setDeletingId(null);
@@ -79,7 +85,7 @@ export default function SavedOutfitsScreen() {
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable
-            accessibilityLabel="Close saved outfits"
+            accessibilityLabel={t('savedOutfits.close')}
             accessibilityRole="button"
             hitSlop={8}
             onPress={() => router.back()}
@@ -87,7 +93,7 @@ export default function SavedOutfitsScreen() {
             <AppText style={styles.closeIcon}>×</AppText>
           </Pressable>
 
-          <AppText style={styles.topBarTitle}>Saved outfits</AppText>
+          <AppText style={styles.topBarTitle}>{t('savedOutfits.title')}</AppText>
           <View style={styles.topBarSpacer} />
         </View>
 
@@ -95,11 +101,9 @@ export default function SavedOutfitsScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <AppText style={styles.eyebrow}>MY LOOKS</AppText>
-            <AppText style={styles.title}>Saved outfits</AppText>
-            <AppText style={styles.subtitle}>
-              Keep complete looks together so they’re ready when you need them.
-            </AppText>
+            <AppText style={styles.eyebrow}>{t('savedOutfits.eyebrow')}</AppText>
+            <AppText style={styles.title}>{t('savedOutfits.title')}</AppText>
+            <AppText style={styles.subtitle}>{t('savedOutfits.subtitle')}</AppText>
           </View>
 
           {sortedOutfits.length === 0 ? (
@@ -107,15 +111,15 @@ export default function SavedOutfitsScreen() {
               <View style={styles.emptyIcon}>
                 <AppText style={styles.emptyIconText}>✦</AppText>
               </View>
-              <AppText style={styles.emptyTitle}>No saved outfits yet</AppText>
-              <AppText style={styles.emptyBody}>
-                Build a recommendation, then save the whole look here with one tap.
-              </AppText>
+              <AppText style={styles.emptyTitle}>{t('savedOutfits.emptyTitle')}</AppText>
+              <AppText style={styles.emptyBody}>{t('savedOutfits.emptyBody')}</AppText>
               <Pressable
                 accessibilityRole="button"
                 onPress={() => router.replace('/recommend-outfit' as Href)}
                 style={({ pressed }) => [styles.planButton, pressed && styles.pressed]}>
-                <AppText style={styles.planButtonText}>Plan an outfit</AppText>
+                <AppText style={styles.planButtonText}>
+                  {t('savedOutfits.planOutfit')}
+                </AppText>
               </Pressable>
             </View>
           ) : (
@@ -125,33 +129,51 @@ export default function SavedOutfitsScreen() {
                 .filter((item) => item !== undefined);
               const occasionLabel = OUTFIT_OCCASIONS.find(
                 (option) => option.value === outfit.occasion,
-              )?.label;
+              );
               const formalityLabel = FORMALITY_LEVELS.find(
                 (option) => option.value === outfit.formality,
-              )?.label;
+              );
               const isDeleting = deletingId === outfit.id;
+              const translatedOccasion = occasionLabel
+                ? t(`options.occasions.${occasionLabel.value}`)
+                : '';
+              const translatedFormality = formalityLabel
+                ? t(`options.formalities.${formalityLabel.value}.label`)
+                : '';
+              const displayName =
+                outfit.name === buildOutfitName(outfit.formality, outfit.occasion)
+                  ? t('savedOutfits.generatedName', {
+                      occasion: translatedOccasion.toLocaleLowerCase(locale),
+                      formality: translatedFormality,
+                    })
+                  : outfit.name;
 
               return (
                 <View key={outfit.id} style={styles.outfitCard}>
                   <View style={styles.cardHeader}>
                     <View style={styles.cardTitleCopy}>
                       <AppText style={styles.cardDate}>
-                        {formatPlannedDate(outfit.plannedFor)}
+                        {formatPlannedDate(outfit.plannedFor, locale)}
                       </AppText>
-                      <AppText style={styles.cardTitle}>{outfit.name}</AppText>
+                      <AppText style={styles.cardTitle}>{displayName}</AppText>
                       <AppText style={styles.cardMeta}>
-                        {occasionLabel} · {formalityLabel} · {outfitItems.length}{' '}
-                        {outfitItems.length === 1 ? 'piece' : 'pieces'}
+                        {t('savedOutfits.metadata', {
+                          count: outfitItems.length,
+                          occasion: translatedOccasion,
+                          formality: translatedFormality,
+                        })}
                       </AppText>
                     </View>
 
                     <Pressable
-                      accessibilityLabel={`Delete ${outfit.name}`}
+                      accessibilityLabel={t('savedOutfits.deleteAccessibility', {
+                        name: displayName,
+                      })}
                       accessibilityRole="button"
                       accessibilityState={{ busy: isDeleting }}
                       disabled={isDeleting}
                       hitSlop={8}
-                      onPress={() => confirmDelete(outfit.id, outfit.name)}
+                      onPress={() => confirmDelete(outfit.id, displayName)}
                       style={({ pressed }) => [
                         styles.deleteButton,
                         pressed && styles.pressed,
@@ -167,7 +189,7 @@ export default function SavedOutfitsScreen() {
                   <View style={styles.itemGrid}>
                     {outfitItems.map((item) => (
                       <Pressable
-                        accessibilityLabel={`Open ${item.name}`}
+                        accessibilityLabel={t('common.openItem', { name: item.name })}
                         accessibilityRole="button"
                         key={item.id}
                         onPress={() =>

@@ -14,6 +14,7 @@ import {
   FORMALITY_LEVELS,
   type ClothingItem,
 } from '@/features/wardrobe/types';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockSaveOutfit = jest.fn<() => Promise<unknown>>();
 const mockWardrobe: {
@@ -128,7 +129,8 @@ function roleButtonWithState(
 describe('RecommendOutfitScreen', () => {
   let alertSpy: jest.SpiedFunction<typeof Alert.alert>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     mockWardrobe.items = [clothingItem('shirt'), clothingItem('bottom')];
     mockSaveOutfit.mockResolvedValue({});
     mockRecommendation = recommendation();
@@ -167,7 +169,11 @@ describe('RecommendOutfitScreen', () => {
     expect(view.getByText('YOUR LOOK')).toBeTruthy();
     expect(view.getByText('Date · Formal')).toBeTruthy();
     expect(view.getByText('Ready')).toBeTruthy();
-    expect(view.getByText('Another combination is available.')).toBeTruthy();
+    expect(
+      view.getByText(
+        'This is the only complete combination for these choices. Add more pieces to create another look.',
+      ),
+    ).toBeTruthy();
 
     await fireEvent.press(view.getByRole('button', { name: 'Open Shirt' }));
     expect(router.push).toHaveBeenCalledWith({
@@ -242,7 +248,11 @@ describe('RecommendOutfitScreen', () => {
 
     expect(view.queryByText('Ready')).toBeNull();
     expect(view.getByText('This look needs another piece')).toBeTruthy();
-    expect(view.getByText('Add a top and bottom.')).toBeTruthy();
+    expect(
+      view.getByText(
+        'Add a dress, or both a top and bottom, to build a complete look.',
+      ),
+    ).toBeTruthy();
     expect(view.queryByRole('button', { name: 'Save outfit' })).toBeNull();
 
     await fireEvent.press(view.getByRole('button', { name: 'Add clothes' }));
@@ -269,7 +279,11 @@ describe('RecommendOutfitScreen', () => {
       mockWardrobe.items,
       expect.objectContaining({ seed: 0 }),
     );
-    expect(view.queryByText('Another combination is available.')).toBeNull();
+    expect(
+      view.queryByText(
+        'This is the only complete combination for these choices. Add more pieces to create another look.',
+      ),
+    ).toBeNull();
   });
 
   test.each([
@@ -329,5 +343,38 @@ describe('RecommendOutfitScreen', () => {
     } finally {
       findSpy.mockRestore();
     }
+  });
+
+  test('localizes category-specific variation copy', async () => {
+    mockRecommendation = recommendation({
+      tryAnotherLabel: 'Change top',
+      variationMessage: 'Only the top can change.',
+    });
+
+    const view = await render(<RecommendOutfitScreen />);
+    await fireEvent.press(view.getByRole('button', { name: 'Build my outfit ✦' }));
+
+    expect(
+      view.getByRole('button', { name: '↻ Change category: Tops' }),
+    ).toBeTruthy();
+    expect(
+      view.getByText(
+        'Only Tops has another option right now. Add more pieces in the other categories for a bigger change.',
+      ),
+    ).toBeTruthy();
+  });
+
+  test('renders the planner in Thai', async () => {
+    await i18n.changeLanguage('th');
+
+    const view = await render(<RecommendOutfitScreen />);
+    expect(view.getByText('คุณจะแต่งตัวไปไหน?')).toBeTruthy();
+    expect(view.getByText('วันนี้')).toBeTruthy();
+    expect(view.getByText('พรุ่งนี้')).toBeTruthy();
+    expect(view.getByText('ทำงาน / เรียน')).toBeTruthy();
+
+    await fireEvent.press(view.getByRole('button', { name: 'จัดชุดให้ฉัน ✦' }));
+    expect(view.getByText('ลุคของคุณ')).toBeTruthy();
+    expect(view.getByText('ทุกวัน · ลำลอง')).toBeTruthy();
   });
 });

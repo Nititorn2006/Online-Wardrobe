@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -28,8 +29,17 @@ type DateOption = {
   value: string;
   weekday: string;
   date: string;
-  relativeLabel: string | null;
+  relativeLabel: 'today' | 'tomorrow' | null;
 };
+
+const CHANGE_CATEGORY_BY_LABEL = {
+  'Change top': 'tops',
+  'Change bottom': 'bottoms',
+  'Change dress': 'dresses',
+  'Change outerwear': 'outerwear',
+  'Change shoes': 'shoes',
+  'Change accessory': 'accessories',
+} as const;
 
 function toLocalDateValue(date: Date) {
   const year = date.getFullYear();
@@ -39,7 +49,7 @@ function toLocalDateValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function createDateOptions(): DateOption[] {
+function createDateOptions(locale: string): DateOption[] {
   const today = new Date();
   today.setHours(12, 0, 0, 0);
 
@@ -49,21 +59,23 @@ function createDateOptions(): DateOption[] {
 
     return {
       value: toLocalDateValue(date),
-      weekday: new Intl.DateTimeFormat(undefined, {
+      weekday: new Intl.DateTimeFormat(locale, {
         weekday: 'short',
       }).format(date),
-      date: new Intl.DateTimeFormat(undefined, {
+      date: new Intl.DateTimeFormat(locale, {
         day: 'numeric',
         month: 'short',
       }).format(date),
-      relativeLabel: index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : null,
+      relativeLabel: index === 0 ? 'today' : index === 1 ? 'tomorrow' : null,
     };
   });
 }
 
 export default function RecommendOutfitScreen() {
+  const { t, i18n } = useTranslation();
   const { items, saveOutfit } = useWardrobe();
-  const dateOptions = useMemo(() => createDateOptions(), []);
+  const locale = i18n.resolvedLanguage === 'th' ? 'th-TH' : 'en-US';
+  const dateOptions = useMemo(() => createDateOptions(locale), [locale]);
   const [occasion, setOccasion] = useState<OutfitOccasion>('everyday');
   const [formality, setFormality] = useState<ClothingFormality>('casual');
   const [plannedFor, setPlannedFor] = useState(dateOptions[0].value);
@@ -85,10 +97,10 @@ export default function RecommendOutfitScreen() {
 
   const occasionLabel = OUTFIT_OCCASIONS.find(
     (option) => option.value === occasion,
-  )?.label;
+  );
   const formalityLabel = FORMALITY_LEVELS.find(
     (option) => option.value === formality,
-  )?.label;
+  );
   const plannedDateLabel = dateOptions.find(
     (option) => option.value === plannedFor,
   )?.date;
@@ -96,6 +108,20 @@ export default function RecommendOutfitScreen() {
     .map((item) => item.id)
     .join('|')}`;
   const isSaved = savedRecommendationKey === recommendationKey;
+  const changeCategory =
+    CHANGE_CATEGORY_BY_LABEL[
+      recommendation.tryAnotherLabel as keyof typeof CHANGE_CATEGORY_BY_LABEL
+    ];
+  const changeCategoryLabel = changeCategory
+    ? t(`options.categories.${changeCategory}`)
+    : null;
+  const tryAnotherLabel = changeCategoryLabel
+    ? t('recommendOutfit.changeCategory', { category: changeCategoryLabel })
+    : t(
+        recommendation.canTryAnother
+          ? 'recommendOutfit.tryAnother'
+          : 'recommendOutfit.noOtherLook',
+      );
 
   const changeOccasion = (value: OutfitOccasion) => {
     setOccasion(value);
@@ -135,8 +161,8 @@ export default function RecommendOutfitScreen() {
       setSavedRecommendationKey(recommendationKey);
     } catch (error) {
       Alert.alert(
-        'Couldn’t save this outfit',
-        error instanceof Error ? error.message : 'Please try again.',
+        t('recommendOutfit.saveErrorTitle'),
+        error instanceof Error ? error.message : t('common.tryAgain'),
       );
     } finally {
       setIsSavingOutfit(false);
@@ -157,7 +183,7 @@ export default function RecommendOutfitScreen() {
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable
-            accessibilityLabel="Close outfit planner"
+            accessibilityLabel={t('recommendOutfit.close')}
             accessibilityRole="button"
             hitSlop={8}
             onPress={() => router.back()}
@@ -168,7 +194,9 @@ export default function RecommendOutfitScreen() {
             <AppText style={styles.closeIcon}>×</AppText>
           </Pressable>
 
-          <AppText style={styles.topBarTitle}>Outfit planner</AppText>
+          <AppText style={styles.topBarTitle}>
+            {t('recommendOutfit.plannerTitle')}
+          </AppText>
           <View style={styles.topBarSpacer} />
         </View>
 
@@ -176,11 +204,9 @@ export default function RecommendOutfitScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
           <View style={styles.intro}>
-            <AppText style={styles.eyebrow}>RECOMMEND AN OUTFIT</AppText>
-            <AppText style={styles.title}>What are you dressing for?</AppText>
-            <AppText style={styles.subtitle}>
-              Tell us the occasion, dress code, and date. We’ll build a look from clothes you own.
-            </AppText>
+            <AppText style={styles.eyebrow}>{t('recommendOutfit.eyebrow')}</AppText>
+            <AppText style={styles.title}>{t('recommendOutfit.title')}</AppText>
+            <AppText style={styles.subtitle}>{t('recommendOutfit.subtitle')}</AppText>
           </View>
 
           <View style={styles.section}>
@@ -189,8 +215,12 @@ export default function RecommendOutfitScreen() {
                 <AppText style={styles.stepText}>1</AppText>
               </View>
               <View style={styles.sectionCopy}>
-                <AppText style={styles.sectionTitle}>Occasion</AppText>
-                <AppText style={styles.sectionHint}>Where are you going?</AppText>
+                <AppText style={styles.sectionTitle}>
+                  {t('recommendOutfit.occasion')}
+                </AppText>
+                <AppText style={styles.sectionHint}>
+                  {t('recommendOutfit.occasionHint')}
+                </AppText>
               </View>
             </View>
 
@@ -222,7 +252,7 @@ export default function RecommendOutfitScreen() {
                         styles.occasionText,
                         isSelected && styles.optionTextSelected,
                       ]}>
-                      {option.label}
+                      {t(`options.occasions.${option.value}`)}
                     </AppText>
                   </Pressable>
                 );
@@ -236,8 +266,12 @@ export default function RecommendOutfitScreen() {
                 <AppText style={styles.stepText}>2</AppText>
               </View>
               <View style={styles.sectionCopy}>
-                <AppText style={styles.sectionTitle}>Dress code</AppText>
-                <AppText style={styles.sectionHint}>How polished should it feel?</AppText>
+                <AppText style={styles.sectionTitle}>
+                  {t('recommendOutfit.dressCode')}
+                </AppText>
+                <AppText style={styles.sectionHint}>
+                  {t('recommendOutfit.dressCodeHint')}
+                </AppText>
               </View>
             </View>
 
@@ -261,7 +295,7 @@ export default function RecommendOutfitScreen() {
                         styles.formalityText,
                         isSelected && styles.optionTextSelected,
                       ]}>
-                      {option.label}
+                      {t(`options.formalities.${option.value}.label`)}
                     </AppText>
                   </Pressable>
                 );
@@ -275,8 +309,10 @@ export default function RecommendOutfitScreen() {
                 <AppText style={styles.stepText}>3</AppText>
               </View>
               <View style={styles.sectionCopy}>
-                <AppText style={styles.sectionTitle}>Date</AppText>
-                <AppText style={styles.sectionHint}>When will you wear it?</AppText>
+                <AppText style={styles.sectionTitle}>{t('recommendOutfit.date')}</AppText>
+                <AppText style={styles.sectionHint}>
+                  {t('recommendOutfit.dateHint')}
+                </AppText>
               </View>
             </View>
 
@@ -286,10 +322,16 @@ export default function RecommendOutfitScreen() {
               showsHorizontalScrollIndicator={false}>
               {dateOptions.map((option) => {
                 const isSelected = option.value === plannedFor;
+                const dateLabel = option.relativeLabel
+                  ? t(`recommendOutfit.${option.relativeLabel}`)
+                  : option.weekday;
 
                 return (
                   <Pressable
-                    accessibilityLabel={`${option.relativeLabel ?? option.weekday}, ${option.date}`}
+                    accessibilityLabel={t('recommendOutfit.dateAccessibility', {
+                      label: dateLabel,
+                      date: option.date,
+                    })}
                     accessibilityRole="button"
                     accessibilityState={{ selected: isSelected }}
                     key={option.value}
@@ -304,7 +346,7 @@ export default function RecommendOutfitScreen() {
                         styles.dateWeekday,
                         isSelected && styles.optionTextSelected,
                       ]}>
-                      {option.relativeLabel ?? option.weekday}
+                      {dateLabel}
                     </AppText>
                     <AppText
                       style={[
@@ -326,7 +368,9 @@ export default function RecommendOutfitScreen() {
               setHasGenerated(true);
             }}
             style={({ pressed }) => [styles.buildButton, pressed && styles.pressed]}>
-            <AppText style={styles.buildButtonText}>Build my outfit</AppText>
+            <AppText style={styles.buildButtonText}>
+              {t('recommendOutfit.build')}
+            </AppText>
             <AppText style={styles.buildButtonIcon}>✦</AppText>
           </Pressable>
 
@@ -334,16 +378,26 @@ export default function RecommendOutfitScreen() {
             <View style={styles.resultSection}>
               <View style={styles.resultHeading}>
                 <View style={styles.resultCopy}>
-                  <AppText style={styles.resultEyebrow}>YOUR LOOK</AppText>
+                  <AppText style={styles.resultEyebrow}>
+                    {t('recommendOutfit.resultEyebrow')}
+                  </AppText>
                   <AppText style={styles.resultTitle}>
-                    {occasionLabel} · {formalityLabel}
+                    {occasionLabel
+                      ? t(`options.occasions.${occasionLabel.value}`)
+                      : ''}{' '}
+                    ·{' '}
+                    {formalityLabel
+                      ? t(`options.formalities.${formalityLabel.value}.label`)
+                      : ''}
                   </AppText>
                   <AppText style={styles.resultDate}>{plannedDateLabel}</AppText>
                 </View>
 
                 {recommendation.isComplete && (
                   <View style={styles.readyBadge}>
-                    <AppText style={styles.readyBadgeText}>Ready</AppText>
+                    <AppText style={styles.readyBadgeText}>
+                      {t('recommendOutfit.ready')}
+                    </AppText>
                   </View>
                 )}
               </View>
@@ -352,7 +406,7 @@ export default function RecommendOutfitScreen() {
                 <View style={styles.outfitGrid}>
                   {recommendation.items.map((item) => (
                     <Pressable
-                      accessibilityLabel={`Open ${item.name}`}
+                      accessibilityLabel={t('common.openItem', { name: item.name })}
                       accessibilityRole="button"
                       key={item.id}
                       onPress={() =>
@@ -403,7 +457,9 @@ export default function RecommendOutfitScreen() {
                           styles.saveOutfitButtonText,
                           isSaved && styles.saveOutfitButtonTextSaved,
                         ]}>
-                        {isSaved ? '✓ Saved' : 'Save outfit'}
+                        {isSaved
+                          ? t('recommendOutfit.saved')
+                          : t('recommendOutfit.save')}
                       </AppText>
                     )}
                   </Pressable>
@@ -422,13 +478,13 @@ export default function RecommendOutfitScreen() {
                     ]}>
                     <AppText style={styles.secondaryButtonIcon}>↻</AppText>
                     <AppText style={styles.secondaryButtonText}>
-                      {recommendation.tryAnotherLabel}
+                      {tryAnotherLabel}
                     </AppText>
                   </Pressable>
 
                   <Pressable
-                    accessibilityHint="Open this recommendation in the outfit mixer"
-                    accessibilityLabel="Mix this look"
+                    accessibilityHint={t('recommendOutfit.mixHint')}
+                    accessibilityLabel={t('recommendOutfit.mixAccessibility')}
                     accessibilityRole="button"
                     onPress={() =>
                       router.navigate({
@@ -447,14 +503,18 @@ export default function RecommendOutfitScreen() {
                       pressed && styles.pressed,
                     ]}>
                     <AppText style={styles.mixLookButtonIcon}>↔</AppText>
-                    <AppText style={styles.mixLookButtonText}>Mix this look</AppText>
+                    <AppText style={styles.mixLookButtonText}>
+                      {t('recommendOutfit.mix')}
+                    </AppText>
                   </Pressable>
                 </View>
               ) : (
                 <View style={styles.missingCard}>
-                  <AppText style={styles.missingTitle}>This look needs another piece</AppText>
+                  <AppText style={styles.missingTitle}>
+                    {t('recommendOutfit.missingTitle')}
+                  </AppText>
                   <AppText style={styles.missingBody}>
-                    {recommendation.missingMessage}
+                    {t('recommendOutfit.missingBody')}
                   </AppText>
                   <Pressable
                     accessibilityRole="button"
@@ -463,14 +523,20 @@ export default function RecommendOutfitScreen() {
                       styles.addButton,
                       pressed && styles.pressed,
                     ]}>
-                    <AppText style={styles.addButtonText}>Add clothes</AppText>
+                    <AppText style={styles.addButtonText}>
+                      {t('recommendOutfit.addClothes')}
+                    </AppText>
                   </Pressable>
                 </View>
               )}
 
               {recommendation.isComplete && recommendation.variationMessage && (
                 <AppText style={styles.variationMessage}>
-                  {recommendation.variationMessage}
+                  {changeCategoryLabel
+                    ? t('recommendOutfit.variationCategory', {
+                        category: changeCategoryLabel,
+                      })
+                    : t('recommendOutfit.variationOnly')}
                 </AppText>
               )}
             </View>
