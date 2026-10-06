@@ -10,7 +10,9 @@ import {
   WardrobeProvider,
   useWardrobe,
 } from "@/features/wardrobe/wardrobe-provider";
+import { loadSavedLanguage } from "@/i18n";
 
+/* istanbul ignore else -- Expo replaces __DEV__ at build time; Jest runs only dev. */
 if (__DEV__) {
   LogBox.ignoreAllLogs();
 }
@@ -80,6 +82,10 @@ function Navigation() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    void loadSavedLanguage();
+  }, []);
+
   return (
     <TextSizeProvider>
       <WardrobeProvider>

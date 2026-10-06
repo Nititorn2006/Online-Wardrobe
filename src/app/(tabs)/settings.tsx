@@ -1,162 +1,185 @@
-import { Ionicons } from '@expo/vector-icons';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from "@expo/vector-icons";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
-import { AppText } from '@/components/app-text';
-import {
-  Layout,
-  Palette,
-  Radius,
-} from '@/constants/design';
+import { AppText } from "@/components/app-text";
+import { Layout, Palette, Radius } from "@/constants/design";
 import {
   useTextSize,
   type TextSizeOption,
-} from '@/features/wardrobe/text-size-provider';
+} from "@/features/wardrobe/text-size-provider";
+import { changeLanguage, getCurrentLanguage } from "@/i18n";
 
-const TEXT_SIZE_OPTIONS: {
-  value: TextSizeOption;
-  title: string;
-  description: string;
-}[] = [
-  {
-    value: 'small',
-    title: 'Small',
-    description: 'More content fits on screen',
-  },
-  {
-    value: 'default',
-    title: 'Default',
-    description: 'Recommended text size',
-  },
-  {
-    value: 'large',
-    title: 'Large',
-    description: 'Larger and easier to read',
-  },
-  {
-    value: 'extraLarge',
-    title: 'Extra Large',
-    description: 'Maximum readability',
-  },
+const TEXT_SIZE_OPTIONS: TextSizeOption[] = [
+  "small",
+  "default",
+  "large",
+  "extraLarge",
 ];
 
 export default function SettingsScreen() {
-  const {
-    textSize,
-    setTextSize,
-  } = useTextSize();
+  const { textSize, setTextSize } = useTextSize();
+  const { t } = useTranslation();
+  const language = getCurrentLanguage();
 
   return (
     <View style={styles.screen}>
-      <SafeAreaView
-        edges={['top']}
-        style={styles.safeArea}
-      >
+      <SafeAreaView edges={["top"]} style={styles.safeArea}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.content}>
             <View>
-              <AppText style={styles.eyebrow}>
-                ONLINEWARDROBE
-              </AppText>
+              <AppText style={styles.eyebrow}>{t("common.brand")}</AppText>
 
-              <AppText style={styles.title}>
-                Settings
-              </AppText>
+              <AppText style={styles.title}>{t("settings.title")}</AppText>
 
-              <AppText style={styles.subtitle}>
-                Customize your app experience.
-              </AppText>
+              <AppText style={styles.subtitle}>{t("settings.subtitle")}</AppText>
             </View>
 
             <View style={styles.section}>
               <AppText style={styles.sectionLabel}>
-                TEXT SIZE
+                {t("settings.textSize")}
               </AppText>
 
               <View style={styles.settingsCard}>
-                {TEXT_SIZE_OPTIONS.map(
-                  (option, index) => {
-                    const selected =
-                      textSize === option.value;
+                {TEXT_SIZE_OPTIONS.map((option, index) => {
+                  const selected = textSize === option;
 
-                    return (
-                      <View key={option.value}>
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityState={{
-                            selected,
-                          }}
-                          onPress={() =>
-                            setTextSize(option.value)
-                          }
-                          style={({ pressed }) => [
-                            styles.optionRow,
-                            pressed &&
-                              styles.optionPressed,
-                          ]}
-                        >
-                          <View style={styles.optionCopy}>
-                            <AppText
-                              style={[
-                                styles.optionTitle,
-                                selected &&
-                                  styles.optionTitleSelected,
-                              ]}
-                            >
-                              {option.title}
-                            </AppText>
-
-                            <AppText
-                              style={
-                                styles.optionDescription
-                              }
-                            >
-                              {option.description}
-                            </AppText>
-                          </View>
-
-                          <View
+                  return (
+                    <View key={option}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityState={{
+                          selected,
+                        }}
+                        onPress={() => setTextSize(option)}
+                        style={({ pressed }) => [
+                          styles.optionRow,
+                          pressed && styles.optionPressed,
+                        ]}
+                      >
+                        <View style={styles.optionCopy}>
+                          <AppText
                             style={[
-                              styles.radioOuter,
-                              selected &&
-                                styles.radioOuterSelected,
+                              styles.optionTitle,
+                              selected && styles.optionTitleSelected,
                             ]}
                           >
-                            {selected && (
-                              <View
-                                style={
-                                  styles.radioInner
-                                }
-                              />
-                            )}
-                          </View>
-                        </Pressable>
+                            {t(`settings.textSizes.${option}.title`)}
+                          </AppText>
 
-                        {index <
-                          TEXT_SIZE_OPTIONS.length -
-                            1 && (
-                          <View
-                            style={styles.divider}
-                          />
-                        )}
-                      </View>
-                    );
-                  },
-                )}
+                          <AppText style={styles.optionDescription}>
+                            {t(`settings.textSizes.${option}.description`)}
+                          </AppText>
+                        </View>
+
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            selected && styles.radioOuterSelected,
+                          ]}
+                        >
+                          {selected && <View style={styles.radioInner} />}
+                        </View>
+                      </Pressable>
+
+                      {index < TEXT_SIZE_OPTIONS.length - 1 && (
+                        <View style={styles.divider} />
+                      )}
+                    </View>
+                  );
+                })}
               </View>
             </View>
 
             <View style={styles.section}>
               <AppText style={styles.sectionLabel}>
-                PREVIEW
+                {t("settings.language")}
+              </AppText>
+
+              <View style={styles.settingsCard}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: language === "en",
+                  }}
+                  onPress={() => void changeLanguage("en")}
+                  style={({ pressed }) => [
+                    styles.optionRow,
+                    pressed && styles.optionPressed,
+                  ]}
+                >
+                  <View style={styles.optionCopy}>
+                    <AppText
+                      style={[
+                        styles.optionTitle,
+                        language === "en" && styles.optionTitleSelected,
+                      ]}
+                    >
+                      {t("settings.languages.english.title")}
+                    </AppText>
+
+                    <AppText style={styles.optionDescription}>
+                      {t("settings.languages.english.description")}
+                    </AppText>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.radioOuter,
+                      language === "en" && styles.radioOuterSelected,
+                    ]}
+                  >
+                    {language === "en" && <View style={styles.radioInner} />}
+                  </View>
+                </Pressable>
+
+                <View style={styles.divider} />
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: language === "th",
+                  }}
+                  onPress={() => void changeLanguage("th")}
+                  style={({ pressed }) => [
+                    styles.optionRow,
+                    pressed && styles.optionPressed,
+                  ]}
+                >
+                  <View style={styles.optionCopy}>
+                    <AppText
+                      style={[
+                        styles.optionTitle,
+                        language === "th" && styles.optionTitleSelected,
+                      ]}
+                    >
+                      {t("settings.languages.thai.title")}
+                    </AppText>
+
+                    <AppText style={styles.optionDescription}>
+                      {t("settings.languages.thai.description")}
+                    </AppText>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.radioOuter,
+                      language === "th" && styles.radioOuterSelected,
+                    ]}
+                  >
+                    {language === "th" && <View style={styles.radioInner} />}
+                  </View>
+                </Pressable>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <AppText style={styles.sectionLabel}>
+                {t("settings.preview")}
               </AppText>
 
               <View style={styles.previewCard}>
@@ -169,12 +192,11 @@ export default function SettingsScreen() {
                 </View>
 
                 <AppText style={styles.previewTitle}>
-                  Your online wardrobe
+                  {t("settings.previewTitle")}
                 </AppText>
 
                 <AppText style={styles.previewBody}>
-                  Keep your clothes organized
-                  and ready for your next look.
+                  {t("settings.previewBody")}
                 </AppText>
               </View>
             </View>
@@ -200,9 +222,9 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    width: '100%',
+    width: "100%",
     maxWidth: Layout.maxWidth,
-    alignSelf: 'center',
+    alignSelf: "center",
     paddingHorizontal: Layout.gutter,
     paddingTop: 14,
     gap: 32,
@@ -211,7 +233,7 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: Palette.brand,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.4,
     marginBottom: 3,
   },
@@ -220,7 +242,7 @@ const styles = StyleSheet.create({
     color: Palette.ink,
     fontSize: 34,
     lineHeight: 40,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -1,
   },
 
@@ -238,12 +260,12 @@ const styles = StyleSheet.create({
   sectionLabel: {
     color: Palette.brand,
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.4,
   },
 
   settingsCard: {
-    overflow: 'hidden',
+    overflow: "hidden",
 
     borderRadius: Radius.large,
 
@@ -259,9 +281,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 14,
 
-    flexDirection: 'row',
+    flexDirection: "row",
 
-    alignItems: 'center',
+    alignItems: "center",
 
     gap: 16,
   },
@@ -278,7 +300,7 @@ const styles = StyleSheet.create({
   optionTitle: {
     color: Palette.ink,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   optionTitleSelected: {
@@ -306,8 +328,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Palette.border,
 
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   radioOuterSelected: {
@@ -330,7 +352,7 @@ const styles = StyleSheet.create({
 
     backgroundColor: Palette.brandSoft,
 
-    alignItems: 'center',
+    alignItems: "center",
 
     gap: 9,
   },
@@ -343,8 +365,8 @@ const styles = StyleSheet.create({
 
     backgroundColor: Palette.surface,
 
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
 
     marginBottom: 4,
   },
@@ -353,8 +375,8 @@ const styles = StyleSheet.create({
     color: Palette.ink,
     fontSize: 22,
     lineHeight: 28,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "700",
+    textAlign: "center",
   },
 
   previewBody: {
@@ -364,6 +386,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
 
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

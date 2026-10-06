@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { fireEvent, render } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import type { TextSizeOption } from '@/features/wardrobe/text-size-provider';
 
@@ -103,7 +104,24 @@ describe('SettingsScreen', () => {
 
     expect(
       view.getByRole('button', { name: /Extra Large Maximum readability/ }).props
-        .accessibilityState,
+      .accessibilityState,
     ).toEqual({ selected: true });
+  });
+
+  test('switches the live interface between Thai and English and saves the choice', async () => {
+    const view = await render(<SettingsScreen />);
+
+    await fireEvent.press(view.getByRole('button', { name: /ภาษาไทย Display the app in Thai/ }));
+
+    await waitFor(() => expect(view.getByText('การตั้งค่า')).toBeTruthy());
+    expect(view.getByText('ขนาดตัวอักษร')).toBeTruthy();
+    expect(view.getByText('เล็ก')).toBeTruthy();
+    expect(view.getByText('ตู้เสื้อผ้าออนไลน์ของคุณ')).toBeTruthy();
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('app-language', 'th');
+
+    await fireEvent.press(view.getByRole('button', { name: /English แสดงแอปเป็นภาษาอังกฤษ/ }));
+
+    await waitFor(() => expect(view.getByText('Settings')).toBeTruthy());
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('app-language', 'en');
   });
 });

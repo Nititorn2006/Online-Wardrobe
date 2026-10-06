@@ -32,7 +32,8 @@
           "cameraPermission": "Allow ONLINEWARDROBE to use your camera so you can photograph clothing items for your online wardrobe.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
