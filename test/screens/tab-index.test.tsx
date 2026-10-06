@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 
 import HomeScreen from '@/app/(tabs)/index';
 import type { ClothingItem } from '@/features/wardrobe/types';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockWardrobe: {
   items: ClothingItem[];
@@ -118,5 +119,17 @@ describe('HomeScreen', () => {
     const view = await render(<HomeScreen />);
 
     expect(view.getByText('2 looks ready to wear')).toBeTruthy();
+  });
+
+  test('renders translated Thai dashboard copy and counts', async () => {
+    mockWardrobe.items = [item('one', '2026-09-01T00:00:00.000Z')];
+    mockWardrobe.outfits = [{ id: 'look-1' }, { id: 'look-2' }];
+    await i18n.changeLanguage('th');
+
+    const view = await render(<HomeScreen />);
+
+    expect(view.getByText('ชิ้นในตู้เสื้อผ้า')).toBeTruthy();
+    expect(view.getByText('2 ชุดพร้อมใส่')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'วางแผนชุด' })).toBeTruthy();
   });
 });

@@ -8,24 +8,27 @@ import {
 } from 'expo-router/ui';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { AppText } from '@/components/app-text';
 import { Palette, Radius } from '@/constants/design';
 
 export default function AppTabs() {
+  const { t } = useTranslation();
+
   return (
     <Tabs>
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton icon="⌂">Home</TabButton>
+            <TabButton icon="⌂">{t('navigation.home')}</TabButton>
           </TabTrigger>
           <TabTrigger name="try-outfits" href="/try-outfits" asChild>
-            <TabButton icon="↻">Try</TabButton>
+            <TabButton icon="↻">{t('navigation.tryOutfits')}</TabButton>
           </TabTrigger>
           <Pressable
-            accessibilityLabel="Add clothes"
+            accessibilityLabel={t('navigation.addClothes')}
             accessibilityRole="button"
             onPress={() => router.push('/add-clothes')}
             style={({ pressed }) => [
@@ -35,17 +38,17 @@ export default function AppTabs() {
             <View style={styles.addCircle}>
               <AppText style={styles.addIcon}>＋</AppText>
             </View>
-            <AppText style={styles.addLabel}>Add</AppText>
+            <AppText style={styles.addLabel}>{t('navigation.add')}</AppText>
           </Pressable>
           <TabTrigger name="closet" href="/closet" asChild>
-            <TabButton icon="▣">Closet</TabButton>
+            <TabButton icon="▣">{t('navigation.closet')}</TabButton>
           </TabTrigger>
           <TabTrigger
             name="settings"
             href="/settings"
             asChild
           >
-            <TabButton icon="⚙">Settings</TabButton>
+            <TabButton icon="⚙">{t('navigation.settings')}</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>

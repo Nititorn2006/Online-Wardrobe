@@ -11,12 +11,14 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Palette } from '@/constants/design';
 
 export default function AppTabs() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
@@ -63,7 +65,7 @@ export default function AppTabs() {
                 isHome && styles.tabLabelSelected,
               ]}
             >
-              Home
+              {t('navigation.home')}
             </AppText>
           </TabTrigger>
 
@@ -86,13 +88,13 @@ export default function AppTabs() {
                 styles.tabLabel,
                 isTryOutfits && styles.tabLabelSelected,
               ]}>
-              Try
+              {t('navigation.tryOutfits')}
             </AppText>
           </TabTrigger>
 
           {/* ADD */}
           <Pressable
-            accessibilityLabel="Add clothes"
+            accessibilityLabel={t('navigation.addClothes')}
             accessibilityRole="button"
             onPress={() => router.push('/add-clothes')}
             style={({ pressed }) => [
@@ -112,7 +114,7 @@ export default function AppTabs() {
               numberOfLines={1}
               style={styles.addLabel}
             >
-              Add
+              {t('navigation.add')}
             </AppText>
           </Pressable>
 
@@ -146,7 +148,7 @@ export default function AppTabs() {
                   styles.tabLabelSelected,
               ]}
             >
-              Closet
+              {t('navigation.closet')}
             </AppText>
           </TabTrigger>
 
@@ -180,7 +182,7 @@ export default function AppTabs() {
                   styles.tabLabelSelected,
               ]}
             >
-              Settings
+              {t('navigation.settings')}
             </AppText>
           </TabTrigger>
         </View>

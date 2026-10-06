@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import type { ClothingItem } from '@/features/wardrobe/types';
 
 import ClosetScreen from '@/app/(tabs)/closet';
+import { i18nInstance as i18n } from '@/i18n';
 
 const mockToggleFavorite = jest.fn<(id: string) => Promise<void>>();
 const mockWardrobe: {
@@ -162,6 +163,22 @@ describe('ClosetScreen', () => {
     await fireEvent.press(view.getByRole('button', { name: 'Add your first item' }));
     expect(router.push).toHaveBeenCalledWith('/add-clothes');
 
+  });
+
+  test('renders Thai filters, counts, and interpolated empty-search copy', async () => {
+    mockWardrobe.items = [clothingItem('one', 'เสื้อหนึ่ง')];
+    await i18n.changeLanguage('th');
+    const view = await render(<ClosetScreen />);
+
+    expect(view.getByText('เสื้อผ้าของฉัน')).toBeTruthy();
+    expect(view.getByText('1 ชิ้น พร้อมสำหรับการจัดชุด')).toBeTruthy();
+    expect(view.getByText('เสื้อท่อนบน')).toBeTruthy();
+
+    await fireEvent.changeText(view.getByLabelText('ค้นหาเสื้อผ้า'), 'ไม่มี');
+    expect(view.getByText('ไม่พบเสื้อผ้าที่ค้นหา')).toBeTruthy();
+    expect(
+      view.getByText('ไม่พบเสื้อผ้าที่มีชื่อ “ไม่มี” ลองค้นหาคำอื่นหรือล้างตัวกรอง'),
+    ).toBeTruthy();
   });
 
   test('sorts items, opens details, favorites an item, searches, and resets results', async () => {

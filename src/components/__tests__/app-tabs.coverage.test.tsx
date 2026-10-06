@@ -4,6 +4,8 @@ import { fireEvent, render } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import { Text } from 'react-native';
 
+import { i18nInstance as i18n } from '@/i18n';
+
 import NativeAppTabs from '../app-tabs';
 import WebAppTabs, { CustomTabList, TabButton } from '../app-tabs.web';
 
@@ -105,6 +107,15 @@ describe('native app tabs', () => {
     mockUseSafeAreaInsets.mockReturnValue({ top: 0, right: 0, bottom: 0, left: 0 });
     expect((await render(<NativeAppTabs />)).getByText('Home')).toBeTruthy();
   });
+
+  test('renders translated navigation labels', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<NativeAppTabs />);
+
+    expect(view.getByText('หน้าหลัก')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'เพิ่มเสื้อผ้า' })).toBeTruthy();
+    expect(view.getByText('ตั้งค่า')).toBeTruthy();
+  });
 });
 
 describe('web app tabs', () => {
@@ -116,6 +127,14 @@ describe('web app tabs', () => {
 
     expect(mockPush).toHaveBeenCalledWith('/add-clothes');
     expect(view.getByText('Settings')).toBeTruthy();
+  });
+
+  test('renders translated web navigation labels', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<WebAppTabs />);
+
+    expect(view.getByText('ลองชุด')).toBeTruthy();
+    expect(view.getByText('ตู้เสื้อผ้า')).toBeTruthy();
   });
 
   test.each([false, true])('renders a tab button with focused=%s', async (isFocused) => {

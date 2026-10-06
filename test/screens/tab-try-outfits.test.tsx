@@ -9,6 +9,7 @@ import TryOutfitsScreen from '@/app/(tabs)/try-outfits';
 import type { SavedOutfit, SaveOutfitInput } from '@/features/outfits/types';
 import type { ClothingCategory, ClothingItem } from '@/features/wardrobe/types';
 import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+import { i18nInstance as i18n } from '@/i18n';
 
 type SearchParams = {
   itemIds?: string | string[];
@@ -164,6 +165,21 @@ beforeEach(() => {
 });
 
 describe('TryOutfitsScreen', () => {
+  test('renders Thai controls, accessibility labels, and save details', async () => {
+    await i18n.changeLanguage('th');
+    const view = await render(<TryOutfitsScreen />);
+
+    expect(view.getByText('ลองจัดชุด')).toBeTruthy();
+    expect(view.getByText('สุ่มใหม่')).toBeTruthy();
+    expect(view.getByRole('button', { name: 'เปิด Top one' })).toBeTruthy();
+    expect(view.getByRole('button', { name: 'เก็บไว้ ท่อนบน' })).toBeTruthy();
+
+    await fireEvent.press(view.getByText('บันทึกชุด'));
+    expect(view.getByText('คุณจะใส่ชุดนี้เมื่อไหร่?')).toBeTruthy();
+    expect(view.getByText('วันนี้')).toBeTruthy();
+    expect(view.getByText(/บันทึกชุด \d+ ชิ้น/)).toBeTruthy();
+  });
+
   test('cycles, locks, shuffles, opens pieces, and switches between outfit modes', async () => {
     mockParams.itemIds = [' Top one , , Bottom one '];
     mockParams.occasion = ['work', 'ignored'];

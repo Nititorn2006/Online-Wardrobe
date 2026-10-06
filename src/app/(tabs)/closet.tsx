@@ -1,77 +1,58 @@
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router } from "expo-router";
+import { useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-import {
-  AppText,
-  AppTextInput,
-} from '@/components/app-text';
-import { ClothingCard } from '@/components/wardrobe/clothing-card';
-import { EmptyCloset } from '@/components/wardrobe/empty-closet';
-import { Layout, Palette, Radius } from '@/constants/design';
+import { AppText, AppTextInput } from "@/components/app-text";
+import { ClothingCard } from "@/components/wardrobe/clothing-card";
+import { EmptyCloset } from "@/components/wardrobe/empty-closet";
+import { Layout, Palette, Radius } from "@/constants/design";
 import {
   CATEGORIES,
   FORMALITY_LEVELS,
   type ClothingCategory,
   type ClothingFormality,
   type ClothingItem,
-} from '@/features/wardrobe/types';
-import { useWardrobe } from '@/features/wardrobe/wardrobe-provider';
+} from "@/features/wardrobe/types";
+import { useWardrobe } from "@/features/wardrobe/wardrobe-provider";
 
-type CollectionFilter = 'all' | 'favorites';
+type CollectionFilter = "all" | "favorites";
 
 export default function ClosetScreen() {
   const { items, toggleFavorite } = useWardrobe();
+  const { t } = useTranslation();
 
-  const [collection, setCollection] =
-    useState<CollectionFilter>('all');
+  const [collection, setCollection] = useState<CollectionFilter>("all");
 
-  const [category, setCategory] =
-    useState<ClothingCategory | 'all'>('all');
+  const [category, setCategory] = useState<ClothingCategory | "all">("all");
 
-  const [formality, setFormality] =
-    useState<ClothingFormality | 'all'>('all');
+  const [formality, setFormality] = useState<ClothingFormality | "all">("all");
 
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   const filteredItems = useMemo(() => {
-    const normalizedQuery = query
-      .trim()
-      .toLocaleLowerCase();
+    const normalizedQuery = query.trim().toLocaleLowerCase();
 
     return [...items]
-      .filter(
-        (item) =>
-          collection === 'all' || item.isFavorite,
-      )
-      .filter(
-        (item) =>
-          category === 'all' ||
-          item.category === category,
-      )
-      .filter(
-        (item) =>
-          formality === 'all' ||
-          item.formality === formality,
-      )
+      .filter((item) => collection === "all" || item.isFavorite)
+      .filter((item) => category === "all" || item.category === category)
+      .filter((item) => formality === "all" || item.formality === formality)
       .filter(
         (item) =>
           !normalizedQuery ||
-          item.name
-            .toLocaleLowerCase()
-            .includes(normalizedQuery),
+          item.name.toLocaleLowerCase().includes(normalizedQuery),
       )
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
   }, [category, collection, formality, items, query]);
 
@@ -80,11 +61,12 @@ export default function ClosetScreen() {
     collection,
     category,
     query,
+    t,
   });
 
   const openItem = (item: ClothingItem) => {
     router.push({
-      pathname: '/clothes',
+      pathname: "/clothes",
       params: {
         id: item.id,
       },
@@ -93,10 +75,7 @@ export default function ClosetScreen() {
 
   return (
     <View style={styles.screen}>
-      <SafeAreaView
-        edges={['top']}
-        style={styles.safeArea}
-      >
+      <SafeAreaView edges={["top"]} style={styles.safeArea}>
         <FlatList
           columnWrapperStyle={styles.gridRow}
           contentContainerStyle={styles.listContent}
@@ -109,19 +88,13 @@ export default function ClosetScreen() {
               <View style={styles.titleRow}>
                 <View style={styles.titleCopy}>
                   <AppText style={styles.eyebrow}>
-                    YOUR WARDROBE
+                    {t("closet.eyebrow")}
                   </AppText>
 
-                  <AppText style={styles.title}>
-                    My Clothes
-                  </AppText>
+                  <AppText style={styles.title}>{t("closet.title")}</AppText>
 
                   <AppText style={styles.subtitle}>
-                    {items.length}{' '}
-                    {items.length === 1
-                      ? 'piece'
-                      : 'pieces'}{' '}
-                    ready to style
+                    {t("closet.itemCount", { count: items.length })}
                   </AppText>
                 </View>
               </View>
@@ -135,11 +108,11 @@ export default function ClosetScreen() {
                 </AppText>
 
                 <AppTextInput
-                  accessibilityLabel="Search your clothes"
+                  accessibilityLabel={t("closet.search")}
                   autoCapitalize="none"
                   autoCorrect={false}
                   onChangeText={setQuery}
-                  placeholder="Search your clothes"
+                  placeholder={t("closet.search")}
                   placeholderTextColor="#9BA19E"
                   returnKeyType="search"
                   style={styles.searchInput}
@@ -148,65 +121,49 @@ export default function ClosetScreen() {
 
                 {query.length > 0 && (
                   <Pressable
-                    accessibilityLabel="Clear search"
+                    accessibilityLabel={t("closet.clearSearch")}
                     hitSlop={8}
-                    onPress={() => setQuery('')}
+                    onPress={() => setQuery("")}
                     style={styles.clearButton}
                   >
-                    <AppText style={styles.clearText}>
-                      ×
-                    </AppText>
+                    <AppText style={styles.clearText}>×</AppText>
                   </Pressable>
                 )}
               </View>
 
-              <View
-                accessibilityRole="tablist"
-                style={styles.segmentedControl}
-              >
+              <View accessibilityRole="tablist" style={styles.segmentedControl}>
                 <CollectionTab
-                  isSelected={collection === 'all'}
-                  label="All clothes"
-                  onPress={() =>
-                    setCollection('all')
-                  }
+                  isSelected={collection === "all"}
+                  label={t("closet.allClothes")}
+                  onPress={() => setCollection("all")}
                 />
 
                 <CollectionTab
-                  isSelected={
-                    collection === 'favorites'
-                  }
-                  label="Favorites"
-                  onPress={() =>
-                    setCollection('favorites')
-                  }
+                  isSelected={collection === "favorites"}
+                  label={t("closet.favorites")}
+                  onPress={() => setCollection("favorites")}
                 />
               </View>
 
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={
-                  styles.categoryRow
-                }
+                contentContainerStyle={styles.categoryRow}
               >
                 {[
                   <CategoryChip
                     key="all"
-                    isSelected={category === 'all'}
-                    label="All"
-                    onPress={() => setCategory('all')}
+                    isSelected={category === "all"}
+                    label={t("common.all")}
+                    onPress={() => setCategory("all")}
                   />,
+
                   ...CATEGORIES.map((option) => (
                     <CategoryChip
                       key={option.value}
-                      isSelected={
-                        category === option.value
-                      }
-                      label={option.label}
-                      onPress={() =>
-                        setCategory(option.value)
-                      }
+                      isSelected={category === option.value}
+                      label={t(`options.categories.${option.value}`)}
+                      onPress={() => setCategory(option.value)}
                     />
                   )),
                 ]}
@@ -214,33 +171,30 @@ export default function ClosetScreen() {
 
               <View style={styles.filterGroup}>
                 <AppText style={styles.filterLabel}>
-                  DRESS CODE
+                  {t("closet.dressCode")}
                 </AppText>
 
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={
-                    styles.categoryRow
-                  }
+                  contentContainerStyle={styles.categoryRow}
                 >
                   {[
                     <CategoryChip
                       key="all-formality"
-                      isSelected={formality === 'all'}
-                      label="All"
-                      onPress={() => setFormality('all')}
+                      isSelected={formality === "all"}
+                      label={t("common.all")}
+                      onPress={() => setFormality("all")}
                     />,
+
                     ...FORMALITY_LEVELS.map((option) => (
                       <CategoryChip
                         key={option.value}
-                        isSelected={
-                          formality === option.value
-                        }
-                        label={option.label}
-                        onPress={() =>
-                          setFormality(option.value)
-                        }
+                        isSelected={formality === option.value}
+                        label={t(
+                          `options.formalities.${option.value}.label`,
+                        )}
+                        onPress={() => setFormality(option.value)}
                       />
                     )),
                   ]}
@@ -250,29 +204,29 @@ export default function ClosetScreen() {
               {filteredItems.length > 0 && (
                 <View style={styles.resultsRow}>
                   <AppText style={styles.resultsLabel}>
-                    {filteredItems.length}{' '}
-                    {filteredItems.length === 1
-                      ? 'item'
-                      : 'items'}
+                    {t("closet.resultCount", {
+                      count: filteredItems.length,
+                    })}
                   </AppText>
 
-                  {(collection !== 'all' ||
-                    category !== 'all' ||
-                    formality !== 'all' ||
+                  {(collection !== "all" ||
+                    category !== "all" ||
+                    formality !== "all" ||
                     query) && (
                     <Pressable
                       hitSlop={8}
                       onPress={() => {
-                        setCollection('all');
-                        setCategory('all');
-                        setFormality('all');
-                        setQuery('');
+                        setCollection("all");
+
+                        setCategory("all");
+
+                        setFormality("all");
+
+                        setQuery("");
                       }}
                     >
-                      <AppText
-                        style={styles.resetText}
-                      >
-                        Reset filters
+                      <AppText style={styles.resetText}>
+                        {t("closet.resetFilters")}
                       </AppText>
                     </Pressable>
                   )}
@@ -284,18 +238,9 @@ export default function ClosetScreen() {
             <View style={styles.emptyWrap}>
               <EmptyCloset
                 body={emptyCopy.body}
-                buttonLabel={
-                  items.length
-                    ? undefined
-                    : 'Add your first item'
-                }
+                buttonLabel={items.length ? undefined : t("closet.addFirstItem")}
                 onButtonPress={
-                  items.length
-                    ? undefined
-                    : () =>
-                        router.push(
-                          '/add-clothes',
-                        )
+                  items.length ? undefined : () => router.push("/add-clothes")
                 }
                 title={emptyCopy.title}
               />
@@ -304,22 +249,21 @@ export default function ClosetScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => {
-                    setCollection('all');
-                    setCategory('all');
-                    setFormality('all');
-                    setQuery('');
+                    setCollection("all");
+
+                    setCategory("all");
+
+                    setFormality("all");
+
+                    setQuery("");
                   }}
                   style={({ pressed }) => [
                     styles.resetButton,
                     pressed && styles.pressed,
                   ]}
                 >
-                  <AppText
-                    style={
-                      styles.resetButtonText
-                    }
-                  >
-                    Clear filters
+                  <AppText style={styles.resetButtonText}>
+                    {t("closet.clearFilters")}
                   </AppText>
                 </Pressable>
               )}
@@ -331,9 +275,7 @@ export default function ClosetScreen() {
               <ClothingCard
                 item={item}
                 onPress={() => openItem(item)}
-                onToggleFavorite={() =>
-                  void toggleFavorite(item.id)
-                }
+                onToggleFavorite={() => void toggleFavorite(item.id)}
               />
             </View>
           )}
@@ -367,11 +309,7 @@ function CollectionTab({
       ]}
     >
       <AppText
-        style={[
-          styles.segmentText,
-          isSelected &&
-            styles.segmentTextSelected,
-        ]}
+        style={[styles.segmentText, isSelected && styles.segmentTextSelected]}
       >
         {label}
       </AppText>
@@ -397,17 +335,12 @@ function CategoryChip({
       onPress={onPress}
       style={({ pressed }) => [
         styles.categoryChip,
-        isSelected &&
-          styles.categoryChipSelected,
+        isSelected && styles.categoryChipSelected,
         pressed && styles.pressed,
       ]}
     >
       <AppText
-        style={[
-          styles.categoryText,
-          isSelected &&
-            styles.categoryTextSelected,
-        ]}
+        style={[styles.categoryText, isSelected && styles.categoryTextSelected]}
       >
         {label}
       </AppText>
@@ -420,47 +353,50 @@ function getEmptyCopy({
   collection,
   category,
   query,
+  t,
 }: {
   hasItems: boolean;
   collection: CollectionFilter;
-  category: ClothingCategory | 'all';
+  category: ClothingCategory | "all";
   query: string;
+  t: TFunction;
 }) {
   if (!hasItems) {
     return {
-      title: 'Your closet is waiting',
-      body:
-        'Photograph your favorite pieces and keep your whole wardrobe in one beautiful place.',
+      title: t("closet.empty.closetTitle"),
+
+      body: t("closet.empty.closetBody"),
     };
   }
 
   if (query.trim()) {
     return {
-      title: 'No matching pieces',
-      body: `We couldn’t find anything named “${query.trim()}”. Try another search or clear the filters.`,
+      title: t("closet.empty.searchTitle"),
+
+      body: t("closet.empty.searchBody", { query: query.trim() }),
     };
   }
 
-  if (collection === 'favorites') {
+  if (collection === "favorites") {
     return {
-      title: 'No favorites yet',
-      body:
-        'Tap the heart on pieces you reach for most, and they’ll gather here.',
+      title: t("closet.empty.favoritesTitle"),
+
+      body: t("closet.empty.favoritesBody"),
     };
   }
 
-  if (category !== 'all') {
+  if (category !== "all") {
     return {
-      title: 'Nothing in this category',
-      body:
-        'Choose another category or add a new piece to this part of your wardrobe.',
+      title: t("closet.empty.categoryTitle"),
+
+      body: t("closet.empty.categoryBody"),
     };
   }
 
   return {
-    title: 'No pieces found',
-    body:
-      'Try clearing your filters to see everything in your closet.',
+    title: t("closet.empty.genericTitle"),
+
+    body: t("closet.empty.genericBody"),
   };
 }
 
@@ -475,9 +411,9 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-    width: '100%',
+    width: "100%",
     maxWidth: Layout.maxWidth,
-    alignSelf: 'center',
+    alignSelf: "center",
     paddingHorizontal: Layout.gutter,
     paddingBottom: Layout.tabClearance,
   },
@@ -490,7 +426,7 @@ const styles = StyleSheet.create({
   cardSlot: {
     flex: 1,
     minWidth: 0,
-    maxWidth: '49%',
+    maxWidth: "49%",
   },
 
   headerContent: {
@@ -500,18 +436,18 @@ const styles = StyleSheet.create({
   },
 
   titleRow: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
 
   titleCopy: {
-    width: '100%',
+    width: "100%",
   },
 
   eyebrow: {
     color: Palette.brand,
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.3,
     marginBottom: 2,
   },
@@ -520,7 +456,7 @@ const styles = StyleSheet.create({
     color: Palette.ink,
     fontSize: 34,
     lineHeight: 40,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -1.1,
   },
 
@@ -532,13 +468,17 @@ const styles = StyleSheet.create({
 
   pressed: {
     opacity: 0.72,
-    transform: [{ scale: 0.985 }],
+    transform: [
+      {
+        scale: 0.985,
+      },
+    ],
   },
 
   searchBox: {
     minHeight: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: Radius.medium,
     backgroundColor: Palette.surface,
     borderWidth: 1,
@@ -563,8 +503,8 @@ const styles = StyleSheet.create({
   clearButton: {
     width: 36,
     height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   clearText: {
@@ -575,18 +515,18 @@ const styles = StyleSheet.create({
 
   segmentedControl: {
     padding: 4,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 4,
     borderRadius: Radius.medium,
-    backgroundColor: '#EAE8E3',
+    backgroundColor: "#EAE8E3",
   },
 
   segment: {
     flex: 1,
     minHeight: 42,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   segmentSelected: {
@@ -596,7 +536,7 @@ const styles = StyleSheet.create({
   segmentText: {
     color: Palette.muted,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 
   segmentTextSelected: {
@@ -616,7 +556,7 @@ const styles = StyleSheet.create({
     color: Palette.muted,
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
 
@@ -627,8 +567,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Palette.border,
     backgroundColor: Palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   categoryChipSelected: {
@@ -639,7 +579,7 @@ const styles = StyleSheet.create({
   categoryText: {
     color: Palette.muted,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 
   categoryTextSelected: {
@@ -647,21 +587,21 @@ const styles = StyleSheet.create({
   },
 
   resultsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 
   resultsLabel: {
     color: Palette.ink,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   resetText: {
     color: Palette.brand,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   emptyWrap: {
@@ -670,20 +610,20 @@ const styles = StyleSheet.create({
   },
 
   resetButton: {
-    alignSelf: 'center',
+    alignSelf: "center",
     minHeight: 44,
     paddingHorizontal: 18,
     borderRadius: Radius.pill,
     borderWidth: 1,
     borderColor: Palette.border,
     backgroundColor: Palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   resetButtonText: {
     color: Palette.brand,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
