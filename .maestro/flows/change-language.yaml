@@ -1,0 +1,58 @@
+appId: com.tapo.onlinewardrobe
+---
+# This subflow intentionally continues from the open Home screen.
+# Do not launch or stop the app here: keeping one session makes the suite faster
+# and proves that translations update immediately at runtime.
+
+- tapOn: "Settings"
+
+- scrollUntilVisible:
+    element:
+      text: "ภาษาไทย"
+    direction: DOWN
+    timeout: 5000
+    speed: 80
+    visibilityPercentage: 50
+
+- tapOn: "ภาษาไทย"
+
+# The current screen and global tab bar must translate without an app restart.
+- assertVisible: "ภาษา"
+- assertVisible: "แสดงแอปเป็นภาษาไทย"
+- assertVisible: "หน้าหลัก"
+- assertVisible: "ลองชุด"
+- assertVisible: "เพิ่ม"
+- assertVisible: "ตู้เสื้อผ้า"
+- assertVisible: "ตั้งค่า"
+
+# A second screen must use the new language in the same session.
+- tapOn: "หน้าหลัก"
+- assertVisible: "ตู้เสื้อผ้าออนไลน์ของคุณ พร้อมสำหรับลุคถัดไปเสมอ"
+- assertVisible: "วางแผนลุคถัดไป"
+- assertVisible: "ชุดที่บันทึกไว้"
+
+# Restore English so the next run starts from a predictable saved preference.
+- tapOn: "ตั้งค่า"
+
+- scrollUntilVisible:
+    element:
+      text: "English"
+    direction: DOWN
+    timeout: 5000
+    speed: 80
+    visibilityPercentage: 50
+
+- tapOn: "English"
+
+- assertVisible: "LANGUAGE"
+- assertVisible: "Display the app in English"
+- assertVisible: "Home"
+- assertVisible: "Try"
+- assertVisible: "Add"
+- assertVisible: "Closet"
+- assertVisible: "Settings"
+
+- tapOn: "Home"
+- assertVisible: "Your online wardrobe, always ready for your next look."
+- assertVisible: "Plan your next look"
+- assertVisible: "Saved outfits"

@@ -88,24 +88,7 @@ appId: com.tapo.onlinewardrobe
 - assertVisible: "ONLINEWARDROBE"
 
 # ============================================================
-# APP RESTART
+# LANGUAGE SWITCH — CONTINUE IN THE SAME APP SESSION
 # ============================================================
 
-- stopApp
-- launchApp
-
-- assertVisible: "ONLINEWARDROBE"
-- assertVisible: "Home"
-- assertVisible: "Try"
-- assertVisible: "Add"
-- assertVisible: "Closet"
-- assertVisible: "Settings"
-
-# ============================================================
-# END
-# ============================================================
-
-- tapOn: "Try"
-- tapOn: "Home"
-
-- assertVisible: "ONLINEWARDROBE"
+- runFlow: flows/change-language.yaml
