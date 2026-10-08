@@ -64,20 +64,39 @@ describe("i18n", () => {
       await loadSavedLanguage();
 
       expect(storage.getItem).toHaveBeenCalledWith(LANGUAGE_KEY);
+      expect(getLocales).not.toHaveBeenCalled();
       expect(getCurrentLanguage()).toBe(language);
     },
   );
 
   test.each([null, "unsupported"])(
-    "ignores a non-supported saved language: %s",
+    "uses the Thai device language when no supported language is saved: %s",
     async (savedLanguage) => {
       storage.getItem.mockResolvedValueOnce(savedLanguage);
+      getLocales.mockReturnValueOnce([
+        { languageCode: "th" } as ReturnType<
+          typeof Localization.getLocales
+        >[0],
+      ]);
 
       await loadSavedLanguage();
 
-      expect(getCurrentLanguage()).toBe("en");
+      expect(getCurrentLanguage()).toBe("th");
     },
   );
+
+  test("uses English when the device language is not supported", async () => {
+    storage.getItem.mockResolvedValueOnce(null);
+    getLocales.mockReturnValueOnce([
+      { languageCode: "ja" } as ReturnType<
+        typeof Localization.getLocales
+      >[0],
+    ]);
+
+    await loadSavedLanguage();
+
+    expect(getCurrentLanguage()).toBe("en");
+  });
 
   test("reports a saved-language read failure without rejecting", async () => {
     const error = new Error("read failed");

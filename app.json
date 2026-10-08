@@ -33,7 +33,15 @@
           "microphonePermission": false
         }
       ],
-      "expo-localization"
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["en", "th"],
+            "android": ["en", "th"]
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

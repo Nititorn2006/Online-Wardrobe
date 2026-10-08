@@ -41,10 +41,12 @@ export async function loadSavedLanguage(): Promise<void> {
     await initialization;
 
     const savedLanguage = await AsyncStorage.getItem(LANGUAGE_KEY);
+    const initialLanguage =
+      savedLanguage === "en" || savedLanguage === "th"
+        ? savedLanguage
+        : getDeviceLanguage();
 
-    if (savedLanguage === "en" || savedLanguage === "th") {
-      await i18nInstance.changeLanguage(savedLanguage);
-    }
+    await i18nInstance.changeLanguage(initialLanguage);
   } catch (error) {
     console.error("Failed to load language:", error);
   }
