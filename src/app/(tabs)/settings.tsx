@@ -9,7 +9,7 @@ import {
   useTextSize,
   type TextSizeOption,
 } from "@/features/wardrobe/text-size-provider";
-import { changeLanguage, getCurrentLanguage } from "@/i18n";
+import { changeLanguage } from "@/i18n";
 
 const TEXT_SIZE_OPTIONS: TextSizeOption[] = [
   "small",
@@ -20,8 +20,8 @@ const TEXT_SIZE_OPTIONS: TextSizeOption[] = [
 
 export default function SettingsScreen() {
   const { textSize, setTextSize } = useTextSize();
-  const { t } = useTranslation();
-  const language = getCurrentLanguage();
+  const { t, i18n } = useTranslation();
+  const language = i18n.language === "th" ? "th" : "en";
 
   return (
     <View style={styles.screen}>
