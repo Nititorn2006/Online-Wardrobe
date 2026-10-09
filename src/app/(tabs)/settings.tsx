@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/app-text";
 import { Layout, Palette, Radius } from "@/constants/design";
@@ -36,7 +36,9 @@ export default function SettingsScreen() {
 
               <AppText style={styles.title}>{t("settings.title")}</AppText>
 
-              <AppText style={styles.subtitle}>{t("settings.subtitle")}</AppText>
+              <AppText style={styles.subtitle}>
+                {t("settings.subtitle")}
+              </AppText>
             </View>
 
             <View style={styles.section}>
@@ -102,6 +104,7 @@ export default function SettingsScreen() {
 
               <View style={styles.settingsCard}>
                 <Pressable
+                  testID="language-en"
                   accessibilityRole="button"
                   accessibilityState={{
                     selected: language === "en",
@@ -140,6 +143,7 @@ export default function SettingsScreen() {
                 <View style={styles.divider} />
 
                 <Pressable
+                  testID="language-th"
                   accessibilityRole="button"
                   accessibilityState={{
                     selected: language === "th",

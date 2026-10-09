@@ -6,15 +6,22 @@ appId: com.tapo.onlinewardrobe
 
 - tapOn: "Settings"
 
+- swipe:
+    direction: DOWN
+
+- swipe:
+    direction: DOWN
+
 - scrollUntilVisible:
     element:
-      text: "ภาษาไทย"
+      id: "language-th"
     direction: DOWN
-    timeout: 5000
-    speed: 80
+    timeout: 15000
+    speed: 50
     visibilityPercentage: 50
 
-- tapOn: "ภาษาไทย"
+- tapOn:
+    id: "language-th"
 
 # The current screen and global tab bar must translate without an app restart.
 - assertVisible: "ภาษา"
@@ -34,15 +41,22 @@ appId: com.tapo.onlinewardrobe
 # Restore English so the next run starts from a predictable saved preference.
 - tapOn: "ตั้งค่า"
 
+- swipe:
+    direction: DOWN
+
+- swipe:
+    direction: DOWN
+
 - scrollUntilVisible:
     element:
-      text: "English"
+      id: "language-en"
     direction: DOWN
-    timeout: 5000
-    speed: 80
+    timeout: 15000
+    speed: 50
     visibilityPercentage: 50
 
-- tapOn: "English"
+- tapOn:
+    id: "language-en"
 
 - assertVisible: "LANGUAGE"
 - assertVisible: "Display the app in English"
