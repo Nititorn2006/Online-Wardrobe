@@ -322,6 +322,7 @@ export default function TryOutfitsScreen() {
       >
         {selectedItem ? (
           <Pressable
+            testID={`try-item-${slot}`}
             accessibilityLabel={t("common.openItem", {
               name: selectedItem.name,
             })}
@@ -395,6 +396,7 @@ export default function TryOutfitsScreen() {
         )}
 
         <Pressable
+          testID={`try-keep-${slot}`}
           accessibilityLabel={t("tryOutfits.keepSlot", {
             action: isLocked
               ? t("tryOutfits.unlock")

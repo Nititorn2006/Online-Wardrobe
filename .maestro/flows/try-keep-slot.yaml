@@ -1,0 +1,56 @@
+appId: com.anonymous.onlinewardrobe
+---
+# โหมดที่เพิ่งเปิดอาจยังเป็น None: เลือกไอเทมก่อนตรวจ Keep
+- scrollUntilVisible:
+    element:
+      id: "try-keep-${SLOT}"
+    direction: UP
+    timeout: 15000
+- runFlow:
+    when:
+      notVisible:
+        id: "try-item-${SLOT}"
+    commands:
+      - tapOn:
+          text: "Next ${SLOT_LABEL}"
+          enabled: true
+- scrollUntilVisible:
+    element:
+      id: "try-item-${SLOT}"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    id: "try-item-${SLOT}"
+- runScript: ../scripts/capture-kept-item.js
+- runFlow:
+    when:
+      visible:
+        text: "Keep ${SLOT_LABEL} during shuffle"
+    commands:
+      - tapOn:
+          id: "try-keep-${SLOT}"
+- assertVisible:
+    id: "try-keep-${SLOT}"
+    selected: true
+- assertVisible: "Unlock ${SLOT_LABEL} during shuffle"
+- scrollUntilVisible:
+    element: "Shuffle"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "Shuffle"
+    enabled: true
+- scrollUntilVisible:
+    element:
+      id: "try-item-${SLOT}"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    id: "try-item-${SLOT}"
+- runScript: ../scripts/check-kept-item.js
+- assertVisible:
+    id: "try-keep-${SLOT}"
+    selected: true
+- tapOn:
+    id: "try-keep-${SLOT}"
+- assertVisible: "Keep ${SLOT_LABEL} during shuffle"

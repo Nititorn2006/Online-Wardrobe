@@ -1,0 +1,37 @@
+appId: com.anonymous.onlinewardrobe
+---
+# ต้องมี Top, Bottom, Dress และอย่างน้อยหนึ่งช่องที่ Shuffle เปลี่ยนได้
+- tapOn: "Try"
+- scrollUntilVisible:
+    element: "Top + bottom"
+    direction: UP
+    timeout: 15000
+- tapOn: "Top + bottom"
+- runFlow:
+    file: try-keep-slot.yaml
+    env:
+      SLOT: "top"
+      SLOT_LABEL: "top"
+- runFlow:
+    file: try-keep-slot.yaml
+    env:
+      SLOT: "bottom"
+      SLOT_LABEL: "bottom"
+- scrollUntilVisible:
+    element: "Top + bottom"
+    direction: UP
+    timeout: 15000
+- tapOn:
+    text: "Dress"
+    index: 0
+- runFlow:
+    file: try-keep-slot.yaml
+    env:
+      SLOT: "dress"
+      SLOT_LABEL: "dress"
+- scrollUntilVisible:
+    element: "Top + bottom"
+    direction: UP
+    timeout: 15000
+- tapOn: "Top + bottom"
+- runFlow: try-save-outfit.yaml

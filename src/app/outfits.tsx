@@ -149,15 +149,17 @@ export default function SavedOutfitsScreen() {
                     })
                   : outfit.name;
 
+              const testKey = `${outfit.plannedFor}-${outfit.occasion}-${outfit.formality}-${outfitItems.map((item) => item.name).join('|')}`;
+
               return (
-                <View key={outfit.id} style={styles.outfitCard}>
+                <View key={outfit.id} testID={`saved-outfit-${outfit.id}`} style={styles.outfitCard}>
                   <View style={styles.cardHeader}>
-                    <View style={styles.cardTitleCopy}>
-                      <AppText style={styles.cardDate}>
+                    <View testID={`saved-outfit-header-${testKey}`} style={styles.cardTitleCopy}>
+                      <AppText testID={`saved-outfit-date-${testKey}`} style={styles.cardDate}>
                         {formatPlannedDate(outfit.plannedFor, locale)}
                       </AppText>
                       <AppText style={styles.cardTitle}>{displayName}</AppText>
-                      <AppText style={styles.cardMeta}>
+                      <AppText testID={`saved-outfit-meta-${testKey}`} style={styles.cardMeta}>
                         {t('savedOutfits.metadata', {
                           count: outfitItems.length,
                           occasion: translatedOccasion,
@@ -187,9 +189,10 @@ export default function SavedOutfitsScreen() {
                     </Pressable>
                   </View>
 
-                  <View style={styles.itemGrid}>
+                  <View testID={`saved-outfit-items-${testKey}`} style={styles.itemGrid}>
                     {outfitItems.map((item) => (
                       <Pressable
+                        testID={`saved-outfit-item-${testKey}-${item.name}`}
                         accessibilityLabel={t('common.openItem', { name: item.name })}
                         accessibilityRole="button"
                         key={item.id}

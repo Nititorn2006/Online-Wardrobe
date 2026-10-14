@@ -1,0 +1,12 @@
+var keyPrefix = output.savedDateValue + "-work-smart-casual-";
+var top = "\\Q" + output.savedTop + "\\E";
+var bottom = "\\Q" + output.savedBottom + "\\E";
+var names = "(?=.*" + top + ")(?=.*" + bottom + ").*";
+output.savedHeaderId = "saved-outfit-header-" + keyPrefix + names;
+output.savedItemsId = "saved-outfit-items-" + keyPrefix + names;
+output.savedTopSelector = "\\QOpen " + output.savedTop + "\\E";
+output.savedBottomSelector = "\\QOpen " + output.savedBottom + "\\E";
+output.savedDateId = "saved-outfit-date-" + keyPrefix + names;
+output.savedMetaId = "saved-outfit-meta-" + keyPrefix + names;
+output.savedTopId = "saved-outfit-item-" + keyPrefix + names + "-" + top;
+output.savedBottomId = "saved-outfit-item-" + keyPrefix + names + "-" + bottom;

@@ -1,0 +1,107 @@
+appId: com.anonymous.onlinewardrobe
+---
+# บันทึกเฉพาะโหมด Top + bottom พร้อมเก็บไอเทมที่เลือกจริง
+- copyTextFrom:
+    id: "try-item-top"
+- runScript:
+    file: ../scripts/capture-outfit-item.js
+    env:
+      KEY: savedTop
+- copyTextFrom:
+    id: "try-item-bottom"
+- runScript:
+    file: ../scripts/capture-outfit-item.js
+    env:
+      KEY: savedBottom
+- scrollUntilVisible:
+    element: "Save outfit"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "Save outfit"
+    enabled: true
+- assertVisible: "When will you wear it?"
+- tapOn:
+    text: ".*Work / school"
+- assertVisible:
+    text: ".*Work / school"
+    selected: true
+- tapOn: "Smart casual"
+- assertVisible:
+    text: "Smart casual"
+    selected: true
+- scrollUntilVisible:
+    element:
+      text: "^Tomorrow, .+$"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "^Tomorrow, .+$"
+- assertVisible:
+    text: "^Tomorrow, .+$"
+    selected: true
+- copyTextFrom:
+    text: "^Tomorrow, .+$"
+- runScript: ../scripts/capture-outfit-date.js
+- scrollUntilVisible:
+    element:
+      text: "^Save [0-9]+-piece outfit$"
+    direction: DOWN
+    timeout: 15000
+- copyTextFrom:
+    text: "^Save [0-9]+-piece outfit$"
+- runScript: ../scripts/capture-outfit-count.js
+- tapOn:
+    text: "^Save [0-9]+-piece outfit$"
+    enabled: true
+- extendedWaitUntil:
+    visible: "✓ Saved"
+    timeout: 15000
+- tapOn: "Home"
+- scrollUntilVisible:
+    element:
+      text: "^Saved outfits.*$"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "^Saved outfits.*$"
+- assertVisible: "Close saved outfits"
+# อ่านข้อความจริงจาก ID โดยไม่พึ่ง childOf
+- runScript: ../scripts/saved-outfit-selectors.js
+- scrollUntilVisible:
+    element:
+      id: "${output.savedDateId}"
+    direction: DOWN
+    timeout: 30000
+    speed: 20
+- copyTextFrom:
+    id: "${output.savedDateId}"
+- runScript:
+    file: ../scripts/check-saved-outfit-text.js
+    env:
+      EXPECTED_KEY: expectedSavedDate
+- scrollUntilVisible:
+    element:
+      id: "${output.savedMetaId}"
+    direction: DOWN
+    timeout: 15000
+- copyTextFrom:
+    id: "${output.savedMetaId}"
+- runScript:
+    file: ../scripts/check-saved-outfit-text.js
+    env:
+      EXPECTED_KEY: savedMetadataSelector
+- scrollUntilVisible:
+    element:
+      id: "${output.savedTopId}"
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: "${output.savedTopId}"
+- assertVisible:
+    id: "${output.savedBottomId}"
+
+# ตรวจเสร็จแล้วปิด Saved outfits และกลับหน้า Home
+- tapOn: "Close saved outfits"
+- assertVisible: "ONLINEWARDROBE"
+- assertVisible: "Home"

@@ -1,0 +1,1 @@
+output.keptItem = maestro.copiedText;
