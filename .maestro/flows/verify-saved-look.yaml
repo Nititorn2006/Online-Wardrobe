@@ -47,3 +47,5 @@ appId: com.anonymous.onlinewardrobe
 - tapOn: "Close saved outfits"
 - assertVisible: "ONLINEWARDROBE"
 - assertVisible: "Home"
+
+- runFlow: delete-saved-outfit.yaml

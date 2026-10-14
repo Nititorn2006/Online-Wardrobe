@@ -1,0 +1,104 @@
+appId: com.anonymous.onlinewardrobe
+---
+# เรียกหลัง verify-saved-look โดยใช้ข้อมูลชุดที่เพิ่งทดสอบ
+- tapOn: "Closet"
+- scrollUntilVisible:
+    element:
+      text: "^[0-9]+ pieces? ready to style$"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    text: "^[0-9]+ pieces? ready to style$"
+- runScript:
+    file: ../scripts/capture-count.js
+    env:
+      KEY: clothesCountBefore
+- tapOn: "Home"
+- scrollUntilVisible:
+    element:
+      text: "^Saved outfits, [0-9]+$"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    text: "^Saved outfits, [0-9]+$"
+- runScript:
+    file: ../scripts/capture-count.js
+    env:
+      KEY: savedCountBefore
+- tapOn:
+    text: "^Saved outfits, [0-9]+$"
+- runScript: ../scripts/saved-outfit-selectors.js
+- scrollUntilVisible:
+    element:
+      id: "${output.savedDeleteId}"
+      index: 0
+    direction: DOWN
+    timeout: 30000
+    speed: 20
+- tapOn:
+    id: "${output.savedDeleteId}"
+    index: 0
+- assertVisible: "${output.savedDeleteConfirmation}"
+- tapOn: "Delete outfit"
+- extendedWaitUntil:
+    notVisible: "${output.savedDeleteConfirmation}"
+    timeout: 15000
+- tapOn: "Close saved outfits"
+- copyTextFrom:
+    text: "^Saved outfits, [0-9]+$"
+- runScript:
+    file: ../scripts/capture-count.js
+    env:
+      KEY: savedCountAfter
+- tapOn: "Closet"
+- scrollUntilVisible:
+    element:
+      text: "^[0-9]+ pieces? ready to style$"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    text: "^[0-9]+ pieces? ready to style$"
+- runScript:
+    file: ../scripts/capture-count.js
+    env:
+      KEY: clothesCountAfter
+- runScript: ../scripts/check-outfit-deletion.js
+# เสื้อผ้าต้นฉบับยังค้นหาเจอใน Closet
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- inputText: ${output.savedTop}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "${output.wardrobeTopFavoriteSelector}"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "${output.wardrobeTopFavoriteSelector}"
+# เสื้อผ้าต้นฉบับยังค้นหาเจอใน Closet
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- inputText: ${output.savedBottom}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "${output.wardrobeBottomFavoriteSelector}"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "${output.wardrobeBottomFavoriteSelector}"
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard
+- tapOn: "Home"
+- assertVisible: "ONLINEWARDROBE"

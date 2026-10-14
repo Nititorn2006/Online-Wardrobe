@@ -169,6 +169,7 @@ export default function SavedOutfitsScreen() {
                     </View>
 
                     <Pressable
+                      testID={`saved-outfit-delete-${testKey}`}
                       accessibilityLabel={t('savedOutfits.deleteAccessibility', {
                         name: displayName,
                       })}

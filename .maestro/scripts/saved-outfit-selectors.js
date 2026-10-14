@@ -10,3 +10,7 @@ output.savedDateId = "saved-outfit-date-" + keyPrefix + names;
 output.savedMetaId = "saved-outfit-meta-" + keyPrefix + names;
 output.savedTopId = "saved-outfit-item-" + keyPrefix + names + "-" + top;
 output.savedBottomId = "saved-outfit-item-" + keyPrefix + names + "-" + bottom;
+output.savedDeleteId = "saved-outfit-delete-" + keyPrefix + names;
+output.savedDeleteConfirmation = 'Delete Smart casual work / school look?';
+output.wardrobeTopFavoriteSelector = '^(Add|Remove) ' + top + ' (to|from) favorites$';
+output.wardrobeBottomFavoriteSelector = '^(Add|Remove) ' + bottom + ' (to|from) favorites$';
