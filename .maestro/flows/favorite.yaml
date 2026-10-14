@@ -1,0 +1,125 @@
+appId: com.anonymous.onlinewardrobe
+---
+# เริ่มจาก Closet ภาษาอังกฤษที่มีเสื้อผ้าอย่างน้อยหนึ่งรายการ
+- tapOn: "Closet"
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard
+- tapOn: "All clothes"
+- scrollUntilVisible:
+    element: "Dress code"
+    direction: DOWN
+    timeout: 15000
+# ถ้า All ของประเภทหลุดออกไปทางซ้าย ให้ปัดแถวประเภทไปทางขวา
+- repeat:
+    times: 4
+    while:
+      notVisible:
+        text: "All"
+        above: "Dress code"
+    commands:
+      - swipe:
+          from:
+            text: "^(Tops|Bottoms|Dresses|Outerwear|Shoes|Accessories)$"
+            above: "Dress code"
+            index: 0
+          direction: RIGHT
+          duration: 500
+- tapOn:
+    text: "All"
+    above: "Dress code"
+# เลื่อนแถว dress code แยกจากประเภท และข้ามการปัดทันทีที่พบ All
+- repeat:
+    times: 4
+    while:
+      notVisible:
+        text: "All"
+        below: "Dress code"
+    commands:
+      - swipe:
+          from:
+            text: "^(Relaxed|Casual|Smart casual|Business|Formal|Black tie)$"
+            below: "Dress code"
+            index: 0
+          direction: RIGHT
+          duration: 500
+- tapOn:
+    text: "All"
+    below: "Dress code"
+
+# เก็บชื่อจากปุ่มหัวใจของการ์ดแรก ไม่ผูกกับชื่อเสื้อผ้าใด
+- scrollUntilVisible:
+    element:
+      text: "^(Add .+ to favorites|Remove .+ from favorites)$"
+      index: 0
+    direction: DOWN
+    timeout: 15000
+- copyTextFrom:
+    text: "^(Add .+ to favorites|Remove .+ from favorites)$"
+    index: 0
+
+- runScript: ../scripts/favorite-item.js
+
+# ถ้ารายการแรกเป็น Favorite อยู่แล้ว เอาออกก่อนเพื่อทดสอบการเพิ่ม
+- runFlow:
+    when:
+      visible: "${output.removeFavoriteSelector}"
+    commands:
+      - tapOn: "${output.removeFavoriteSelector}"
+- tapOn: "${output.addFavoriteSelector}"
+- assertVisible: "${output.removeFavoriteSelector}"
+
+# ไป Favorites และเลื่อนตรวจว่ารายการเดียวกันปรากฏ
+- scrollUntilVisible:
+    element: "Favorites"
+    direction: UP
+    timeout: 15000
+- tapOn: "Favorites"
+- scrollUntilVisible:
+    element: "${output.removeFavoriteSelector}"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "${output.removeFavoriteSelector}"
+
+# กลับ All แล้วเอา Favorite ของรายการนี้ออก
+- scrollUntilVisible:
+    element: "All clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "All clothes"
+- scrollUntilVisible:
+    element: "${output.removeFavoriteSelector}"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "${output.removeFavoriteSelector}"
+- assertVisible: "${output.addFavoriteSelector}"
+
+# ค้นหาใน Favorites เพื่อยืนยันว่าไม่เหลือรายการนี้ แม้มี Favorite อื่น
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Favorites"
+- tapOn: "Search your clothes"
+- inputText: ${output.favoriteItemName}
+- hideKeyboard
+- scrollUntilVisible:
+    element: "No matching pieces"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "No matching pieces"
+- assertNotVisible: "${output.removeFavoriteSelector}"
+
+# ล้างคำค้นและคืนหน้า All สำหรับการทดสอบถัดไป
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard
+- tapOn: "All clothes"
