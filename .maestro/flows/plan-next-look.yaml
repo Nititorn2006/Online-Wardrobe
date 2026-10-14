@@ -1,0 +1,93 @@
+appId: com.anonymous.onlinewardrobe
+---
+# แอปภาษาอังกฤษและมีชุดอื่นที่ Try another สร้างได้
+- tapOn: "Home"
+- scrollUntilVisible:
+    element: "Plan your next look"
+    direction: UP
+    timeout: 15000
+- tapOn: "Plan your next look"
+- assertVisible: "Outfit planner"
+- tapOn:
+    text: ".*Work / school"
+- assertVisible:
+    text: ".*Work / school"
+    selected: true
+- scrollUntilVisible:
+    element: "Smart casual"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Smart casual"
+- assertVisible:
+    text: "Smart casual"
+    selected: true
+- scrollUntilVisible:
+    element:
+      text: "^Tomorrow, .+$"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "^Tomorrow, .+$"
+- assertVisible:
+    text: "^Tomorrow, .+$"
+    selected: true
+- copyTextFrom:
+    text: "^Tomorrow, .+$"
+- runScript: ../scripts/capture-outfit-date.js
+- scrollUntilVisible:
+    element:
+      text: "^Build my outfit.*$"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "^Build my outfit.*$"
+    enabled: true
+- scrollUntilVisible:
+    element:
+      id: "planner-result-summary"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "Work / school · Smart casual"
+- copyTextFrom:
+    id: "planner-result-summary"
+- runScript:
+    file: ../scripts/planner-snapshot.js
+    env:
+      PHASE: before
+- scrollUntilVisible:
+    element:
+      text: ".*Try another"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: ".*Try another"
+    enabled: true
+- scrollUntilVisible:
+    element:
+      id: "planner-result-summary"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    id: "planner-result-summary"
+- runScript:
+    file: ../scripts/planner-snapshot.js
+    env:
+      PHASE: after
+- scrollUntilVisible:
+    element: "Save outfit"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "Save outfit"
+    enabled: true
+- extendedWaitUntil:
+    visible: "✓ Saved"
+    timeout: 15000
+- tapOn: "Mix this look"
+- extendedWaitUntil:
+    visible: "Try outfits"
+    timeout: 15000
+- assertVisible: "Top + bottom"
+- assertVisible: "Home"
+- tapOn: "Home"
+- runFlow: verify-saved-look.yaml

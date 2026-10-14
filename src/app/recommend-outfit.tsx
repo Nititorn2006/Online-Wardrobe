@@ -395,7 +395,11 @@ export default function RecommendOutfitScreen() {
                 </View>
 
                 {recommendation.isComplete && (
-                  <View style={styles.readyBadge}>
+                  <View
+                    testID="planner-result-summary"
+                    accessible
+                    accessibilityLabel={`${t('recommendOutfit.ready')}: ${recommendation.items.map((item) => item.name).join(' · ')}`}
+                    style={styles.readyBadge}>
                     <AppText style={styles.readyBadgeText}>
                       {t('recommendOutfit.ready')}
                     </AppText>
