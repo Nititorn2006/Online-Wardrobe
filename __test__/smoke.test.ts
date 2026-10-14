@@ -22,12 +22,12 @@ describe('Maestro smoke flow', () => {
     });
 
     test('switches to Thai across screens and restores English', () => {
-        expect(languageFlow).toContain('- tapOn: "ภาษาไทย"');
+        expect(languageFlow).toContain('- tapOn:\n    id: "language-th"');
         expect(languageFlow).toContain('- assertVisible: "หน้าหลัก"');
         expect(languageFlow).toContain(
             '- assertVisible: "ตู้เสื้อผ้าออนไลน์ของคุณ พร้อมสำหรับลุคถัดไปเสมอ"',
         );
-        expect(languageFlow).toContain('- tapOn: "English"');
+        expect(languageFlow).toContain('- tapOn:\n    id: "language-en"');
         expect(languageFlow).toContain('- assertVisible: "Home"');
     });
 });

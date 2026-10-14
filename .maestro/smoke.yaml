@@ -91,104 +91,13 @@ appId: com.anonymous.onlinewardrobe
 
 - runFlow: flows/change-language.yaml
 
-# ============================================================
-# ADD CLOTHES CAMERA TEST
-# ============================================================
+# รันเคสทั้งหมดต่อใน session เดิม (add-top เรียก delete-top ภายใน)
+- tapOn: "Home"
+- runFlow: flows/add-top.yaml
+- runFlow: flows/favorite.yaml
+- runFlow: flows/try-outfits.yaml
+- runFlow: flows/plan-next-look.yaml
 
-# Open Add Clothes
-- tapOn: "Add"
-
-- assertVisible: "Add a piece"
-- assertVisible: "Take photo"
-
-# ============================================================
-# TAKE PHOTO
-# ============================================================
-
-- tapOn:
-    text: "^(Take photo|Take clothing photo)$"
-
-# Allow camera permission if requested
-- tapOn:
-    text: "^(While using the app|Allow|Only this time)$"
-    optional: true
-
-# Capture photo
-- tapOn:
-    point: "50%,88%"
-
-# Confirm captured photo if requested
-- tapOn:
-    text: "^(OK|Use photo|Use Photo|Done)$"
-    optional: true
-
-# ============================================================
-# CROP PHOTO
-# ============================================================
-
-# Open crop editor if required
-- tapOn:
-    text: "^(Crop|CROP)$"
-    optional: true
-
-# Confirm cropped photo
-- tapOn:
-    text: "^(Done|DONE|Save|SAVE|✓)$"
-    optional: true
-
-# ============================================================
-# VERIFY PHOTO
-# ============================================================
-
-- extendedWaitUntil:
-    visible:
-      text: "^(Remove|Remove selected photo)$"
-    timeout: 15000
-
-# ============================================================
-# ENTER CLOTHING NAME
-# ============================================================
-
-- scrollUntilVisible:
-    element:
-      text: "Clothing name"
-    direction: DOWN
-    timeout: 10000
-
-- tapOn: "Clothing name"
-
-- inputText: "Test 01"
-
-- hideKeyboard
-
-# ============================================================
-# SAVE CLOTHING
-# ============================================================
-
-- assertVisible:
-    text: "^(Save to My Clothes|Save clothing item)$"
-    enabled: true
-
-- tapOn:
-    text: "^(Save to My Clothes|Save clothing item)$"
-
-# ============================================================
-# VERIFY SAVED CLOTHING
-# ============================================================
-
-- extendedWaitUntil:
-    visible: "ONLINEWARDROBE"
-    timeout: 15000
-
-- tapOn: "Closet"
-
-- scrollUntilVisible:
-    element:
-      text: "Test 01"
-    direction: DOWN
-    timeout: 10000
-
-- assertVisible: "Test 01"
 # ============================================================
 # DONE
 # ============================================================
