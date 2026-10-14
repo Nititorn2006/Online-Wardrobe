@@ -1,4 +1,4 @@
-appId: com.tapo.onlinewardrobe
+appId: com.anonymous.onlinewardrobe
 ---
 # This subflow intentionally continues from the open Home screen.
 # Do not launch or stop the app here: keeping one session makes the suite faster

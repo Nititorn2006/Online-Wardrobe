@@ -9,7 +9,7 @@
         "backgroundColor": "#4338B8"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.tapo.onlinewardrobe"
+      "package": "com.anonymous.onlinewardrobe"
     },
     "web": {
       "output": "static",

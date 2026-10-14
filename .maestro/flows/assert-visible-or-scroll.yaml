@@ -1,0 +1,12 @@
+appId: com.anonymous.onlinewardrobe
+---
+# เลื่อนลงเล็กน้อยหนึ่งครั้งเฉพาะเมื่อยังไม่พบข้อความ แล้วตรวจจริงเสมอ
+- runFlow:
+    when:
+      notVisible: "${TARGET_TEXT}"
+    commands:
+      - swipe:
+          start: "50%, 75%"
+          end: "50%, 55%"
+          duration: 500
+- assertVisible: "${TARGET_TEXT}"

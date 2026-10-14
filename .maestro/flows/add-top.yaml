@@ -1,0 +1,80 @@
+appId: com.anonymous.onlinewardrobe
+---
+# 1. กดปุ่ม Add
+- tapOn: "Add"
+
+# 2. กด Take photo
+- tapOn: "Take photo"
+
+# 3. [หน้ากล้อง] กดปุ่มชัตเตอร์ถ่ายรูป
+- tapOn:
+    point: "50%, 83%"
+
+# 4. [หน้ายืนยัน] กด OK
+- tapOn: "OK"
+
+# 5. [หน้า Crop] กด CROP มุมขวาบน
+- tapOn: "CROP"
+
+# 6. ถ้ายังไม่พบช่องชื่อ ให้เลื่อนลงเล็กน้อยก่อนตรวจ
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "e.g. Linen weekend shirt"
+
+# 7. ใส่ชื่อ "Test Top" และซ่อนคีย์บอร์ด
+- tapOn: "e.g. Linen weekend shirt"
+- inputText: "Test Top"
+- hideKeyboard
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Test Top"
+
+# 8. เลือก Category "Tops"
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Tops"
+- tapOn:
+    text: "Tops"
+    index: 0
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Tops"
+
+# 9. เลือก Dress code "Relaxed"
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Relaxed"
+- tapOn: "Relaxed"
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Relaxed"
+
+# 10. เลื่อนลงเฉพาะเมื่อยังไม่พบสี "Black"
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Black"
+- tapOn: "Black"
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Black"
+
+# 11. กดบันทึกเสื้อผ้า
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Save to My Clothes"
+- tapOn: "Save to My Clothes"
+
+# 12. ตรวจสอบว่าไอเทมแสดงในหน้า Closet
+- runFlow:
+    file: assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Test Top"

@@ -1,4 +1,4 @@
-appId: com.tapo.onlinewardrobe
+appId: com.anonymous.onlinewardrobe
 ---
 # ============================================================
 # START
@@ -51,8 +51,14 @@ appId: com.tapo.onlinewardrobe
 - assertVisible: "Show us the piece"
 - assertVisible: "Take photo"
 - assertVisible: "Photo library"
-- assertVisible: "Make it easy to find later"
-- assertVisible: "Save to My Clothes"
+- runFlow:
+    file: flows/assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Make it easy to find later"
+- runFlow:
+    file: flows/assert-visible-or-scroll.yaml
+    env:
+      TARGET_TEXT: "Save to My Clothes"
 
 - back
 
