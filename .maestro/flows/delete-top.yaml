@@ -47,6 +47,7 @@ appId: com.anonymous.onlinewardrobe
     timeout: 15000
 - assertVisible: "Close clothing details"
 - assertVisible: "Test Top"
+- runFlow: edit-top.yaml
 - scrollUntilVisible:
     element: "Delete clothing item"
     direction: DOWN

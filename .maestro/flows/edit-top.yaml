@@ -1,0 +1,100 @@
+appId: com.anonymous.onlinewardrobe
+---
+# เริ่มในหน้ารายละเอียด Test Top ก่อนลบ
+- scrollUntilVisible:
+    element: "Edit clothing details"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Edit clothing details"
+- scrollUntilVisible:
+    element: "Clothing name"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Clothing name"
+- eraseText
+- inputText: "Test Top Edited"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "Outerwear"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Outerwear"
+- assertVisible:
+    text: "Outerwear"
+    selected: true
+- scrollUntilVisible:
+    element: "Casual"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Casual"
+- assertVisible:
+    text: "Casual"
+    selected: true
+- scrollUntilVisible:
+    element: "White color"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "White color"
+- assertVisible:
+    text: "White color"
+    selected: true
+- scrollUntilVisible:
+    element: "Save clothing changes"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Save clothing changes"
+- extendedWaitUntil:
+    visible: "Edit clothing details"
+    timeout: 15000
+
+# เปิด editor อีกครั้ง ตรวจว่าค่าที่แก้ถูกบันทึก แล้วคืนชื่อสำหรับ delete-top
+- tapOn: "Edit clothing details"
+- scrollUntilVisible:
+    element: "Clothing name"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "Test Top Edited"
+- tapOn: "Clothing name"
+- eraseText
+- inputText: "Test Top"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Outerwear"
+      selected: true
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    text: "Outerwear"
+    selected: true
+- scrollUntilVisible:
+    element:
+      text: "Casual"
+      selected: true
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    text: "Casual"
+    selected: true
+- scrollUntilVisible:
+    element:
+      text: "White color"
+      selected: true
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    text: "White color"
+    selected: true
+- scrollUntilVisible:
+    element: "Save clothing changes"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Save clothing changes"
+- extendedWaitUntil:
+    visible: "Edit clothing details"
+    timeout: 15000
+- scrollUntilVisible:
+    element: "Test Top"
+    direction: UP
+    timeout: 15000
+- assertVisible: "Test Top"
