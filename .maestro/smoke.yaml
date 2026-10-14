@@ -4,8 +4,7 @@ appId: com.anonymous.onlinewardrobe
 # START
 # ============================================================
 
-- launchApp:
-    clearState: true
+- launchApp
 
 # ============================================================
 # HOME

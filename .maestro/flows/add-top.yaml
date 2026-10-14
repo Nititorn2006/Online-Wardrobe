@@ -78,3 +78,6 @@ appId: com.anonymous.onlinewardrobe
     file: assert-visible-or-scroll.yaml
     env:
       TARGET_TEXT: "Test Top"
+
+# ลบ Test Top และตรวจจำนวนรายการก่อนและหลังลบ
+- runFlow: delete-top.yaml

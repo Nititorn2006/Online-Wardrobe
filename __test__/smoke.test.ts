@@ -15,7 +15,7 @@ const languageFlow = readFileSync(
 
 describe('Maestro smoke flow', () => {
     test('runs the language test in the original app session', () => {
-        expect(smokeFlow.match(/^- launchApp:/gm)).toHaveLength(1);
+        expect(smokeFlow.match(/^- launchApp\b/gm)).toHaveLength(1);
         expect(smokeFlow).not.toMatch(/^- stopApp\b/gm);
         expect(smokeFlow).toContain('- runFlow: flows/change-language.yaml');
         expect(languageFlow).not.toMatch(/^- (?:launchApp|stopApp)\b/gm);

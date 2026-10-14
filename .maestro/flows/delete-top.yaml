@@ -1,0 +1,97 @@
+appId: com.anonymous.onlinewardrobe
+---
+# เก็บจำนวนทั้งหมดก่อนค้นหา ไม่ผูกกับข้อมูลตัวอย่าง 6 รายการ
+- tapOn: "Closet"
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard
+- runFlow:
+    when:
+      visible: "Clear filters"
+    commands:
+      - tapOn: "Clear filters"
+- scrollUntilVisible:
+    element:
+      text: "^[0-9]+ pieces? ready to style$"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    text: "^[0-9]+ pieces? ready to style$"
+- evalScript: ${output.itemCountBeforeDelete = parseInt(maestro.copiedText, 10)}
+- assertTrue: ${output.itemCountBeforeDelete > 0}
+
+# ค้นหา Test Top และตรวจผลก่อนเปิดรายละเอียด
+- tapOn: "Search your clothes"
+- inputText: "Test Top"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "1 item"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "1 item"
+- scrollUntilVisible:
+    element:
+      text: "Test Top"
+      below: "Search your clothes"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: "Test Top"
+    below: "Search your clothes"
+- extendedWaitUntil:
+    visible: "Clothing details"
+    timeout: 15000
+- assertVisible: "Close clothing details"
+- assertVisible: "Test Top"
+- scrollUntilVisible:
+    element: "Delete clothing item"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Delete clothing item"
+- assertVisible: "Remove Test Top?"
+- tapOn: "Remove"
+- extendedWaitUntil:
+    notVisible: "Remove Test Top?"
+    timeout: 15000
+
+# ล้างคำค้นแล้วตรวจว่าจำนวนทั้งหมดลดลงหนึ่งรายการ
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "^[0-9]+ pieces? ready to style$"
+    direction: UP
+    timeout: 15000
+- copyTextFrom:
+    text: "^[0-9]+ pieces? ready to style$"
+- evalScript: ${output.itemCountAfterDelete = parseInt(maestro.copiedText, 10)}
+- assertTrue: ${output.itemCountAfterDelete === output.itemCountBeforeDelete - 1}
+
+# ค้นหาซ้ำ ต้องไม่พบ Test Top ในรายการ (ช่องค้นหายังมีชื่อนี้อยู่)
+- tapOn: "Search your clothes"
+- inputText: "Test Top"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "No matching pieces"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "No matching pieces"
+- assertNotVisible: "Photo of Test Top"
+
+# คืนหน้า Closet โดยไม่มีคำค้นสำหรับ flow ถัดไป
+- scrollUntilVisible:
+    element: "Search your clothes"
+    direction: UP
+    timeout: 15000
+- tapOn: "Search your clothes"
+- eraseText
+- hideKeyboard

@@ -1,0 +1,8 @@
+appId: com.anonymous.onlinewardrobe
+---
+# ตรวจในรายการ Closet โดยเลื่อนลง ไม่ค้นหาหรือเปิดรายละเอียด
+- scrollUntilVisible:
+    element: "${ITEM_NAME}"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "${ITEM_NAME}"

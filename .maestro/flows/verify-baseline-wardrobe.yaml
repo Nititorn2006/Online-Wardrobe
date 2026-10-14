@@ -1,0 +1,32 @@
+appId: com.anonymous.onlinewardrobe
+---
+# ตรวจจำนวนและเลื่อนลงตรวจชื่อของเดิมทั้ง 6 รายการตามภาพ
+- scrollUntilVisible:
+    element: "6 items"
+    direction: UP
+    timeout: 15000
+- assertVisible: "6 items"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Sneakers"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Hoodies"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Hat"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Pants"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Black dress"
+- runFlow:
+    file: verify-existing-item.yaml
+    env:
+      ITEM_NAME: "Blue shirt"
