@@ -1,4 +1,4 @@
-appId: com.anonymous.onlinewardrobe
+appId: com.tapo.onlinewardrobe
 ---
 # เก็บจำนวนทั้งหมดก่อนค้นหา ไม่ผูกกับข้อมูลตัวอย่าง 6 รายการ
 - tapOn: "Closet"

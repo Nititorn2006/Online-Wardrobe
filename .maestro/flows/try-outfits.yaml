@@ -1,4 +1,4 @@
-appId: com.anonymous.onlinewardrobe
+appId: com.tapo.onlinewardrobe
 ---
 # ต้องมี Top, Bottom, Dress และอย่างน้อยหนึ่งช่องที่ Shuffle เปลี่ยนได้
 - tapOn: "Try"

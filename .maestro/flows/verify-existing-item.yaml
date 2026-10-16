@@ -1,4 +1,4 @@
-appId: com.anonymous.onlinewardrobe
+appId: com.tapo.onlinewardrobe
 ---
 # ตรวจในรายการ Closet โดยเลื่อนลง ไม่ค้นหาหรือเปิดรายละเอียด
 - scrollUntilVisible:

@@ -1,4 +1,4 @@
-appId: com.anonymous.onlinewardrobe
+appId: com.tapo.onlinewardrobe
 ---
 # ตรวจจำนวนและเลื่อนลงตรวจชื่อของเดิมทั้ง 6 รายการตามภาพ
 - scrollUntilVisible:

@@ -1,4 +1,4 @@
-appId: com.anonymous.onlinewardrobe
+appId: com.tapo.onlinewardrobe
 ---
 - scrollUntilVisible:
     element:
